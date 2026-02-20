@@ -1,0 +1,13 @@
+// .devcontainer/devcontainer.json
+{
+  "name": "Inventory Management App (Final Project)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [
+    3000, 
+    5000, 
+    5432  
+  ],
+  "remoteUser": "node",
+}
