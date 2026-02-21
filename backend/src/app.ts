@@ -4,6 +4,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
+import pg from 'pg';
+import connectPgSimple from 'connect-pg-simple';
+
+const pgPool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+});
+
+const PostgresqlStore = connectPgSimple(session);
 
 const app = express();
 
@@ -23,6 +31,11 @@ app.use(cookieParser());
 
 app.use(
     session({
+        store: new PostgresqlStore({
+            pool: pgPool,
+            tableName: 'Session',
+            createTableIfMissing: false,
+        }),
         secret: process.env.SESSION_SECRET || 'dev_secret_key',
         resave: false,
         saveUninitialized: false,
