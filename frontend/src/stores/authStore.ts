@@ -1,12 +1,5 @@
 import { create } from 'zustand';
-
-interface User {
-    id: string;
-    name: string;
-    email: string | null;
-    avatarUrl: string | null;
-    role: 'USER' | 'ADMIN';
-}
+import type { User } from '@inventory/shared';
 
 interface AuthState {
     user: User | null;
