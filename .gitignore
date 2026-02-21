@@ -41,4 +41,4 @@ coverage/
 Thumbs.db
 
 # Prisma
-/src/generated/prisma
+backend/src/generated/prisma
