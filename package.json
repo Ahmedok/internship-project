@@ -5,7 +5,7 @@
     "description": "Internship project for inventory management system",
     "main": "index.js",
     "scripts": {
-        "dev": "pnpm --recursive run dev",
+        "dev": "pnpm --parallel --recursive run dev",
         "build": "pnpm --recursive run build",
         "lint": "pnpm --recursive run lint",
         "db:migrate": "pnpm --filter backend run db:migrate",
