@@ -5,10 +5,38 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model User {
+    id       String   @id @default(uuid())
+    email    String?   @unique
+    name     String
+    avatarUrl String?
+    provider String
+    providerId String
+    role     Role     @default(USER)
+    blocked Boolean @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([provider, providerId])
+}
+
+model Session {
+    sid String @id @db.VarChar(255)
+    sess Json @db.Json
+    expire DateTime @db.Timestamp(6)
+
+    @@index([expire], map: "IDX_session_expire")
 }
