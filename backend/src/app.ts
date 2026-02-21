@@ -6,6 +6,8 @@ import session from 'express-session';
 import passport from 'passport';
 import pg from 'pg';
 import connectPgSimple from 'connect-pg-simple';
+import './middleware/passport';
+import authRoutes from './routes/auth';
 
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -49,6 +51,8 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/api/auth', authRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
