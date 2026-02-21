@@ -1,5 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -55,6 +56,45 @@ passport.use(
                     });
                 }
 
+                return done(null, user);
+            } catch (error) {
+                return done(error as Error, undefined);
+            }
+        },
+    ),
+);
+
+passport.use(
+    new FacebookStrategy(
+        {
+            clientID: process.env.FACEBOOK_APP_ID || 'mock_fb_app_id',
+            clientSecret:
+                process.env.FACEBOOK_APP_SECRET || 'mock_fb_app_secret',
+            callbackURL: '/api/auth/facebook/callback',
+            profileFields: ['id', 'displayName', 'photos', 'email'],
+        },
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                let user = await prisma.user.findUnique({
+                    where: {
+                        provider_providerId: {
+                            provider: 'facebook',
+                            providerId: profile.id,
+                        },
+                    },
+                });
+
+                if (!user) {
+                    user = await prisma.user.create({
+                        data: {
+                            provider: 'facebook',
+                            providerId: profile.id,
+                            name: profile.displayName,
+                            email: profile.emails?.[0]?.value,
+                            avatarUrl: profile.photos?.[0]?.value,
+                        },
+                    });
+                }
                 return done(null, user);
             } catch (error) {
                 return done(error as Error, undefined);

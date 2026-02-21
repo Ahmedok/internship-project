@@ -18,6 +18,21 @@ router.get(
     },
 );
 
+router.get(
+    '/facebook',
+    passport.authenticate('facebook', { scope: ['email'] }),
+);
+
+router.get(
+    '/facebook/callback',
+    passport.authenticate('facebook', {
+        failureRedirect: 'http://localhost:3000/login',
+    }),
+    (req, res) => {
+        res.redirect('http://localhost:3000/');
+    },
+);
+
 router.get('/me', (req, res) => {
     if (req.isAuthenticated()) {
         res.status(200).json(req.user);
