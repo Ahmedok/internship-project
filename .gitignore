@@ -39,3 +39,6 @@ coverage/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Prisma
+/src/generated/prisma
