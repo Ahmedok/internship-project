@@ -13,6 +13,7 @@
     "dependencies": {
         "@inventory/shared": "workspace:*",
         "@tanstack/react-query": "^5.90.21",
+        "@tanstack/react-table": "^8.21.3",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "i18next": "^25.8.13",
