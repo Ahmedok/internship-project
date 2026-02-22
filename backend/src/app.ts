@@ -13,6 +13,7 @@ import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import inventoryRoutes from './routes/inventories';
 import tagsRoutes from './routes/tags';
+import uploadRoutes from './routes/upload';
 
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -68,5 +69,7 @@ app.use('/api/admin', requireAuth, requireAdmin, adminRoutes);
 app.use('/api/inventories', inventoryRoutes);
 
 app.use('/api/tags', tagsRoutes);
+
+app.use('/api/upload', uploadRoutes);
 
 export default app;

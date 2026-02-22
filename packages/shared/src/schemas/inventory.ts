@@ -7,6 +7,7 @@ export const InventorySchema = z.object({
         .max(100, 'Title must be at most 100 characters long'),
     description: z.string().optional(),
     category: z.enum(['COLLECTIONS', 'ELECTRONICS', 'BOOKS', 'TOOLS', 'OTHER']),
+    imageUrl: z.url().nullable().optional(),
     isPublic: z.boolean().default(true),
     tags: z
         .array(z.string())
