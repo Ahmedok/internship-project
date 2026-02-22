@@ -12,6 +12,7 @@ import { requireAuth, requireAdmin } from './middleware/auth';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import inventoryRoutes from './routes/inventories';
+import tagsRoutes from './routes/tags';
 
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -65,5 +66,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/admin', requireAuth, requireAdmin, adminRoutes);
 
 app.use('/api/inventories', inventoryRoutes);
+
+app.use('/api/tags', tagsRoutes);
 
 export default app;
