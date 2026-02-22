@@ -7,6 +7,7 @@ import {
     getCoreRowModel,
     useReactTable,
 } from '@tanstack/react-table';
+import { useDebounce } from '@/hooks/useDebounce';
 
 import {
     Table,
@@ -77,13 +78,16 @@ const columns: ColumnDef<User>[] = [
 export default function AdminPage() {
     const [rowSelection, setRowSelection] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearch = useDebounce(searchQuery, 300);
 
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery({
-        queryKey: ['users', searchQuery],
+        queryKey: ['users', debouncedSearch],
         queryFn: async () => {
-            const res = await fetch(`/api/admin/users?search=${searchQuery}`);
+            const res = await fetch(
+                `/api/admin/users?search=${debouncedSearch}`,
+            );
             if (!res.ok) {
                 throw new Error('Network response was not ok');
             }
