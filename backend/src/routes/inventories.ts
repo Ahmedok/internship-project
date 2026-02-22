@@ -102,10 +102,17 @@ router.patch(
             if (!parsed.success)
                 return res.status(400).json({ errors: parsed.error });
 
-            const { version, title, description, category, isPublic } =
-                parsed.data;
+            const {
+                version,
+                title,
+                description,
+                category,
+                isPublic,
+                imageUrl,
+                tags,
+            } = parsed.data;
 
-            if (!version)
+            if (version === undefined)
                 return res
                     .status(400)
                     .json({ message: 'Version for refresh not specified' });
@@ -127,17 +134,38 @@ router.patch(
             if (!canEdit)
                 return res.status(403).json({ message: 'No edit access' });
 
+            const updateData: any = {
+                version: { increment: 1 },
+            };
+
+            if (title !== undefined) updateData.title = title;
+            if (description !== undefined) updateData.description = description;
+            if (category !== undefined) updateData.category = category;
+            if (isPublic !== undefined) updateData.isPublic = isPublic;
+            if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+
+            if (tags !== undefined) {
+                updateData.tags = {
+                    deleteMany: {},
+                    create: tags.map((tagName) => ({
+                        tag: {
+                            connectOrCreate: {
+                                where: { name: tagName.toLowerCase() },
+                                create: { name: tagName.toLowerCase() },
+                            },
+                        },
+                    })),
+                };
+            }
+
             const updated = await prisma.inventory.update({
                 where: {
                     id: req.params.id,
                     version: version,
                 },
-                data: {
-                    title,
-                    description,
-                    category,
-                    isPublic,
-                    version: { increment: 1 },
+                data: updateData,
+                include: {
+                    tags: { include: { tag: true } },
                 },
             });
 
@@ -251,11 +279,9 @@ router.delete(
             const isAdmin = user.role === 'ADMIN';
 
             if (!isCreator && !isAdmin) {
-                return res
-                    .status(403)
-                    .json({
-                        message: 'No permission to delete this inventory',
-                    });
+                return res.status(403).json({
+                    message: 'No permission to delete this inventory',
+                });
             }
 
             await prisma.inventory.delete({
