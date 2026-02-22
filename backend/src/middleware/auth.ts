@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '@inventory/shared';
 
 export const requireAuth = (
     req: Request,
@@ -17,7 +16,7 @@ export const requireAdmin = (
     res: Response,
     next: NextFunction,
 ): void => {
-    const user = req.user as User | undefined;
+    const user = req.user;
 
     if (user && user.role === 'ADMIN') {
         return next();
