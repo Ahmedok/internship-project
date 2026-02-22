@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { type User } from '@inventory/shared';
 import {
     type ColumnDef,
@@ -78,6 +78,8 @@ export default function AdminPage() {
     const [rowSelection, setRowSelection] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
 
+    const queryClient = useQueryClient();
+
     const { data, isLoading } = useQuery({
         queryKey: ['users', searchQuery],
         queryFn: async () => {
@@ -87,6 +89,55 @@ export default function AdminPage() {
             }
             const json = await res.json();
             return json.data as User[];
+        },
+    });
+
+    const blockMutation = useMutation({
+        mutationFn: async ({
+            id,
+            blocked,
+        }: {
+            id: string;
+            blocked: boolean;
+        }) => {
+            const res = await fetch(`/api/admin/users/${id}/block`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ blocked }),
+            });
+            if (!res.ok) {
+                throw new Error('Error while blocking user');
+            }
+        },
+    });
+
+    const roleMutation = useMutation({
+        mutationFn: async ({
+            id,
+            role,
+        }: {
+            id: string;
+            role: 'USER' | 'ADMIN';
+        }) => {
+            const res = await fetch(`/api/admin/users/${id}/role`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role }),
+            });
+            if (!res.ok) {
+                throw new Error('Error while changing user role');
+            }
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const res = await fetch(`/api/admin/users/${id}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) {
+                throw new Error('Error while deleting user');
+            }
         },
     });
 
@@ -100,8 +151,48 @@ export default function AdminPage() {
         },
     });
 
-    const selectedRows = table.getSelectedRowModel().rows;
-    const isAnySelected = selectedRows.length > 0;
+    const selectedUsers = table
+        .getFilteredSelectedRowModel()
+        .rows.map((row) => row.original);
+    const isAnyUserSelected = selectedUsers.length > 0;
+
+    const handleBulkAction = async (
+        actionType: 'block' | 'unblock' | 'promote' | 'demote' | 'delete',
+    ) => {
+        try {
+            const promises = selectedUsers.map((user) => {
+                if (actionType === 'block')
+                    return blockMutation.mutateAsync({
+                        id: user.id,
+                        blocked: true,
+                    });
+                if (actionType === 'unblock')
+                    return blockMutation.mutateAsync({
+                        id: user.id,
+                        blocked: false,
+                    });
+                if (actionType === 'promote')
+                    return roleMutation.mutateAsync({
+                        id: user.id,
+                        role: 'ADMIN',
+                    });
+                if (actionType === 'demote')
+                    return roleMutation.mutateAsync({
+                        id: user.id,
+                        role: 'USER',
+                    });
+                if (actionType === 'delete')
+                    return deleteMutation.mutateAsync(user.id);
+            });
+
+            await Promise.all(promises);
+            await queryClient.invalidateQueries({ queryKey: ['users'] });
+            setRowSelection({});
+        } catch (error) {
+            console.error('Error performing bulk action:', error);
+            // TODO: Show error toast to user
+        }
+    };
 
     return (
         <div className="p-8 space-y-4">
@@ -120,13 +211,39 @@ export default function AdminPage() {
                 />
 
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" disabled={!isAnySelected}>
+                    <Button
+                        variant="outline"
+                        disabled={!isAnyUserSelected}
+                        onClick={() => handleBulkAction('block')}
+                    >
                         Block
                     </Button>
-                    <Button variant="outline" disabled={!isAnySelected}>
-                        Change Role
+                    <Button
+                        variant="outline"
+                        disabled={!isAnyUserSelected}
+                        onClick={() => handleBulkAction('unblock')}
+                    >
+                        Unblock
                     </Button>
-                    <Button variant="outline" disabled={!isAnySelected}>
+                    <Button
+                        variant="outline"
+                        disabled={!isAnyUserSelected}
+                        onClick={() => handleBulkAction('promote')}
+                    >
+                        Promote Admin
+                    </Button>
+                    <Button
+                        variant="outline"
+                        disabled={!isAnyUserSelected}
+                        onClick={() => handleBulkAction('demote')}
+                    >
+                        Demote Admin
+                    </Button>
+                    <Button
+                        variant="outline"
+                        disabled={!isAnyUserSelected}
+                        onClick={() => handleBulkAction('delete')}
+                    >
                         Delete
                     </Button>
                 </div>
