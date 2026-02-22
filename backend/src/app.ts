@@ -8,7 +8,9 @@ import passport from 'passport';
 import pg from 'pg';
 import connectPgSimple from 'connect-pg-simple';
 import './middleware/passport';
+import { requireAuth, requireAdmin } from './middleware/auth';
 import authRoutes from './routes/auth';
+import adminRoutes from './routes/admin';
 
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -58,5 +60,7 @@ app.use('/api/auth', authRoutes);
 app.get('/api/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use('/api/admin', requireAuth, requireAdmin, adminRoutes);
 
 export default app;
