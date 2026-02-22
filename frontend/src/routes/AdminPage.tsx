@@ -8,6 +8,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useAuthStore } from '@/stores/authStore';
 
 import {
     Table,
@@ -160,6 +161,8 @@ export default function AdminPage() {
         .rows.map((row) => row.original);
     const isAnyUserSelected = selectedUsers.length > 0;
 
+    const { user, checkAuth } = useAuthStore();
+
     const handleBulkAction = async (
         actionType: 'block' | 'unblock' | 'promote' | 'demote' | 'delete',
     ) => {
@@ -192,6 +195,11 @@ export default function AdminPage() {
             await Promise.all(promises);
             await queryClient.invalidateQueries({ queryKey: ['users'] });
             setRowSelection({});
+
+            const isSelfAffected = selectedUsers.some((u) => u.id === user?.id);
+            if (isSelfAffected) {
+                await checkAuth();
+            }
         } catch (error) {
             console.error('Error performing bulk action:', error);
             // TODO: Show error toast to user
