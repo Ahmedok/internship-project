@@ -157,4 +157,119 @@ router.patch(
     },
 );
 
+router.get('/', async (req: Request, res: Response) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const search = (req.query.search as string) || '';
+        const category = (req.query.category as string) || undefined;
+        const skip = (page - 1) * limit;
+
+        const userId = req.user?.id;
+        const isAdmin = req.user?.role === 'ADMIN';
+
+        const filterConditions: any[] = [];
+
+        if (search) {
+            filterConditions.push({
+                OR: [
+                    { title: { contains: search, mode: 'insensitive' } },
+                    { description: { contains: search, mode: 'insensitive' } },
+                ],
+            });
+        }
+
+        if (category) {
+            filterConditions.push({ category });
+        }
+
+        let visibilityCondition: any = { isPublic: true };
+
+        if (isAdmin) {
+            visibilityCondition = {};
+        } else if (userId) {
+            visibilityCondition = {
+                OR: [
+                    { isPublic: true },
+                    { createdById: userId },
+                    { accessList: { some: { userId: userId } } },
+                ],
+            };
+        }
+
+        const whereClause = {
+            AND: [...filterConditions, visibilityCondition].filter(
+                (condition) => Object.keys(condition).length > 0,
+            ),
+        };
+
+        const [inventories, total] = await Promise.all([
+            prisma.inventory.findMany({
+                where: whereClause,
+                skip,
+                take: limit,
+                orderBy: { updatedAt: 'desc' },
+                include: {
+                    createdBy: {
+                        select: { id: true, name: true, avatarUrl: true },
+                    },
+                    tags: { include: { tag: true } },
+                },
+            }),
+            prisma.inventory.count({ where: whereClause }),
+        ]);
+
+        res.status(200).json({
+            data: inventories,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+        });
+    } catch (error) {
+        console.error('Error fetching inventories:', error);
+        res.status(500).json({
+            message: 'Server error while fetching inventory list',
+        });
+    }
+});
+
+router.delete(
+    '/:id',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+            const user = req.user!;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+            });
+
+            if (!inventory) {
+                return res.status(404).json({ message: 'Inventory not found' });
+            }
+
+            const isCreator = inventory.createdById === user.id;
+            const isAdmin = user.role === 'ADMIN';
+
+            if (!isCreator && !isAdmin) {
+                return res
+                    .status(403)
+                    .json({
+                        message: 'No permission to delete this inventory',
+                    });
+            }
+
+            await prisma.inventory.delete({
+                where: { id: inventoryId },
+            });
+
+            res.status(200).json({ message: 'Inventory deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting inventory:', error);
+            res.status(500).json({
+                message: 'Server error while deleting inventory',
+            });
+        }
+    },
+);
+
 export default router;
