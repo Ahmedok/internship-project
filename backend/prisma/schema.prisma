@@ -18,6 +18,14 @@ enum Role {
     ADMIN
 }
 
+enum Category {
+    COLLECTIONS
+    ELECTRONICS
+    BOOKS
+    TOOLS
+    OTHER
+}
+
 model User {
     id       String   @id @default(uuid())
     email    String?   @unique
@@ -30,6 +38,9 @@ model User {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    inventories Inventory[] @relation("CreatedInventories")
+    accessibleInventories InventoryAccess[]
+
     @@unique([provider, providerId])
 }
 
@@ -39,4 +50,51 @@ model Session {
     expire DateTime @db.Timestamp(6)
 
     @@index([expire], map: "IDX_session_expire")
+}
+
+model Inventory {
+    id String @id @default(uuid())
+    title String
+    description String? @db.Text
+    category Category
+    imageUrl String?
+    isPublic Boolean @default(true)
+    version Int @default(1)
+
+    createdById String
+    createdBy User @relation("CreatedInventories", fields: [createdById], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    tags InventoryTag[]
+    accessList InventoryAccess[]
+}
+
+model Tag {
+    id String @id @default(uuid())
+    name String @unique
+
+    inventories InventoryTag[]
+}
+
+model InventoryTag {
+    id String @id @default(uuid())
+    inventoryId String
+    tagId String
+
+    inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+    tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    @@unique([inventoryId, tagId])
+}
+
+model InventoryAccess {
+    inventoryId String
+    userId String
+
+    inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([inventoryId, userId])
 }
