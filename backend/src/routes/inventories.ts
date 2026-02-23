@@ -298,4 +298,93 @@ router.delete(
     },
 );
 
+router.post(
+    '/:id/access',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const { userId } = req.body;
+            const inventoryId = req.params.id;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+            });
+            if (!inventory) {
+                return res.status(404).json({ message: 'Inventory not found' });
+            }
+
+            if (
+                inventory.createdById !== req.user!.id &&
+                req.user!.role !== 'ADMIN'
+            ) {
+                return res
+                    .status(403)
+                    .json({ message: 'No permission for access management' });
+            }
+
+            const accessRecord = await prisma.inventoryAccess.create({
+                data: {
+                    inventoryId,
+                    userId,
+                },
+                include: {
+                    user: { select: { id: true, name: true, email: true } },
+                },
+            });
+
+            res.status(201).json(accessRecord);
+        } catch (error: any) {
+            if (error.code === 'P2002') {
+                return res
+                    .status(400)
+                    .json({ message: 'User already has access' });
+            }
+            res.status(500).json({
+                message: 'Server error while granting access',
+            });
+        }
+    },
+);
+
+router.delete(
+    '/:id/access/:userId',
+    requireAuth,
+    async (req: Request<{ id: string; userId: string }>, res: Response) => {
+        try {
+            const { id: inventoryId, userId } = req.params;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+            });
+            if (!inventory) {
+                return res.status(404).json({ message: 'Inventory not found' });
+            }
+
+            if (
+                inventory.createdById !== req.user!.id &&
+                req.user!.role !== 'ADMIN'
+            ) {
+                return res
+                    .status(403)
+                    .json({ message: 'No permission for access management' });
+            }
+
+            await prisma.inventoryAccess.delete({
+                where: {
+                    inventoryId_userId: {
+                        inventoryId,
+                        userId,
+                    },
+                },
+            });
+
+            res.status(200).json({ message: 'Access revoked successfully' });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while revoking access',
+            });
+        }
+    },
+);
+
 export default router;
