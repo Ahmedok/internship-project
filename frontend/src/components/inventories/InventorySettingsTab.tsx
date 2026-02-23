@@ -174,10 +174,13 @@ export function InventorySettingsTab({ initialData }: { initialData: any }) {
                 </div>
                 {/* Title */}
                 <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label
+                        htmlFor="title"
+                        className="block text-sm font-medium mb-1"
+                    >
                         Title
                     </label>
-                    <Input {...register('title')} />
+                    <Input id="title" {...register('title')} />
                     {errors.title && (
                         <p className="text-sm text-red-500 mt-1">
                             {errors.title.message}
@@ -186,10 +189,14 @@ export function InventorySettingsTab({ initialData }: { initialData: any }) {
                 </div>
                 {/* Category */}
                 <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label
+                        htmlFor="category"
+                        className="block text-sm font-medium mb-1"
+                    >
                         Category
                     </label>
                     <select
+                        id="category"
                         {...register('category')}
                         className="flex h-10 w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
                     >
@@ -202,10 +209,14 @@ export function InventorySettingsTab({ initialData }: { initialData: any }) {
                 </div>
                 {/* Description */}
                 <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label
+                        htmlFor="description"
+                        className="block text-sm font-medium mb-1"
+                    >
                         Description (Markdown)
                     </label>
                     <textarea
+                        id="description"
                         {...register('description')}
                         rows={6}
                         className="flex w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
