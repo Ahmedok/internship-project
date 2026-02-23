@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// import { InventorySettingsTab }
+import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
 
 export default function InventoryManagePage() {
     const { id } = useParams();
@@ -118,7 +118,7 @@ export default function InventoryManagePage() {
                 {hasFullAccess && (
                     <>
                         <TabsContent value="settings" className="mt-4">
-                            {/* <InventorySettingsTab initialData={inventory} /> */}
+                            <InventorySettingsTab initialData={inventory} />
                         </TabsContent>
 
                         <TabsContent value="access" className="mt-4">
