@@ -9,6 +9,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './routes/LoginPage';
 import Dashboard from './routes/Dashboard';
 import AdminPage from './routes/AdminPage';
+import PersonalPage from './routes/PersonalPage';
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
                     {
                         path: '/admin',
                         element: <AdminPage />,
+                    },
+                    {
+                        path: '/personal',
+                        element: <PersonalPage />,
                     },
                     // TODO: Add other routes here
                 ],
