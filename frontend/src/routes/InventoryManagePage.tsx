@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
+import { InventoryAccessTab } from '@/components/inventories/InventoryAccessTab';
 
 export default function InventoryManagePage() {
     const { id } = useParams();
@@ -122,7 +123,7 @@ export default function InventoryManagePage() {
                         </TabsContent>
 
                         <TabsContent value="access" className="mt-4">
-                            <div>TODO: Access management</div>
+                            <InventoryAccessTab inventory={inventory} />
                         </TabsContent>
 
                         <TabsContent value="fields" className="mt-4">
