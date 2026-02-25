@@ -99,7 +99,7 @@ export function InventorySettingsTab({
             const latestData = getValues();
             console.log('TIMER TRIGGERED. SENDING:', latestData);
             autoSaveMutation.mutate(latestData);
-        }, 2000);
+        }, 7000);
 
         return () => clearTimeout(timer);
     }, [formValues, isDirty, isValid, conflictError, errors]);

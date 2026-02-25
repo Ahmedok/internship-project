@@ -1,11 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+    render,
+    screen,
+    waitFor,
+    fireEvent,
+    act,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
-
-vi.mock('@/hooks/useDebounce', () => ({
-    useDebounce: (value: any) => value,
-}));
 
 const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
@@ -40,6 +42,11 @@ const initialMockData = {
 describe('InventorySettingsTab (optimistic blocking)', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
     });
 
     it('should intercept error 409 and show conflict message', async () => {
@@ -56,6 +63,16 @@ describe('InventorySettingsTab (optimistic blocking)', () => {
 
         const titleInput = await screen.findByLabelText(/title/i);
         fireEvent.change(titleInput, { target: { value: 'New Title' } });
+
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Waiting for changes\.\.\./i),
+            ).toBeInTheDocument();
+        });
+
+        await act(async () => {
+            vi.advanceTimersByTime(7500);
+        });
 
         await waitFor(() => {
             expect(mockFetch).toHaveBeenCalledWith(
