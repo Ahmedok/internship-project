@@ -4,8 +4,13 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { Switch } from '../ui/switch';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import type { InventoryDetail } from '@inventory/shared';
 
-export function InventoryAccessTab({ inventory }: { inventory: any }) {
+export function InventoryAccessTab({
+    inventory,
+}: {
+    inventory: InventoryDetail;
+}) {
     const queryClient = useQueryClient();
 
     const [searchQuery, setSearchQuery] = useState('');

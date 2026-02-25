@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
 import { InventoryAccessTab } from '@/components/inventories/InventoryAccessTab';
+import { type InventoryDetail } from '@inventory/shared';
 
 export default function InventoryManagePage() {
     const { id } = useParams();
@@ -14,7 +15,7 @@ export default function InventoryManagePage() {
         data: inventory,
         isLoading,
         error,
-    } = useQuery({
+    } = useQuery<InventoryDetail>({
         queryKey: ['inventory', id],
         queryFn: async () => {
             const res = await fetch(`/api/inventories/${id}`);

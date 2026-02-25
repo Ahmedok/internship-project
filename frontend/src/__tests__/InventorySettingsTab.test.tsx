@@ -26,9 +26,14 @@ const initialMockData = {
     id: 'test-inventory-1',
     title: 'Old Title',
     description: '',
-    category: 'OTHER',
+    imageUrl: null,
+    createdById: 'user-1',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    category: 'OTHER' as const,
     isPublic: true,
     tags: [],
+    accessList: [],
     version: 1,
 };
 

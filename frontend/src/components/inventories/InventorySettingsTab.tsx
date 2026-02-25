@@ -2,12 +2,20 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { InventorySchema, type InventoryInput } from '@inventory/shared';
+import {
+    InventorySchema,
+    type InventoryDetail,
+    type InventoryInput,
+} from '@inventory/shared';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 
-export function InventorySettingsTab({ initialData }: { initialData: any }) {
+export function InventorySettingsTab({
+    initialData,
+}: {
+    initialData: InventoryDetail;
+}) {
     const queryClient = useQueryClient();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
