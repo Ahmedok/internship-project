@@ -5,96 +5,123 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client"
-    output   = "../src/generated/prisma"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
 }
 
 enum Category {
-    COLLECTIONS
-    ELECTRONICS
-    BOOKS
-    TOOLS
-    OTHER
+  COLLECTIONS
+  ELECTRONICS
+  BOOKS
+  TOOLS
+  OTHER
+}
+
+enum FieldType {
+  STRING
+  TEXT
+  NUMBER
+  DOCUMENT
+  BOOLEAN
 }
 
 model User {
-    id       String   @id @default(uuid())
-    email    String?   @unique
-    name     String
-    avatarUrl String?
-    provider String
-    providerId String
-    role     Role     @default(USER)
-    blocked Boolean @default(false)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  email      String?  @unique
+  name       String
+  avatarUrl  String?
+  provider   String
+  providerId String
+  role       Role     @default(USER)
+  blocked    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-    inventories Inventory[] @relation("CreatedInventories")
-    accessibleInventories InventoryAccess[]
+  inventories           Inventory[]       @relation("CreatedInventories")
+  accessibleInventories InventoryAccess[]
 
-    @@unique([provider, providerId])
+  @@unique([provider, providerId])
 }
 
 model Session {
-    sid String @id @db.VarChar(255)
-    sess Json @db.Json
-    expire DateTime @db.Timestamp(6)
+  sid    String   @id @db.VarChar(255)
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
 
-    @@index([expire], map: "IDX_session_expire")
+  @@index([expire], map: "IDX_session_expire")
 }
 
 model Inventory {
-    id String @id @default(uuid())
-    title String
-    description String? @db.Text
-    category Category
-    imageUrl String?
-    isPublic Boolean @default(true)
-    version Int @default(1)
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  category    Category
+  imageUrl    String?
+  isPublic    Boolean  @default(true)
+  version     Int      @default(1)
 
-    createdById String
-    createdBy User @relation("CreatedInventories", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User   @relation("CreatedInventories", fields: [createdById], references: [id], onDelete: Cascade)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    tags InventoryTag[]
-    accessList InventoryAccess[]
+  tags         InventoryTag[]
+  accessList   InventoryAccess[]
+  customFields CustomField[]
 }
 
 model Tag {
-    id String @id @default(uuid())
-    name String @unique
+  id   String @id @default(uuid())
+  name String @unique
 
-    inventories InventoryTag[]
+  inventories InventoryTag[]
 }
 
 model InventoryTag {
-    id String @id @default(uuid())
-    inventoryId String
-    tagId String
+  id          String @id @default(uuid())
+  inventoryId String
+  tagId       String
 
-    inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-    tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-    @@unique([inventoryId, tagId])
+  @@unique([inventoryId, tagId])
 }
 
 model InventoryAccess {
-    inventoryId String
-    userId String
+  inventoryId String
+  userId      String
 
-    inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@id([inventoryId, userId])
+  @@id([inventoryId, userId])
+}
+
+model CustomField {
+  id          String    @id @default(uuid())
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  fieldType   FieldType
+  title       String
+  description String?
+  showInTable Boolean   @default(true)
+  sortOrder   Int       @default(0)
+
+  // For future relation to items
+  // itemValues ItemFieldValue[]
+
+  @@unique([inventoryId, title])
+  @@index([inventoryId])
 }
