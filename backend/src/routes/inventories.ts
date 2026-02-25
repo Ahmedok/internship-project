@@ -98,9 +98,15 @@ router.patch(
     requireAuth,
     async (req: Request<{ id: string }>, res: Response) => {
         try {
+            console.log('Backend received PATCH request with body:', req.body); // TODO: Delete this after debugging
+
             const parsed = InventorySchema.partial().safeParse(req.body);
-            if (!parsed.success)
-                return res.status(400).json({ errors: parsed.error });
+            if (!parsed.success) {
+                console.error('ZOD validation error:', parsed.error.issues); // TODO: Delete this after debugging
+                return res.status(400).json({ errors: parsed.error.issues });
+            }
+
+            console.log('Data after ZOD validation:', parsed.data); // TODO: Delete this after debugging
 
             const {
                 version,

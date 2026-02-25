@@ -7,7 +7,6 @@ import {
     type InventoryDetail,
     type InventoryInput,
 } from '@inventory/shared';
-import { useDebounce } from '@/hooks/useDebounce';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 
@@ -25,6 +24,7 @@ export function InventorySettingsTab({
         register,
         watch,
         setValue,
+        getValues,
         formState: { errors, isDirty, isValid },
         reset,
     } = useForm<InventoryInput>({
@@ -42,10 +42,11 @@ export function InventorySettingsTab({
     });
 
     const formValues = watch();
-    const debouncedValues = useDebounce(formValues, 7000);
 
     const autoSaveMutation = useMutation({
         mutationFn: async (data: Partial<InventoryInput>) => {
+            console.log('Sending PATCH with data:', data); // TODO: Delete this after debugging
+
             const res = await fetch(`/api/inventories/${initialData.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -59,15 +60,15 @@ export function InventorySettingsTab({
             return res.json();
         },
         onSuccess: (updatedInventory) => {
-            setValue('version', updatedInventory.version);
-            reset(
-                { ...formValues, version: updatedInventory.version },
-                { keepValues: true },
-            );
+            const currentInputs = getValues();
+            reset({
+                ...currentInputs,
+                version: updatedInventory.version,
+            });
+            setConflictError(null);
             queryClient.invalidateQueries({
                 queryKey: ['inventory', initialData.id],
             });
-            setConflictError(null);
         },
         onError: (error) => {
             if (error.message === 'CONFLICT') {
@@ -79,22 +80,44 @@ export function InventorySettingsTab({
     });
 
     useEffect(() => {
-        if (isDirty && isValid && !conflictError) {
-            autoSaveMutation.mutate(debouncedValues);
+        // TODO: Delete this after debugging
+        console.log('--- FORM REACTION ---');
+        console.log('Dirty (isDirty):', isDirty);
+        console.log('Valid (isValid):', isValid);
+        console.log('Zod Errors (errors):', errors);
+
+        if (!isDirty) return;
+
+        if (!isValid) {
+            console.warn('Auto-save failed due to validation errors:', errors);
+            return;
         }
-    }, [debouncedValues, isDirty, isValid, conflictError]);
+
+        if (conflictError) return;
+
+        const timer = setTimeout(() => {
+            const latestData = getValues();
+            console.log('TIMER TRIGGERED. SENDING:', latestData);
+            autoSaveMutation.mutate(latestData);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, [formValues, isDirty, isValid, conflictError, errors]);
 
     const uploadImageMutation = useMutation({
         mutationFn: async (file: File) => {
             const formData = new FormData();
             formData.append('file', file);
 
-            const res = await fetch('/api/upload', {
+            const res = await fetch('/api/upload/image', {
                 method: 'POST',
                 body: formData,
             });
             if (!res.ok) {
-                throw new Error('Image upload failed');
+                const errorData = await res
+                    .json()
+                    .catch(() => ({ message: res.statusText }));
+                throw new Error(errorData.message || 'Image upload failed');
             }
             return res.json();
         },
@@ -103,6 +126,9 @@ export function InventorySettingsTab({
                 shouldDirty: true,
                 shouldValidate: true,
             });
+        },
+        onError: (err) => {
+            alert(`Cloudinary upload failed: ${err.message}`); // TODO: Delete this after debugging
         },
     });
 
@@ -119,6 +145,10 @@ export function InventorySettingsTab({
                 <div className="text-sm font-medium">
                     {conflictError ? (
                         <span className="text-red-500">Stopped (conflict)</span>
+                    ) : !isValid ? (
+                        <span className="text-red-500">
+                            Auto-save failed due to validation errors
+                        </span>
                     ) : autoSaveMutation.isPending ? (
                         <span className="text-amber-500 animate-pulse">
                             Saving...
