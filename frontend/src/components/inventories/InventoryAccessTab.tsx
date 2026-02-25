@@ -89,8 +89,12 @@ export function InventoryAccessTab({
     });
 
     const sortedAccessList = [...(inventory.accessList || [])].sort((a, b) => {
-        if (sortBy === 'name') return a.user.name.localeCompare(b.user.name);
-        return (a.user.email || '').localeCompare(b.user.email || '');
+        const nameA = a.user?.name || '';
+        const nameB = b.user?.name || '';
+        if (sortBy === 'name') return nameA.localeCompare(nameB);
+        const emailA = a.user?.email || '';
+        const emailB = b.user?.email || '';
+        return emailA.localeCompare(emailB);
     });
 
     return (
@@ -216,10 +220,12 @@ export function InventoryAccessTab({
                                 >
                                     <div>
                                         <div className="font-medium text-sm">
-                                            {access.user.name}
+                                            {access.user?.name ||
+                                                'Unknown User'}
                                         </div>
                                         <div className="text-sm text-zinc-500">
-                                            {access.user.email}
+                                            {access.user?.email ||
+                                                'Unknown Email'}
                                         </div>
                                     </div>
                                     <Button

@@ -66,7 +66,11 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
                     select: { id: true, name: true, avatarUrl: true },
                 },
                 tags: { include: { tag: true } },
-                accessList: true,
+                accessList: {
+                    include: {
+                        user: { select: { id: true, name: true, email: true } },
+                    },
+                },
             },
         });
 
