@@ -46,3 +46,25 @@ export interface InventoryDetail {
     tags: { tag: Tag }[];
     accessList: InventoryAccessRecord[];
 }
+
+export const FieldTypeEnum = z.enum([
+    'STRING',
+    'TEXT',
+    'NUMBER',
+    'DOCUMENT',
+    'BOOLEAN',
+]);
+
+export const CustomFieldSchema = z.object({
+    id: z.uuid().optional(),
+    fieldType: FieldTypeEnum,
+    title: z.string().min(1, 'Field title is required').max(50),
+    description: z.string().nullable().optional(),
+    showInTable: z.boolean().default(true),
+    sortOrder: z.number().int().default(0),
+});
+
+export const CustomFieldUpdateSchema = z.array(CustomFieldSchema);
+
+export type FieldType = z.infer<typeof FieldTypeEnum>;
+export type CustomFieldInput = z.infer<typeof CustomFieldSchema>;
