@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { requireAuth } from '../middleware/auth';
-import { InventorySchema } from '@inventory/shared';
+import { InventorySchema, CustomFieldUpdateSchema } from '@inventory/shared';
 
 const router = Router();
 
@@ -392,6 +392,103 @@ router.delete(
         } catch (error) {
             res.status(500).json({
                 message: 'Server error while revoking access',
+            });
+        }
+    },
+);
+
+router.get(
+    '/:id/fields',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const fields = await prisma.customField.findMany({
+                where: { inventoryId: req.params.id },
+                orderBy: { sortOrder: 'asc' },
+            });
+            res.status(200).json(fields);
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while fetching custom fields',
+            });
+        }
+    },
+);
+
+router.put(
+    '/:id/fields',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+            });
+            if (!inventory)
+                return res.status(404).json({ message: 'Inventory not found' });
+
+            if (
+                inventory.createdById !== req.user!.id &&
+                req.user!.role !== 'ADMIN'
+            ) {
+                return res.status(403).json({
+                    message: 'No permission to update field structure',
+                });
+            }
+
+            const parsed = CustomFieldUpdateSchema.safeParse(req.body);
+            if (!parsed.success) {
+                console.error('ZOD validation error:', parsed.error.issues); // TODO: Delete this after debugging
+                return res.status(400).json({ errors: parsed.error.issues });
+            }
+            const incomingFields = parsed.data;
+
+            const typeCounts: Record<string, number> = {};
+            for (const field of incomingFields) {
+                typeCounts[field.fieldType] =
+                    (typeCounts[field.fieldType] || 0) + 1;
+                if ((typeCounts[field.fieldType] ?? 0) > 3) {
+                    return res.status(400).json({
+                        message: `You can only have up to 3 fields of type ${field.fieldType}`,
+                    });
+                }
+            }
+
+            const titles = incomingFields.map((field) =>
+                field.title.toLowerCase().trim(),
+            );
+            if (new Set(titles).size !== titles.length) {
+                return res.status(400).json({
+                    message: 'Field titles must be unique',
+                });
+            }
+
+            await prisma.$transaction(async (tx) => {
+                await tx.customField.deleteMany({
+                    where: { inventoryId },
+                });
+
+                if (incomingFields.length > 0) {
+                    await tx.customField.createMany({
+                        data: incomingFields.map((field, index) => ({
+                            inventoryId,
+                            fieldType: field.fieldType,
+                            title: field.title.trim(),
+                            description: field.description,
+                            showInTable: field.showInTable,
+                            sortOrder: index,
+                        })),
+                    });
+                }
+            });
+
+            res.status(200).json({
+                message: 'Custom field structure updated successfully',
+            });
+        } catch (error) {
+            console.error('Error updating custom fields:', error);
+            res.status(500).json({
+                message: 'Server error while updating custom field structure',
             });
         }
     },
