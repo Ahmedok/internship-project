@@ -2,7 +2,14 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { requireAuth } from '../middleware/auth';
-import { InventorySchema, CustomFieldUpdateSchema } from '@inventory/shared';
+import {
+    InventorySchema,
+    CustomFieldUpdateSchema,
+    CustomIdElementSchema,
+    generateCustomId,
+} from '@inventory/shared';
+import { z } from 'zod';
+import { ca } from 'zod/locales';
 
 const router = Router();
 
@@ -489,6 +496,114 @@ router.put(
             console.error('Error updating custom fields:', error);
             res.status(500).json({
                 message: 'Server error while updating custom field structure',
+            });
+        }
+    },
+);
+
+// --- Custom ID APIs ---
+
+router.get(
+    '/:id/id-format',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const elements = await prisma.customIdElement.findMany({
+                where: { inventoryId: req.params.id },
+                orderBy: { sortOrder: 'asc' },
+            });
+            res.status(200).json(elements);
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while fetching custom ID format',
+            });
+        }
+    },
+);
+
+router.get(
+    '/:id/id-preview',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: req.params.id },
+                include: {
+                    customIdElements: { orderBy: { sortOrder: 'asc' } },
+                },
+            });
+            if (!inventory) {
+                return res.status(404).json({ message: 'Inventory not found' });
+            }
+            const parsedElements = z
+                .array(CustomIdElementSchema)
+                .parse(inventory.customIdElements);
+            const previewId = generateCustomId(
+                parsedElements,
+                inventory.idCounter + 1,
+            );
+            res.status(200).json({ preview: previewId });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while generating custom ID preview',
+            });
+        }
+    },
+);
+
+router.put(
+    '/:id/id-format',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+            });
+            if (!inventory)
+                return res.status(404).json({ message: 'Inventory not found' });
+
+            if (
+                inventory.createdById !== req.user!.id &&
+                req.user!.role !== 'ADMIN'
+            ) {
+                return res
+                    .status(403)
+                    .json({
+                        message: 'No permissions to update custom ID format',
+                    });
+            }
+
+            const parsed = z.array(CustomIdElementSchema).safeParse(req.body);
+            if (!parsed.success) {
+                return res.status(400).json({ errors: parsed.error.issues });
+            }
+
+            const incomingElements = parsed.data;
+
+            await prisma.$transaction(async (tx) => {
+                await tx.customIdElement.deleteMany({
+                    where: { inventoryId },
+                });
+
+                if (incomingElements.length > 0) {
+                    await tx.customIdElement.createMany({
+                        data: incomingElements.map((elem, index) => ({
+                            inventoryId,
+                            elementType: elem.elementType,
+                            config: elem.config,
+                            sortOrder: index,
+                        })),
+                    });
+                }
+            });
+
+            res.status(200).json({
+                message: 'Custom ID format updated successfully',
+            });
+        } catch (error) {
+            console.error('Error updating custom ID format:', error);
+            res.status(500).json({
+                message: 'Server error while updating custom ID format',
             });
         }
     },
