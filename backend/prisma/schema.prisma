@@ -34,6 +34,17 @@ enum FieldType {
   BOOLEAN
 }
 
+enum IdElementType {
+  FIXED_TEXT
+  RANDOM_20BIT
+  RANDOM_32BIT
+  RANDOM_6DIGIT
+  RANDOM_9DIGIT
+  GUID
+  DATETIME
+  SEQUENCE
+}
+
 model User {
   id         String   @id @default(uuid())
   email      String?  @unique
@@ -75,9 +86,10 @@ model Inventory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tags         InventoryTag[]
-  accessList   InventoryAccess[]
-  customFields CustomField[]
+  tags             InventoryTag[]
+  accessList       InventoryAccess[]
+  customFields     CustomField[]
+  customIdElements CustomIdElement[]
 }
 
 model Tag {
@@ -123,5 +135,17 @@ model CustomField {
   // itemValues ItemFieldValue[]
 
   @@unique([inventoryId, title])
+  @@index([inventoryId])
+}
+
+model CustomIdElement {
+  id          String    @id @default(uuid())
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  elementType IdElementType
+  config      Json
+  sortOrder   Int           @default(0)
+
   @@index([inventoryId])
 }
