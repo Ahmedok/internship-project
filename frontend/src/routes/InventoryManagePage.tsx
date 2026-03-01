@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
 import { InventoryAccessTab } from '@/components/inventories/InventoryAccessTab';
 import { InventoryFieldsTab } from '@/components/inventories/InventoryFieldsTab';
+import { InventoryCustomIdTab } from '@/components/inventories/InventoryCustomIdTab';
 import { type InventoryDetail } from '@inventory/shared';
 
 export default function InventoryManagePage() {
@@ -133,7 +134,7 @@ export default function InventoryManagePage() {
                         </TabsContent>
 
                         <TabsContent value="custom-ids" className="mt-4">
-                            <div>TODO: Custom IDs setup</div>
+                            <InventoryCustomIdTab inventory={inventory} />
                         </TabsContent>
 
                         <TabsContent value="statistics" className="mt-4">

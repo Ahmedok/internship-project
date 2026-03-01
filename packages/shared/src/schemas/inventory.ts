@@ -42,6 +42,8 @@ export interface InventoryDetail {
     createdAt: string | Date;
     updatedAt: string | Date;
 
+    idCounter: number;
+
     createdBy?: Pick<User, 'id' | 'name' | 'avatarUrl'>;
     tags: { tag: Tag }[];
     accessList: InventoryAccessRecord[];
