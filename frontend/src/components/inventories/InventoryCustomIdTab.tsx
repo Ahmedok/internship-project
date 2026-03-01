@@ -2,12 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     DndContext,
-    closestCenter,
+    pointerWithin,
     KeyboardSensor,
     PointerSensor,
     useSensor,
     useSensors,
-    useDroppable,
     type DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -51,20 +50,6 @@ const getHelpText = (type: IdElementType) => {
             return '';
     }
 };
-
-function TrashDropZone() {
-    const { isOver, setNodeRef } = useDroppable({ id: 'trash-zone' });
-
-    return (
-        <div
-            ref={setNodeRef}
-            className={`mt-4 p-4 border-2 border-dashed rounded-lg text-center transition-colors flex items-center justify-center gap-2 
-            ${isOver ? 'bg-red-50 border-red-500 text-red-600 dark:bg-red-950/30' : 'border-zinc-300 text-zinc-400 dark:border-zinc-800'}`}
-        >
-            <span>Drag element here to delete</span>
-        </div>
-    );
-}
 
 function SortableIdElement({
     element,
@@ -217,9 +202,7 @@ export function InventoryCustomIdTab({
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
 
-        if (!over) return;
-
-        if (over.id === 'trash-zone') {
+        if (!over) {
             setLocalElements((items) => {
                 const filtered = items.filter((item) => item.id !== active.id);
                 return filtered.map((el, index) => ({
@@ -312,7 +295,8 @@ export function InventoryCustomIdTab({
                         Item ID Format
                     </h2>
                     <p className="text-sm text-zinc-500">
-                        Please setup your custom item ID format below.
+                        Please setup your custom item ID format below. Drag out
+                        of the box to remove.
                     </p>
                 </div>
                 <Button
@@ -404,7 +388,7 @@ export function InventoryCustomIdTab({
                 ) : (
                     <DndContext
                         sensors={sensors}
-                        collisionDetection={closestCenter}
+                        collisionDetection={pointerWithin}
                         onDragEnd={handleDragEnd}
                     >
                         <SortableContext
@@ -433,8 +417,6 @@ export function InventoryCustomIdTab({
                                 />
                             ))}
                         </SortableContext>
-
-                        <TrashDropZone />
                     </DndContext>
                 )}
             </div>
