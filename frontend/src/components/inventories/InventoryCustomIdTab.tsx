@@ -7,6 +7,7 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    useDroppable,
     type DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -20,6 +21,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import {
     type IdElementType,
     type CustomIdElementInput,
@@ -27,21 +29,63 @@ import {
     generateCustomId,
 } from '@inventory/shared';
 
+const getHelpText = (type: IdElementType) => {
+    switch (type) {
+        case 'FIXED_TEXT':
+            return 'A fixed text that will be included in every ID. You can use this to add prefixes or suffixes (e.g. INV-)';
+        case 'DATETIME':
+            return 'The current date will be added to the ID. You can choose the format to include year, month, and day.';
+        case 'SEQUENCE':
+            return 'A sequential counter that increments with each new item. You can specify the minimum length (padding with zeroes) for the counter.';
+        case 'RANDOM_20BIT':
+            return 'A random 5-character hexadecimal string (20 bits of randomness).';
+        case 'RANDOM_32BIT':
+            return 'A random 8-character hexadecimal string (32 bits of randomness).';
+        case 'RANDOM_6DIGIT':
+            return 'A random 6-digit number.';
+        case 'RANDOM_9DIGIT':
+            return 'A random 9-digit number.';
+        case 'GUID':
+            return 'A globally unique identifier (UUID).';
+        default:
+            return '';
+    }
+};
+
+function TrashDropZone() {
+    const { isOver, setNodeRef } = useDroppable({ id: 'trash-zone' });
+
+    return (
+        <div
+            ref={setNodeRef}
+            className={`mt-4 p-4 border-2 border-dashed rounded-lg text-center transition-colors flex items-center justify-center gap-2 
+            ${isOver ? 'bg-red-50 border-red-500 text-red-600 dark:bg-red-950/30' : 'border-zinc-300 text-zinc-400 dark:border-zinc-800'}`}
+        >
+            <span>Drag element here to delete</span>
+        </div>
+    );
+}
+
 function SortableIdElement({
     element,
-    onRemove,
     onChange,
 }: {
     element: CustomIdElementInput & { id: string };
-    onRemove: () => void;
     onChange: (updates: Partial<CustomIdElementInput['config']>) => void;
 }) {
-    const { attributes, listeners, setNodeRef, transform, transition } =
-        useSortable({ id: element.id });
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: element.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
+        opacity: isDragging ? 0.5 : 1,
     };
 
     const renderConfig = () => {
@@ -111,18 +155,20 @@ function SortableIdElement({
             >
                 Handle
             </div>
-            <div className="flex items-center w-40 font-medium text-sm">
+
+            <div className="flex items-center gap-2 w-48 font-medium text-sm">
                 {element.elementType}
+                <Popover>
+                    <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 rounded-full focus:outline-none">
+                        ?
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 text-sm">
+                        {getHelpText(element.elementType)}
+                    </PopoverContent>
+                </Popover>
             </div>
+
             <div className="flex-1">{renderConfig()}</div>
-            <Button
-                variant="ghost"
-                size="sm"
-                onClick={onRemove}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
-            >
-                Delete
-            </Button>
         </div>
     );
 }
@@ -170,13 +216,32 @@ export function InventoryCustomIdTab({
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        if (over && active.id !== over.id) {
+
+        if (!over) return;
+
+        if (over.id === 'trash-zone') {
+            setLocalElements((items) => {
+                const filtered = items.filter((item) => item.id !== active.id);
+                return filtered.map((el, index) => ({
+                    ...el,
+                    sortOrder: index,
+                }));
+            });
+            return;
+        }
+
+        if (active.id !== over.id) {
             setLocalElements((items) => {
                 const oldIndex = items.findIndex(
                     (item) => item.id === active.id,
                 );
                 const newIndex = items.findIndex((item) => item.id === over.id);
-                return arrayMove(items, oldIndex, newIndex);
+                const reordered = arrayMove(items, oldIndex, newIndex);
+
+                return reordered.map((el, index) => ({
+                    ...el,
+                    sortOrder: index,
+                }));
             });
         }
     };
@@ -350,13 +415,6 @@ export function InventoryCustomIdTab({
                                 <SortableIdElement
                                     key={element.id}
                                     element={element}
-                                    onRemove={() =>
-                                        setLocalElements(
-                                            localElements.filter(
-                                                (el) => el.id !== element.id,
-                                            ),
-                                        )
-                                    }
                                     onChange={(updates) =>
                                         setLocalElements(
                                             localElements.map((el) =>
@@ -375,6 +433,8 @@ export function InventoryCustomIdTab({
                                 />
                             ))}
                         </SortableContext>
+
+                        <TrashDropZone />
                     </DndContext>
                 )}
             </div>
