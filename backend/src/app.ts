@@ -12,6 +12,7 @@ import { requireAuth, requireAdmin } from './middleware/auth';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import inventoryRoutes from './routes/inventories';
+import itemRoutes from './routes/items';
 import tagsRoutes from './routes/tags';
 import uploadRoutes from './routes/upload';
 import userRoutes from './routes/users';
@@ -68,6 +69,8 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/admin', requireAuth, requireAdmin, adminRoutes);
 
 app.use('/api/inventories', inventoryRoutes);
+
+app.use('/api/items', itemRoutes);
 
 app.use('/api/tags', tagsRoutes);
 
