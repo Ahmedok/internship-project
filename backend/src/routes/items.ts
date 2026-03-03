@@ -55,11 +55,25 @@ router.patch(
 
             const item = await prisma.item.findUnique({
                 where: { id: req.params.id },
+                include: {
+                    inventory: {
+                        select: { createdById: true, accessList: true },
+                    },
+                },
             });
             if (!item)
                 return res.status(404).json({ message: 'Item not found' });
 
-            // TODO: Check user permissions
+            const userId = req.user!.id;
+            const isCreator = item.inventory.createdById === userId;
+            const hasAccess = item.inventory.accessList.some(
+                (a) => a.userId === userId,
+            );
+            const isAdmin = req.user!.role === 'ADMIN';
+
+            if (!isCreator && !isAdmin && !hasAccess) {
+                return res.status(403).json({ message: 'No item edit access' });
+            }
 
             await prisma.$transaction(async (tx) => {
                 const updateResult = await tx.item.updateMany({
@@ -126,6 +140,31 @@ router.delete(
     requireAuth,
     async (req: Request<{ id: string }>, res: Response) => {
         try {
+            const item = await prisma.item.findUnique({
+                where: { id: req.params.id },
+                include: {
+                    inventory: {
+                        select: { createdById: true, accessList: true },
+                    },
+                },
+            });
+            if (!item) {
+                return res.status(404).json({ message: 'Item not found' });
+            }
+
+            const userId = req.user!.id;
+            const isCreator = item.inventory.createdById === userId;
+            const hasAccess = item.inventory.accessList.some(
+                (a) => a.userId === userId,
+            );
+            const isAdmin = req.user!.role === 'ADMIN';
+
+            if (!isCreator && !isAdmin && !hasAccess) {
+                return res
+                    .status(403)
+                    .json({ message: 'No item delete access' });
+            }
+
             await prisma.item.delete({
                 where: { id: req.params.id },
             });
