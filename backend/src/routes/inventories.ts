@@ -7,9 +7,9 @@ import {
     CustomFieldUpdateSchema,
     CustomIdElementSchema,
     generateCustomId,
+    CreateItemSchema,
 } from '@inventory/shared';
 import { z } from 'zod';
-import { ca } from 'zod/locales';
 
 const router = Router();
 
@@ -501,6 +501,102 @@ router.put(
     },
 );
 
+// --- Items APIs ---
+
+router.post(
+    '/:id/items',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+            const userId = req.user!.id;
+
+            const parsed = CreateItemSchema.safeParse(req.body);
+            if (!parsed.success) {
+                return res.status(400).json({ errors: parsed.error.issues });
+            }
+            const incomingFields = parsed.data.fields;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+                include: { accessList: true },
+            });
+
+            if (!inventory)
+                return res.status(404).json({ message: 'Inventory not found' });
+
+            const isCreator = inventory.createdById === userId;
+            const hasAccess = inventory.accessList.some(
+                (a) => a.userId === userId,
+            );
+            const isAdmin = req.user!.role === 'ADMIN';
+
+            if (!isCreator && !isAdmin && !hasAccess) {
+                return res.status(403).json({
+                    message: 'No access to add items',
+                });
+            }
+
+            // ACID
+            const newItem = await prisma.$transaction(async (tx) => {
+                const updatedInv = await tx.inventory.update({
+                    where: { id: inventoryId },
+                    data: { idCounter: { increment: 1 } },
+                    include: {
+                        customIdElements: { orderBy: { sortOrder: 'asc' } },
+                    },
+                });
+
+                const idElements = z
+                    .array(CustomIdElementSchema)
+                    .parse(updatedInv.customIdElements);
+                const customId = generateCustomId(
+                    idElements,
+                    updatedInv.idCounter,
+                );
+
+                return tx.item.create({
+                    data: {
+                        inventoryId,
+                        customId,
+                        createdById: userId,
+                        fieldValues: {
+                            create: incomingFields.map((field) => ({
+                                customFieldId: field.customFieldId,
+                                valueString: field.valueString,
+                                valueNumber: field.valueNumber,
+                                valueBoolean: field.valueBoolean,
+                            })),
+                        },
+                    },
+                    include: {
+                        fieldValues: true,
+                        createdBy: { select: { name: true, email: true } },
+                    },
+                });
+            });
+
+            res.status(201).json(newItem);
+        } catch (error: any) {
+            console.error('Error creating item:', error);
+
+            if (
+                error.code === 'P2002' &&
+                error.meta?.target?.includes('customId')
+            ) {
+                return res.status(409).json({
+                    message:
+                        'Custom ID conflict: The generated ID already exists.',
+                });
+            }
+
+            res.status(500).json({
+                message: 'Server error while creating item',
+            });
+        }
+    },
+);
+
 // --- Custom ID APIs ---
 
 router.get(
@@ -566,11 +662,9 @@ router.put(
                 inventory.createdById !== req.user!.id &&
                 req.user!.role !== 'ADMIN'
             ) {
-                return res
-                    .status(403)
-                    .json({
-                        message: 'No permissions to update custom ID format',
-                    });
+                return res.status(403).json({
+                    message: 'No permissions to update custom ID format',
+                });
             }
 
             const parsed = z.array(CustomIdElementSchema).safeParse(req.body);
