@@ -59,6 +59,8 @@ model User {
 
   inventories           Inventory[]       @relation("CreatedInventories")
   accessibleInventories InventoryAccess[]
+  items                 Item[]
+  likes                 ItemLike[]
 
   @@unique([provider, providerId])
 }
@@ -92,6 +94,7 @@ model Inventory {
   accessList       InventoryAccess[]
   customFields     CustomField[]
   customIdElements CustomIdElement[]
+  items            Item[]
 }
 
 model Tag {
@@ -133,8 +136,7 @@ model CustomField {
   showInTable Boolean   @default(true)
   sortOrder   Int       @default(0)
 
-  // For future relation to items
-  // itemValues ItemFieldValue[]
+  itemValues ItemFieldValue[]
 
   @@unique([inventoryId, title])
   @@index([inventoryId])
@@ -150,4 +152,49 @@ model CustomIdElement {
   sortOrder   Int           @default(0)
 
   @@index([inventoryId])
+}
+
+model Item {
+  id          String    @id @default(uuid())
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  customId String
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fieldValues ItemFieldValue[]
+  likes       ItemLike[]
+
+  @@unique([inventoryId, customId])
+  @@index([inventoryId])
+}
+
+model ItemFieldValue {
+  id            String      @id @default(uuid())
+  itemId        String
+  item          Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  customFieldId String
+  customField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+
+  valueString  String?  @db.Text
+  valueNumber  Float?
+  valueBoolean Boolean?
+
+  @@unique([itemId, customFieldId])
+  @@index([itemId])
+}
+
+model ItemLike {
+  userId String
+  itemId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, itemId])
 }
