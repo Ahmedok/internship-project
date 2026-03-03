@@ -597,6 +597,54 @@ router.post(
     },
 );
 
+router.get(
+    '/:id/items',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 20;
+            const skip = (page - 1) * limit;
+
+            const [items, total] = await Promise.all([
+                prisma.item.findMany({
+                    where: { inventoryId: req.params.id },
+                    include: {
+                        createdBy: {
+                            select: { id: true, name: true, avatarUrl: true },
+                        },
+                        fieldValues: {
+                            include: {
+                                customField: {
+                                    select: {
+                                        title: true,
+                                        fieldType: true,
+                                        showInTable: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    skip,
+                    take: limit,
+                }),
+                prisma.item.count({ where: { inventoryId: req.params.id } }),
+            ]);
+
+            res.status(200).json({
+                items,
+                total,
+                page,
+                totalPages: Math.ceil(total / limit),
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while fetching items',
+            });
+        }
+    },
+);
+
 // --- Custom ID APIs ---
 
 router.get(
