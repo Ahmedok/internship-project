@@ -178,4 +178,82 @@ router.delete(
     },
 );
 
+// --- Likes API ---
+
+router.get(
+    '/:id/like',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const itemId = req.params.id;
+            const userId = req.user!.id;
+
+            const [totalLikes, userLike] = await Promise.all([
+                prisma.itemLike.count({ where: { itemId } }),
+                prisma.itemLike.findUnique({
+                    where: { userId_itemId: { userId, itemId } },
+                }),
+            ]);
+
+            res.status(200).json({
+                count: totalLikes,
+                isLiked: !!userLike,
+            });
+        } catch (error) {
+            console.error('Error when fetching likes:', error);
+            res.status(500).json({
+                message: 'Server error while fetching likes',
+            });
+        }
+    },
+);
+
+router.post(
+    '/:id/like',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const itemId = req.params.id;
+            const userId = req.user!.id;
+
+            const item = await prisma.item.findUnique({
+                where: { id: itemId },
+            });
+            if (!item)
+                return res.status(404).json({ message: 'Item not found' });
+
+            const existingLike = await prisma.itemLike.findUnique({
+                where: { userId_itemId: { userId, itemId } },
+            });
+
+            if (existingLike) {
+                await prisma.itemLike.delete({
+                    where: { userId_itemId: { userId, itemId } },
+                });
+                return res
+                    .status(200)
+                    .json({
+                        message: 'Item unliked successfully',
+                        isLiked: false,
+                    });
+            } else {
+                await prisma.itemLike.create({
+                    data: { userId, itemId },
+                });
+                return res
+                    .status(200)
+                    .json({
+                        message: 'Item liked successfully',
+                        isLiked: true,
+                    });
+            }
+        } catch (error) {
+            console.error('Error when liking item:', error);
+            res.status(500).json({
+                message: 'Server error while liking item',
+            });
+        }
+    },
+);
+
 export default router;
