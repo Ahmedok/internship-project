@@ -11,5 +11,11 @@ export const CreateItemSchema = z.object({
     fields: z.array(ItemFieldValueInputSchema),
 });
 
+export const UpdateItemSchema = z.object({
+    customId: z.string().min(1).optional(),
+    fields: z.array(ItemFieldValueInputSchema).optional(),
+    version: z.number().int(),
+});
+
 export type ItemFieldValueInput = z.infer<typeof ItemFieldValueInputSchema>;
 export type CreateItemInput = z.infer<typeof CreateItemSchema>;
