@@ -17,6 +17,40 @@ export const UpdateItemSchema = z.object({
     version: z.number().int(),
 });
 
+export const BulkDeleteItemsSchema = z.object({
+    ids: z.array(z.uuid()),
+});
+
 export type ItemFieldValueInput = z.infer<typeof ItemFieldValueInputSchema>;
 export type CreateItemInput = z.infer<typeof CreateItemSchema>;
 export type UpdateItemInput = z.infer<typeof UpdateItemSchema>;
+
+export interface ItemFieldValueDto {
+    id: string;
+    customFieldId: string;
+    valueString: string | null;
+    valueNumber: number | null;
+    valueBoolean: boolean | null;
+}
+
+export interface InventoryItemDto {
+    id: string;
+    customId: string;
+    inventoryId: string;
+    createdById: string;
+    createdAt: string;
+    updatedAt: string;
+    createdBy: {
+        id: string;
+        name: string;
+        avatarUrl: string | null;
+    };
+    fieldValues: ItemFieldValueDto[];
+}
+
+export interface PaginatedItemsDto {
+    items: InventoryItemDto[];
+    total: number;
+    page: number;
+    totalPages: number;
+}

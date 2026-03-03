@@ -8,6 +8,7 @@ import {
     CustomIdElementSchema,
     generateCustomId,
     CreateItemSchema,
+    BulkDeleteItemsSchema,
 } from '@inventory/shared';
 import { z } from 'zod';
 
@@ -648,6 +649,62 @@ router.get(
         } catch (error) {
             res.status(500).json({
                 message: 'Server error while fetching items',
+            });
+        }
+    },
+);
+
+router.post(
+    '/:id/items/bulk-delete',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+            const userId = req.user!.id;
+
+            const parsed = BulkDeleteItemsSchema.safeParse(req.body);
+            if (!parsed.success) {
+                return res.status(400).json({ errors: parsed.error.issues });
+            }
+            const { ids } = parsed.data;
+            if (ids.length === 0) {
+                return res.status(200).json({ message: 'No items to delete' });
+            }
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+                include: { accessList: true },
+            });
+
+            if (!inventory)
+                return res.status(404).json({ message: 'Inventory not found' });
+
+            const isCreator = inventory.createdById === userId;
+            const hasAccess = inventory.accessList.some(
+                (a) => a.userId === userId,
+            );
+            const isAdmin = req.user!.role === 'ADMIN';
+
+            if (!isCreator && !isAdmin && !hasAccess) {
+                return res.status(403).json({
+                    message: 'No access to delete items',
+                });
+            }
+
+            const result = await prisma.item.deleteMany({
+                where: {
+                    id: { in: ids },
+                    inventoryId: inventoryId,
+                },
+            });
+
+            res.status(200).json({
+                message: `Deleted ${result.count} items successfully`,
+            });
+        } catch (error) {
+            console.error('Error in bulk delete:', error);
+            res.status(500).json({
+                message: 'Server error while deleting items',
             });
         }
     },
