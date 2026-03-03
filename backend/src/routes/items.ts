@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '../generated/prisma/client';
+import { Prisma, PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { requireAuth } from '../middleware/auth';
 import { UpdateItemSchema } from '@inventory/shared';
@@ -34,6 +34,7 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
         if (!item) return res.status(404).json({ message: 'Item not found' });
         res.status(200).json(item);
     } catch (error) {
+        console.error('Critical error:', error);
         res.status(500).json({ message: 'Server error while fetching item' });
     }
 });
@@ -93,19 +94,26 @@ router.patch(
             });
 
             res.status(200).json({ message: 'Item updated successfully' });
-        } catch (error: any) {
-            if (error.message === 'CONCURRENCY_CONFLICT') {
-                return res.status(409).json({
-                    message:
-                        'Version conflict: item has been modified by another user',
-                });
-            }
-            if (error.code === 'P2002') {
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
                 return res.status(409).json({
                     message:
                         'Error: This custom ID already exists in this inventory',
                 });
             }
+            if (
+                error instanceof Error &&
+                error.message === 'CONCURRENCY_CONFLICT'
+            ) {
+                return res.status(409).json({
+                    message:
+                        'Version conflict: item has been modified by another user',
+                });
+            }
+            console.error('Critical error:', error);
             res.status(500).json({
                 message: 'Server error while updating item',
             });
@@ -123,6 +131,7 @@ router.delete(
             });
             res.status(200).json({ message: 'Item deleted successfully' });
         } catch (error) {
+            console.error('Critical error:', error);
             res.status(500).json({
                 message: 'Server error while deleting item',
             });

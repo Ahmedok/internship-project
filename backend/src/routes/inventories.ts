@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '../generated/prisma/client';
+import { Prisma, PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { requireAuth } from '../middleware/auth';
 import {
@@ -187,14 +187,17 @@ router.patch(
             });
 
             res.status(200).json(updated);
-        } catch (error: any) {
-            if (error.code === 'P2025') {
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
                 return res.status(409).json({
                     message:
                         'Conflict: Inventory was modified by another user. Refresh and try again.',
                 });
             }
-            console.error(error);
+            console.error('Critical error:', error);
             res.status(500).json({
                 message: 'Server error while updating inventory',
             });
@@ -350,12 +353,16 @@ router.post(
             });
 
             res.status(201).json(accessRecord);
-        } catch (error: any) {
-            if (error.code === 'P2002') {
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
                 return res
                     .status(400)
                     .json({ message: 'User already has access' });
             }
+            console.error('Critical error:', error);
             res.status(500).json({
                 message: 'Server error while granting access',
             });
@@ -578,6 +585,7 @@ router.post(
 
             res.status(201).json(newItem);
         } catch (error: any) {
+            // TODO: Refine error typing here
             console.error('Error creating item:', error);
 
             if (

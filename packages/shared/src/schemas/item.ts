@@ -19,3 +19,4 @@ export const UpdateItemSchema = z.object({
 
 export type ItemFieldValueInput = z.infer<typeof ItemFieldValueInputSchema>;
 export type CreateItemInput = z.infer<typeof CreateItemSchema>;
+export type UpdateItemInput = z.infer<typeof UpdateItemSchema>;
