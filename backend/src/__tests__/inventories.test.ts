@@ -6,6 +6,7 @@ const prismaMock = vi.hoisted(() => ({
     inventory: {
         findUnique: vi.fn(),
     },
+    $transaction: vi.fn(),
 }));
 
 vi.mock('../generated/prisma/client', () => ({
@@ -19,6 +20,7 @@ vi.mock('@prisma/adapter-pg', () => ({
 }));
 
 import inventoryRoutes from '../routes/inventories';
+import { custom } from 'zod';
 
 const app = express();
 app.use(express.json());
@@ -99,5 +101,101 @@ describe('GET /api/inventories/:id', () => {
         const res = await request(app).get('/api/inventories/inventory-123');
 
         expect(res.status).toBe(200);
+    });
+});
+
+describe('POST /api/inventories/:id/items', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockUser = null;
+    });
+
+    it('should block item creation if user has no access', async () => {
+        mockUser = { id: 'random-user-777', role: 'USER' };
+
+        const mockInventory = {
+            id: 'inventory-123',
+            isPublic: false,
+            createdById: 'creator-123',
+            accessList: [],
+        };
+
+        prismaMock.inventory.findUnique.mockResolvedValue(mockInventory);
+
+        const res = await request(app)
+            .post('/api/inventories/inventory-123/items')
+            .send({
+                fields: [],
+            });
+
+        expect(res.status).toBe(403);
+        expect(res.body.message).toBe('No access to add items');
+        expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('should create item and generate customId inside transaction', async () => {
+        mockUser = { id: 'creator-123', role: 'USER' };
+
+        const mockInventory = {
+            id: 'inventory-123',
+            isPublic: false,
+            createdById: 'creator-123',
+            accessList: [],
+        };
+
+        prismaMock.inventory.findUnique.mockResolvedValue(mockInventory);
+
+        prismaMock.$transaction.mockImplementation(async (callback) => {
+            const txMock = {
+                inventory: {
+                    update: vi.fn().mockResolvedValue({
+                        idCounter: 5,
+                        customIdElements: [
+                            {
+                                elementType: 'FIXED_TEXT',
+                                config: { value: 'ITEM-' },
+                                sortOrder: 0,
+                            },
+                            {
+                                elementType: 'SEQUENCE',
+                                config: { padding: 3 },
+                                sortOrder: 1,
+                            },
+                        ],
+                    }),
+                },
+                item: {
+                    create: vi.fn().mockResolvedValue({
+                        id: 'item-uuid',
+                        customId: 'ITEM-005',
+                        fieldValues: [
+                            {
+                                customFieldId:
+                                    '123e4567-e89b-12d3-a456-426614174000',
+                                valueString: 'Test',
+                            },
+                        ],
+                    }),
+                },
+            };
+            return callback(txMock);
+        });
+
+        const payload = {
+            fields: [
+                {
+                    customFieldId: '123e4567-e89b-12d3-a456-426614174000',
+                    valueString: 'Test',
+                },
+            ],
+        };
+
+        const res = await request(app)
+            .post('/api/inventories/inventory-123/items')
+            .send(payload);
+
+        expect(res.status).toBe(201);
+        expect(res.body.customId).toBe('ITEM-005');
+        expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     });
 });
