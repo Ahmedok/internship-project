@@ -55,12 +55,7 @@ export function ItemModal({
     const dynamicSchema = useMemo(() => {
         if (!fields) return z.object({});
 
-        const schemaShape: Record<string, z.ZodType<any>> = {};
-
-        schemaShape.customId = z
-            .string()
-            .min(1, 'ID cannot be empty')
-            .optional();
+        const schemaShape: Record<string, z.ZodTypeAny> = {};
 
         fields.forEach((field) => {
             if (
@@ -97,17 +92,16 @@ export function ItemModal({
         if (isOpen && !isEditing) {
             reset();
         } else if (isOpen && isEditing && itemData && fields) {
-            setValue('customId', itemData.customId);
-
+            // TODO: Type properly
             itemData.fieldValues.forEach((fv: any) => {
                 const fieldDef = fields.find((f) => f.id === fv.customFieldId);
                 if (!fieldDef) return;
 
                 if (fieldDef.fieldType === 'NUMBER')
-                    setValue(fv.customFieldId, fv.valueNumber);
+                    setValue(fv.customFieldId, fv.valueNumber ?? undefined);
                 else if (fieldDef.fieldType === 'BOOLEAN')
-                    setValue(fv.customFieldId, fv.valueBoolean);
-                else setValue(fv.customFieldId, fv.valueString || '');
+                    setValue(fv.customFieldId, fv.valueBoolean ?? false);
+                else setValue(fv.customFieldId, fv.valueString ?? '');
             });
         }
     }, [isOpen, isEditing, itemData, fields, reset, setValue]);
@@ -129,7 +123,8 @@ export function ItemModal({
                         valueNumber:
                             f.fieldType === 'NUMBER' &&
                             value !== undefined &&
-                            value !== ''
+                            value !== '' &&
+                            !isNaN(Number(value))
                                 ? Number(value)
                                 : null,
                         valueBoolean:
@@ -144,9 +139,8 @@ export function ItemModal({
                 : `/api/inventories/${inventory.id}/items`;
             const method = isEditing ? 'PATCH' : 'POST';
 
-            const payload: any = { fields: mappedFields };
+            const payload: any = { fields: mappedFields }; // TODO: Type properly
             if (isEditing) {
-                payload.customId = data.customId;
                 payload.version = itemData.version;
             }
 
@@ -162,6 +156,7 @@ export function ItemModal({
             }
         },
         onSuccess: () => {
+            onClose();
             queryClient.invalidateQueries({
                 queryKey: ['inventory-items', inventory.id],
             });
@@ -183,8 +178,9 @@ export function ItemModal({
                         {isEditing ? 'Edit Item' : 'Add Item'}
                     </DialogTitle>
                     <DialogDescription>
-                        Fill out item details below.{' '}
-                        {isEditing && 'Unique ID can be customized.'}
+                        Fill out item details below. Custom ID is generated
+                        automatically, but you can specify your own in the
+                        settings.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -196,20 +192,14 @@ export function ItemModal({
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4"
                     >
-                        {isEditing && (
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium">
-                                    Unique Item ID
-                                </label>
-                                <Input
-                                    {...register('customId')}
-                                    className="font-mono"
-                                />
-                                {errors.customId && (
-                                    <span className="text-sm text-red-500">
-                                        {String(errors.customId.message)}
-                                    </span>
-                                )}
+                        {isEditing && itemData && (
+                            <div className="bg-zinc-100 dark:bg-zinc-900 p-3 rounded-md mb-2 text-sm flex items-center justify-between border">
+                                <span className="text-zinc-500 font-medium">
+                                    Item ID:
+                                </span>
+                                <code className="font-mono font-bold text-zinc-800 dark:text-zinc-200">
+                                    {itemData.customId}
+                                </code>
                             </div>
                         )}
 
@@ -228,7 +218,7 @@ export function ItemModal({
                                             {...register(field.id!)}
                                         />
                                         <span className="ml-2 text-sm text-zinc-500">
-                                            Yes / No
+                                            True / False
                                         </span>
                                     </div>
                                 ) : (
