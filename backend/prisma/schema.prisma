@@ -61,6 +61,7 @@ model User {
   accessibleInventories InventoryAccess[]
   items                 Item[]
   likes                 ItemLike[]
+  comments              Comment[]
 
   @@unique([provider, providerId])
 }
@@ -95,6 +96,7 @@ model Inventory {
   customFields     CustomField[]
   customIdElements CustomIdElement[]
   items            Item[]
+  comments         Comment[]
 }
 
 model Tag {
@@ -197,4 +199,18 @@ model ItemLike {
   item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@id([userId, itemId])
+}
+
+model Comment {
+  id          String    @id @default(uuid())
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([inventoryId])
 }
