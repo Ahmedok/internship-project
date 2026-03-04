@@ -101,12 +101,7 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
 
     useEffect(() => {
         if (serverFields) {
-            setLocalFields(
-                serverFields.map((field: any) => ({
-                    ...field,
-                    id: field.id || crypto.randomUUID(),
-                })),
-            );
+            setLocalFields(serverFields);
         }
     }, [serverFields]);
 
@@ -153,6 +148,7 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
     const saveMutation = useMutation({
         mutationFn: async () => {
             const payload = localFields.map((field, index) => ({
+                id: field.id,
                 fieldType: field.fieldType,
                 title: field.title,
                 description: field.description,

@@ -449,7 +449,7 @@ router.put(
                 return res.status(403).json({
                     message: 'No permission to update field structure',
                 });
-            }
+            } // TODO: Standardize permission checks across endpoints
 
             const parsed = CustomFieldUpdateSchema.safeParse(req.body);
             if (!parsed.success) {
@@ -479,21 +479,49 @@ router.put(
             }
 
             await prisma.$transaction(async (tx) => {
-                await tx.customField.deleteMany({
+                const existingFields = await tx.customField.findMany({
                     where: { inventoryId },
                 });
+                const incomingIds = incomingFields
+                    .map((f) => f.id)
+                    .filter(Boolean);
 
-                if (incomingFields.length > 0) {
-                    await tx.customField.createMany({
-                        data: incomingFields.map((field, index) => ({
-                            inventoryId,
-                            fieldType: field.fieldType,
-                            title: field.title.trim(),
-                            description: field.description,
-                            showInTable: field.showInTable,
-                            sortOrder: index,
-                        })),
+                const fieldsToDelete = existingFields.filter(
+                    (f) => !incomingIds.includes(f.id),
+                );
+                if (fieldsToDelete.length > 0) {
+                    await tx.customField.deleteMany({
+                        where: { id: { in: fieldsToDelete.map((f) => f.id) } },
                     });
+                }
+
+                for (const [i, field] of incomingFields.entries()) {
+                    const isExisting =
+                        field.id &&
+                        existingFields.some((f) => f.id === field.id);
+                    if (isExisting) {
+                        await tx.customField.update({
+                            where: { id: field.id },
+                            data: {
+                                fieldType: field.fieldType,
+                                title: field.title.trim(),
+                                description: field.description,
+                                showInTable: field.showInTable,
+                                sortOrder: i,
+                            },
+                        });
+                    } else {
+                        await tx.customField.create({
+                            data: {
+                                inventoryId,
+                                fieldType: field.fieldType,
+                                title: field.title.trim(),
+                                description: field.description,
+                                showInTable: field.showInTable,
+                                sortOrder: i,
+                            },
+                        });
+                    }
                 }
             });
 
