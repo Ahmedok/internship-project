@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
@@ -7,11 +8,23 @@ import { InventorySettingsTab } from '@/components/inventories/InventorySettings
 import { InventoryAccessTab } from '@/components/inventories/InventoryAccessTab';
 import { InventoryFieldsTab } from '@/components/inventories/InventoryFieldsTab';
 import { InventoryCustomIdTab } from '@/components/inventories/InventoryCustomIdTab';
+import { InventoryItemsTab } from '@/components/inventories/InventoryItemsTab';
+import { ItemModal } from '@/components/inventories/ItemModal';
 import { type InventoryDetail } from '@inventory/shared';
 
 export default function InventoryManagePage() {
+    const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+    const [editingItemId, setEditingItemId] = useState<string | undefined>(
+        undefined,
+    );
+
     const { id } = useParams();
     const { user } = useAuthStore();
+
+    const handleOpenItemModal = (itemId?: string) => {
+        setEditingItemId(itemId);
+        setIsItemModalOpen(true);
+    };
 
     const {
         data: inventory,
@@ -109,7 +122,10 @@ export default function InventoryManagePage() {
                     value="items"
                     className="p-4 border rounded-md mt-4"
                 >
-                    <div>TODO: Items content</div>
+                    <InventoryItemsTab
+                        inventory={inventory}
+                        onOpenItemModal={handleOpenItemModal}
+                    />
                 </TabsContent>
 
                 <TabsContent
@@ -143,6 +159,13 @@ export default function InventoryManagePage() {
                     </>
                 )}
             </Tabs>
+
+            <ItemModal
+                isOpen={isItemModalOpen}
+                onClose={() => setIsItemModalOpen(false)}
+                inventory={inventory}
+                itemId={editingItemId}
+            />
         </div>
     );
 }
