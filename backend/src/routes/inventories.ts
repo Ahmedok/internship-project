@@ -9,8 +9,10 @@ import {
     generateCustomId,
     CreateItemSchema,
     BulkDeleteItemsSchema,
+    CreateCommentSchema,
 } from '@inventory/shared';
 import { z } from 'zod';
+import { io } from '../socket';
 
 const router = Router();
 
@@ -839,6 +841,95 @@ router.put(
             console.error('Error updating custom ID format:', error);
             res.status(500).json({
                 message: 'Server error while updating custom ID format',
+            });
+        }
+    },
+);
+
+// --- Discussion APIs ---
+
+router.get(
+    '/:id/comments',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            // TODO: Standardize pagination approach across endpoints
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 20;
+            const skip = (page - 1) * limit;
+
+            const comments = await prisma.comment.findMany({
+                where: { inventoryId: req.params.id },
+                include: {
+                    author: {
+                        select: { id: true, name: true, avatarUrl: true },
+                    },
+                },
+                orderBy: { createdAt: 'asc' },
+                skip,
+                take: limit,
+            });
+
+            res.status(200).json(comments);
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while fetching comments',
+            });
+        }
+    },
+);
+
+router.post(
+    '/:id/comments',
+    requireAuth,
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const parsed = CreateCommentSchema.safeParse(req.body);
+            if (!parsed.success) {
+                return res.status(400).json({ errors: parsed.error.issues });
+            }
+
+            const inventoryId = req.params.id;
+            const userId = req.user!.id;
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+                include: { accessList: true },
+            });
+
+            if (!inventory)
+                return res.status(404).json({ message: 'Inventory not found' });
+
+            const isCreator = inventory.createdById === userId;
+            const hasAccess = inventory.accessList.some(
+                (a) => a.userId === userId,
+            );
+            const isAdmin = req.user!.role === 'ADMIN';
+
+            if (!isCreator && !isAdmin && !hasAccess) {
+                return res.status(403).json({
+                    message: 'No access to leave comments',
+                });
+            }
+
+            const newComment = await prisma.comment.create({
+                data: {
+                    inventoryId,
+                    authorId: userId,
+                    content: parsed.data.content,
+                },
+                include: {
+                    author: {
+                        select: { id: true, name: true, avatarUrl: true },
+                    },
+                },
+            });
+
+            io.to(`inventory:${inventoryId}`).emit('newComment', newComment);
+
+            res.status(201).json(newComment);
+        } catch (error) {
+            res.status(500).json({
+                message: 'Server error while posting comment',
             });
         }
     },
