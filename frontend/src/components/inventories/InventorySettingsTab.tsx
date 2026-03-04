@@ -28,7 +28,7 @@ export function InventorySettingsTab({
         formState: { errors, isDirty, isValid },
         reset,
     } = useForm<InventoryInput>({
-        resolver: zodResolver(InventorySchema as any), // TODO: Fix this typing
+        resolver: zodResolver(InventorySchema),
         defaultValues: {
             title: initialData.title,
             description: initialData.description || '',

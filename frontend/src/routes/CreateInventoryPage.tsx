@@ -15,7 +15,7 @@ export default function CreateInventoryPage() {
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm<InventoryInput>({
-        resolver: zodResolver(InventorySchema as any), // TODO: Fix this typing
+        resolver: zodResolver(InventorySchema),
         defaultValues: {
             title: '',
             description: '',

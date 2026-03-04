@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  zod: 3.23.8
+
 importers:
 
   .:
@@ -29,6 +32,15 @@ importers:
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@10.0.1(jiti@2.6.1))
+      eslint-plugin-react-hooks:
+        specifier: ^7.0.1
+        version: 7.0.1(eslint@10.0.1(jiti@2.6.1))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.26
+        version: 0.4.26(eslint@10.0.1(jiti@2.6.1))
+      globals:
+        specifier: ^16.5.0
+        version: 16.5.0
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
@@ -90,8 +102,8 @@ importers:
         specifier: ^8.19.0
         version: 8.19.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@types/connect-pg-simple':
         specifier: ^7.0.3
@@ -202,8 +214,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: 3.23.8
+        version: 3.23.8
       zustand:
         specifier: ^5.0.11
         version: 5.0.11(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
@@ -278,8 +290,8 @@ importers:
         specifier: ^13.0.0
         version: 13.0.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@types/uuid':
         specifier: ^11.0.0
@@ -874,7 +886,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
-      zod: ^3.25 || ^4.0
+      zod: 3.23.8
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
@@ -5013,19 +5025,16 @@ packages:
   zod-to-json-schema@3.25.1:
     resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
     peerDependencies:
-      zod: ^3.25 || ^4
+      zod: 3.23.8
 
   zod-validation-error@4.0.2:
     resolution: {integrity: sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
+      zod: 3.23.8
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
   zustand@5.0.11:
     resolution: {integrity: sha512-fdZY+dk7zn/vbWNCYmzZULHRrss0jx5pPFiOuMZ/5HJN6Yv3u+1Wswy/4MpZEkEGhtNH+pwxZB8OKgUBPzYAGg==}
@@ -5636,7 +5645,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@modelcontextprotocol/sdk@1.26.0(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.26.0(zod@3.23.8)':
     dependencies:
       '@hono/node-server': 1.19.9(hono@4.11.4)
       ajv: 8.18.0
@@ -5653,8 +5662,8 @@ snapshots:
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.1(zod@3.25.76)
+      zod: 3.23.8
+      zod-to-json-schema: 3.25.1(zod@3.23.8)
     transitivePeerDependencies:
       - supports-color
 
@@ -6932,10 +6941,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/eslint-plugin@8.56.0(@typescript-eslint/parser@8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
+  '@typescript-eslint/eslint-plugin@8.56.0(@typescript-eslint/parser@8.56.0(eslint@10.0.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.56.0(eslint@10.0.1(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/scope-manager': 8.56.0
       '@typescript-eslint/type-utils': 8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/utils': 8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
@@ -7811,16 +7820,31 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@10.0.1(jiti@2.6.1))
 
+  eslint-plugin-react-hooks@7.0.1(eslint@10.0.1(jiti@2.6.1)):
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/parser': 7.29.0
+      eslint: 10.0.1(jiti@2.6.1)
+      hermes-parser: 0.25.1
+      zod: 3.23.8
+      zod-validation-error: 4.0.2(zod@3.23.8)
+    transitivePeerDependencies:
+      - supports-color
+
   eslint-plugin-react-hooks@7.0.1(eslint@9.39.3(jiti@2.6.1)):
     dependencies:
       '@babel/core': 7.29.0
       '@babel/parser': 7.29.0
       eslint: 9.39.3(jiti@2.6.1)
       hermes-parser: 0.25.1
-      zod: 4.3.6
-      zod-validation-error: 4.0.2(zod@4.3.6)
+      zod: 3.23.8
+      zod-validation-error: 4.0.2(zod@3.23.8)
     transitivePeerDependencies:
       - supports-color
+
+  eslint-plugin-react-refresh@0.4.26(eslint@10.0.1(jiti@2.6.1)):
+    dependencies:
+      eslint: 10.0.1(jiti@2.6.1)
 
   eslint-plugin-react-refresh@0.4.26(eslint@9.39.3(jiti@2.6.1)):
     dependencies:
@@ -9571,7 +9595,7 @@ snapshots:
       '@babel/plugin-transform-typescript': 7.28.6(@babel/core@7.29.0)
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0)
       '@dotenvx/dotenvx': 1.52.0
-      '@modelcontextprotocol/sdk': 1.26.0(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.26.0(zod@3.23.8)
       '@types/validate-npm-package-name': 4.0.2
       browserslist: 4.28.1
       commander: 14.0.3
@@ -9598,8 +9622,8 @@ snapshots:
       ts-morph: 26.0.0
       tsconfig-paths: 4.2.0
       validate-npm-package-name: 7.0.2
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.1(zod@3.25.76)
+      zod: 3.23.8
+      zod-to-json-schema: 3.25.1(zod@3.23.8)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@types/node'
@@ -9946,7 +9970,7 @@ snapshots:
 
   typescript-eslint@8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.56.0(@typescript-eslint/parser@8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/eslint-plugin': 8.56.0(@typescript-eslint/parser@8.56.0(eslint@10.0.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/parser': 8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/typescript-estree': 8.56.0(typescript@5.9.3)
       '@typescript-eslint/utils': 8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
@@ -10265,17 +10289,15 @@ snapshots:
       grammex: 3.1.12
       graphmatch: 1.1.1
 
-  zod-to-json-schema@3.25.1(zod@3.25.76):
+  zod-to-json-schema@3.25.1(zod@3.23.8):
     dependencies:
-      zod: 3.25.76
+      zod: 3.23.8
 
-  zod-validation-error@4.0.2(zod@4.3.6):
+  zod-validation-error@4.0.2(zod@3.23.8):
     dependencies:
-      zod: 4.3.6
+      zod: 3.23.8
 
-  zod@3.25.76: {}
-
-  zod@4.3.6: {}
+  zod@3.23.8: {}
 
   zustand@5.0.11(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)):
     optionalDependencies:

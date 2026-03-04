@@ -8,7 +8,7 @@ export const InventorySchema = z.object({
         .max(100, 'Title must be at most 100 characters long'),
     description: z.string().optional(),
     category: z.enum(['COLLECTIONS', 'ELECTRONICS', 'BOOKS', 'TOOLS', 'OTHER']),
-    imageUrl: z.url().nullable().optional(),
+    imageUrl: z.string().url().nullable().optional(),
     isPublic: z.boolean().default(true),
     tags: z
         .array(z.string())
@@ -58,7 +58,7 @@ export const FieldTypeEnum = z.enum([
 ]);
 
 export const CustomFieldSchema = z.object({
-    id: z.uuid().optional(),
+    id: z.string().uuid().optional(),
     fieldType: FieldTypeEnum,
     title: z.string().min(1, 'Field title is required').max(50),
     description: z.string().nullable().optional(),

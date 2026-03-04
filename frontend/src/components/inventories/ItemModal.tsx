@@ -71,7 +71,7 @@ export function ItemModal({
                 schemaShape[field.id!] = z.string().optional();
             } else if (field.fieldType === 'NUMBER') {
                 schemaShape[field.id!] = z
-                    .number({ error: 'Number is expected' })
+                    .number({ invalid_type_error: 'Number is expected' })
                     .optional();
             } else if (field.fieldType === 'BOOLEAN') {
                 schemaShape[field.id!] = z.boolean().optional();
@@ -81,7 +81,7 @@ export function ItemModal({
         return z.object(schemaShape);
     }, [fields]);
 
-    type FormData = z.infer<typeof dynamicSchema>;
+    type FormData = Record<string, unknown>;
 
     const {
         register,

@@ -28,7 +28,7 @@
         "passport-facebook": "^3.0.0",
         "passport-google-oauth20": "^2.0.0",
         "pg": "^8.19.0",
-        "zod": "^4.3.6"
+        "zod": "3.23.8"
     },
     "devDependencies": {
         "@types/connect-pg-simple": "^7.0.3",

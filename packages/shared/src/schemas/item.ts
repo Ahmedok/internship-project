@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const ItemFieldValueInputSchema = z.object({
-    customFieldId: z.uuid(),
+    customFieldId: z.string().uuid(),
     valueString: z.string().nullable().optional(),
     valueNumber: z.number().nullable().optional(),
     valueBoolean: z.boolean().nullable().optional(),
@@ -18,7 +18,7 @@ export const UpdateItemSchema = z.object({
 });
 
 export const BulkDeleteItemsSchema = z.object({
-    ids: z.array(z.uuid()),
+    ids: z.array(z.string().uuid()),
 });
 
 export type ItemFieldValueInput = z.infer<typeof ItemFieldValueInputSchema>;

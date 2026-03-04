@@ -21,7 +21,7 @@ export const IdElementConfigSchema = z.object({
 });
 
 export const CustomIdElementSchema = z.object({
-    id: z.uuid().optional(),
+    id: z.string().uuid().optional(),
     elementType: IdElementTypeEnum,
     config: IdElementConfigSchema,
     sortOrder: z.number().int(),
