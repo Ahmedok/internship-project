@@ -97,6 +97,10 @@ model Inventory {
   customIdElements CustomIdElement[]
   items            Item[]
   comments         Comment[]
+
+  searchVector Unsupported("tsvector")? @default(dbgenerated("''::tsvector"))
+
+  @@index([searchVector], type: Gin)
 }
 
 model Tag {
@@ -173,8 +177,13 @@ model Item {
   fieldValues ItemFieldValue[]
   likes       ItemLike[]
 
+  searchText String? @db.Text
+
+  searchVector Unsupported("tsvector")? @default(dbgenerated("''::tsvector"))
+
   @@unique([inventoryId, customId])
   @@index([inventoryId])
+  @@index([searchVector], type: Gin)
 }
 
 model ItemFieldValue {
