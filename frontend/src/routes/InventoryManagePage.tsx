@@ -9,6 +9,7 @@ import { InventoryAccessTab } from '@/components/inventories/InventoryAccessTab'
 import { InventoryFieldsTab } from '@/components/inventories/InventoryFieldsTab';
 import { InventoryCustomIdTab } from '@/components/inventories/InventoryCustomIdTab';
 import { InventoryItemsTab } from '@/components/inventories/InventoryItemsTab';
+import { InventoryDiscussionTab } from '@/components/inventories/InventoryDiscussionTab';
 import { ItemModal } from '@/components/inventories/ItemModal';
 import { type InventoryDetail } from '@inventory/shared';
 
@@ -132,7 +133,7 @@ export default function InventoryManagePage() {
                     value="discussion"
                     className="p-4 border rounded-md mt-4"
                 >
-                    <div>TODO: Discussion content</div>
+                    <InventoryDiscussionTab inventory={inventory} />
                 </TabsContent>
 
                 {hasFullAccess && (
