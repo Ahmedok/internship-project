@@ -158,10 +158,11 @@ function InventoryTable({
                                         row.getIsSelected() && 'selected'
                                     }
                                     className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900"
-                                    onClick={() =>
-                                        navigate(
-                                            `/inventories/${row.original.id}`,
-                                        )
+                                    onClick={
+                                        () =>
+                                            navigate(
+                                                `/inventories/${row.original.id}/manage`,
+                                            ) // TODO: Replace with proper routing to inventory page (without /manage)
                                     }
                                 >
                                     {row.getVisibleCells().map((cell) => (
