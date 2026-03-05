@@ -555,6 +555,11 @@ router.post(
             }
             const incomingFields = parsed.data.fields;
 
+            const aggregatedSearchText = incomingFields
+                .map((f) => f.valueString)
+                .filter(Boolean)
+                .join(' ');
+
             const inventory = await prisma.inventory.findUnique({
                 where: { id: inventoryId },
                 include: { accessList: true },
@@ -598,6 +603,7 @@ router.post(
                         inventoryId,
                         customId,
                         createdById: userId,
+                        searchText: aggregatedSearchText,
                         fieldValues: {
                             create: incomingFields.map((field) => ({
                                 customFieldId: field.customFieldId,

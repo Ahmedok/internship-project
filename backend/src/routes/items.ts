@@ -76,15 +76,24 @@ router.patch(
             }
 
             await prisma.$transaction(async (tx) => {
+                const dataToUpdate: Prisma.ItemUpdateManyMutationInput = {
+                    customId: customId || item.customId,
+                    version: { increment: 1 },
+                };
+
+                if (fields) {
+                    dataToUpdate.searchText = fields
+                        .map((f) => f.valueString)
+                        .filter(Boolean)
+                        .join(' ');
+                }
+
                 const updateResult = await tx.item.updateMany({
                     where: {
                         id: req.params.id,
                         version: version,
                     },
-                    data: {
-                        customId: customId || item.customId,
-                        version: { increment: 1 },
-                    },
+                    data: dataToUpdate,
                 });
 
                 if (updateResult.count === 0) {
@@ -230,22 +239,18 @@ router.post(
                 await prisma.itemLike.delete({
                     where: { userId_itemId: { userId, itemId } },
                 });
-                return res
-                    .status(200)
-                    .json({
-                        message: 'Item unliked successfully',
-                        isLiked: false,
-                    });
+                return res.status(200).json({
+                    message: 'Item unliked successfully',
+                    isLiked: false,
+                });
             } else {
                 await prisma.itemLike.create({
                     data: { userId, itemId },
                 });
-                return res
-                    .status(200)
-                    .json({
-                        message: 'Item liked successfully',
-                        isLiked: true,
-                    });
+                return res.status(200).json({
+                    message: 'Item liked successfully',
+                    isLiked: true,
+                });
             }
         } catch (error) {
             console.error('Error when liking item:', error);
