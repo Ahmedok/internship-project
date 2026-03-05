@@ -8,3 +8,18 @@ export const CreateCommentSchema = z.object({
 });
 
 export type CreateCommentInput = z.infer<typeof CreateCommentSchema>;
+
+export interface CommentAuthorDto {
+    id: string;
+    name: string;
+    avatarUrl: string | null;
+}
+
+export interface CommentDto {
+    id: string;
+    inventoryId: string;
+    authorId: string;
+    content: string;
+    createdAt: string;
+    author: CommentAuthorDto;
+}

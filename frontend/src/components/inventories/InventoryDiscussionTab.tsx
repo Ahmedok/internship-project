@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import {
     type InventoryDetail,
     type CreateCommentInput,
     CreateCommentSchema,
+    type CommentDto,
 } from '@inventory/shared';
 
 import { Button } from '../ui/button';
@@ -18,15 +19,13 @@ interface InventoryDiscussionTabProps {
     inventory: InventoryDetail;
 }
 
-let socket: Socket | null = null;
-
 export function InventoryDiscussionTab({
     inventory,
 }: InventoryDiscussionTabProps) {
     const queryClient = useQueryClient();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const { data: comments, isLoading } = useQuery({
+    const { data: comments, isLoading } = useQuery<CommentDto[]>({
         queryKey: ['inventory-comments', inventory.id],
         queryFn: async () => {
             const res = await fetch(
@@ -40,18 +39,21 @@ export function InventoryDiscussionTab({
     });
 
     useEffect(() => {
-        socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-            withCredentials: true,
-        });
+        const socketInstance = io(
+            import.meta.env.VITE_API_URL || 'http://localhost:5000',
+            {
+                withCredentials: true,
+            },
+        );
 
-        socket.emit('joinInventory', inventory.id);
+        socketInstance.emit('joinInventory', inventory.id);
 
-        socket.on('newComment', (newComment) => {
-            queryClient.setQueryData(
+        socketInstance.on('newComment', (newComment: CommentDto) => {
+            queryClient.setQueryData<CommentDto[]>(
                 ['inventory-comments', inventory.id],
-                (oldData: any) => {
+                (oldData) => {
                     if (!oldData) return [newComment];
-                    if (oldData.some((c: any) => c.id === newComment.id))
+                    if (oldData.some((c) => c.id === newComment.id))
                         return oldData;
                     return [...oldData, newComment];
                 },
@@ -59,10 +61,8 @@ export function InventoryDiscussionTab({
         });
 
         return () => {
-            if (socket) {
-                socket.emit('leaveInventory', inventory.id);
-                socket.disconnect();
-            }
+            socketInstance.emit('leaveInventory', inventory.id);
+            socketInstance.disconnect();
         };
     }, [inventory.id, queryClient]);
 
@@ -111,7 +111,7 @@ export function InventoryDiscussionTab({
                         No comments yet. Be the first to start the discussion!
                     </div>
                 ) : (
-                    comments.map((comment: any) => (
+                    comments.map((comment: CommentDto) => (
                         <div
                             key={comment.id}
                             className="flex gap-3 bg-white dark:bg-zinc-900 p-3 rounded-lg shadow-sm border border-zinc-100 dark:border-zinc-800"
