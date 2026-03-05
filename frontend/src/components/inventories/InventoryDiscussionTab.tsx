@@ -39,16 +39,22 @@ export function InventoryDiscussionTab({
     });
 
     useEffect(() => {
-        const socketInstance = io(
-            import.meta.env.VITE_API_URL || 'http://localhost:5000',
-            {
-                withCredentials: true,
-            },
-        );
+        const socketInstance = io({
+            path: '/socket.io',
+        });
 
-        socketInstance.emit('joinInventory', inventory.id);
+        // Socket diagnostic logs (TODO: Replace/remove in production)
+        socketInstance.on('connect', () => {
+            console.log('WebSocket connected, ID:', socketInstance.id);
+            socketInstance.emit('joinInventory', inventory.id);
+        });
+
+        socketInstance.on('connect_error', (err) => {
+            console.error('WebSocket connection error:', err);
+        });
 
         socketInstance.on('newComment', (newComment: CommentDto) => {
+            console.log('Received new comment via WebSocket:', newComment.id);
             queryClient.setQueryData<CommentDto[]>(
                 ['inventory-comments', inventory.id],
                 (oldData) => {
