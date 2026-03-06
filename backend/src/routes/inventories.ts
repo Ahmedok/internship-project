@@ -556,7 +556,15 @@ router.post(
             const incomingFields = parsed.data.fields;
 
             const aggregatedSearchText = incomingFields
-                .map((f) => f.valueString)
+                .map((f) => {
+                    const parts = [];
+                    if (f.valueString) parts.push(f.valueString);
+                    if (f.valueNumber !== null && f.valueNumber !== undefined)
+                        parts.push(String(f.valueNumber));
+                    if (f.valueBoolean !== null && f.valueBoolean !== undefined)
+                        parts.push(f.valueBoolean ? 'true' : 'false');
+                    return parts.join(' ');
+                })
                 .filter(Boolean)
                 .join(' ');
 

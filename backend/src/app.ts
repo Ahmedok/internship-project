@@ -16,6 +16,7 @@ import itemRoutes from './routes/items';
 import tagsRoutes from './routes/tags';
 import uploadRoutes from './routes/upload';
 import userRoutes from './routes/users';
+import searchRoutes from './routes/search';
 
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -77,5 +78,7 @@ app.use('/api/tags', tagsRoutes);
 app.use('/api/upload', uploadRoutes);
 
 app.use('/api/users', userRoutes);
+
+app.use('/api/search', searchRoutes);
 
 export default app;

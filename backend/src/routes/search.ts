@@ -26,7 +26,7 @@ router.get('/', async (req: Request, res: Response) => {
             .join(' & ');
 
         const inventories = await prisma.$queryRaw`
-            SELECT id, title, description, "imageUrl", "categoryId",
+            SELECT id, title, description, "imageUrl", "category",
                 ts_rank("searchVector", to_tsquery('simple', ${formattedQuery})) AS rank
             FROM "Inventory"
             WHERE "searchVector" @@ to_tsquery('simple', ${formattedQuery})

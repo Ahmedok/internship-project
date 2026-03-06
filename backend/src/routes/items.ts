@@ -27,7 +27,13 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
                     },
                 },
                 createdBy: { select: { id: true, name: true } },
-                fieldValues: true,
+                fieldValues: {
+                    include: {
+                        customField: {
+                            select: { title: true, fieldType: true },
+                        },
+                    },
+                },
             },
         });
 
@@ -83,7 +89,21 @@ router.patch(
 
                 if (fields) {
                     dataToUpdate.searchText = fields
-                        .map((f) => f.valueString)
+                        .map((f) => {
+                            const parts = [];
+                            if (f.valueString) parts.push(f.valueString);
+                            if (
+                                f.valueNumber !== null &&
+                                f.valueNumber !== undefined
+                            )
+                                parts.push(String(f.valueNumber));
+                            if (
+                                f.valueBoolean !== null &&
+                                f.valueBoolean !== undefined
+                            )
+                                parts.push(f.valueBoolean ? 'true' : 'false');
+                            return parts.join(' ');
+                        })
                         .filter(Boolean)
                         .join(' ');
                 }
