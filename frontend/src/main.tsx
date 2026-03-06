@@ -7,7 +7,7 @@ import './index.css';
 import RootLayout from './routes/RootLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './routes/LoginPage';
-import Dashboard from './routes/Dashboard';
+import HomePage from './routes/HomePage';
 import AdminPage from './routes/AdminPage';
 import PersonalPage from './routes/PersonalPage';
 import CreateInventoryPage from './routes/CreateInventoryPage';
@@ -26,12 +26,24 @@ const router = createBrowserRouter([
                 element: <LoginPage />,
             },
             {
+                path: '/',
+                element: <HomePage />,
+            },
+            {
+                path: '/search',
+                element: <SearchResultsPage />,
+            },
+            {
+                path: '/items/:id',
+                element: <ItemDetailPage />,
+            },
+            {
+                path: '/inventories/:id',
+                element: <InventoryManagePage />,
+            },
+            {
                 element: <ProtectedRoute />,
                 children: [
-                    {
-                        path: '/',
-                        element: <Dashboard />,
-                    },
                     {
                         path: '/admin',
                         element: <AdminPage />,
@@ -43,18 +55,6 @@ const router = createBrowserRouter([
                     {
                         path: '/inventories/new',
                         element: <CreateInventoryPage />,
-                    },
-                    {
-                        path: '/inventories/:id',
-                        element: <InventoryManagePage />,
-                    },
-                    {
-                        path: '/search',
-                        element: <SearchResultsPage />,
-                    },
-                    {
-                        path: '/items/:id',
-                        element: <ItemDetailPage />,
                     },
                     // TODO: Add other routes
                 ],
