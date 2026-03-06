@@ -31,6 +31,10 @@ export interface ItemFieldValueDto {
     valueString: string | null;
     valueNumber: number | null;
     valueBoolean: boolean | null;
+    customField?: {
+        title: string;
+        fieldType: 'STRING' | 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'DOCUMENT';
+    };
 }
 
 export interface InventoryItemDto {
@@ -46,6 +50,9 @@ export interface InventoryItemDto {
         avatarUrl: string | null;
     };
     fieldValues: ItemFieldValueDto[];
+    inventory?: {
+        title: string;
+    };
 }
 
 export interface PaginatedItemsDto {
