@@ -77,6 +77,7 @@ export interface InventorySummaryDto {
     description: string | null;
     imageUrl: string | null;
     createdAt: string;
+    updatedAt: string;
     createdBy: Pick<User, 'id' | 'name' | 'avatarUrl'>;
     _count: {
         items: number;
