@@ -36,4 +36,39 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
+router.get('/cloud', async (_req: Request, res: Response) => {
+    try {
+        const tags = await prisma.tag.findMany({
+            select: {
+                id: true,
+                name: true,
+                _count: {
+                    select: { inventories: true },
+                },
+            },
+            orderBy: {
+                inventories: {
+                    _count: 'desc',
+                },
+            },
+            take: 50,
+        });
+
+        const formattedTags = tags
+            .map((tag) => ({
+                id: tag.id,
+                name: tag.name,
+                count: tag._count.inventories,
+            }))
+            .filter((tag) => tag.count > 0);
+
+        res.status(200).json(formattedTags);
+    } catch (error) {
+        console.error('Error fetching tag cloud:', error);
+        res.status(500).json({
+            error: 'Server error while fetching tag cloud',
+        });
+    }
+});
+
 export default router;
