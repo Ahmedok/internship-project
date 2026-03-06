@@ -41,7 +41,7 @@ export default function CreateInventoryPage() {
             queryClient.invalidateQueries({
                 queryKey: ['personal-inventories'],
             });
-            navigate(`/inventories/${newInventory.id}/manage`);
+            navigate(`/inventories/${newInventory.id}`);
         },
     });
 
