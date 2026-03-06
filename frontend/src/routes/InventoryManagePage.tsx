@@ -10,6 +10,7 @@ import { InventoryFieldsTab } from '@/components/inventories/InventoryFieldsTab'
 import { InventoryCustomIdTab } from '@/components/inventories/InventoryCustomIdTab';
 import { InventoryItemsTab } from '@/components/inventories/InventoryItemsTab';
 import { InventoryDiscussionTab } from '@/components/inventories/InventoryDiscussionTab';
+import { InventoryStatisticsTab } from '@/components/inventories/InventoryStatisticsTab';
 import { ItemModal } from '@/components/inventories/ItemModal';
 import { type InventoryDetail } from '@inventory/shared';
 
@@ -155,7 +156,7 @@ export default function InventoryManagePage() {
                         </TabsContent>
 
                         <TabsContent value="statistics" className="mt-4">
-                            <div>TODO: Statistics</div>
+                            <InventoryStatisticsTab inventory={inventory} />
                         </TabsContent>
                     </>
                 )}
