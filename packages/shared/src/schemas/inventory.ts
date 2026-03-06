@@ -70,3 +70,41 @@ export const CustomFieldUpdateSchema = z.array(CustomFieldSchema);
 
 export type FieldType = z.infer<typeof FieldTypeEnum>;
 export type CustomFieldInput = z.infer<typeof CustomFieldSchema>;
+
+export interface InventorySummaryDto {
+    id: string;
+    title: string;
+    description: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    createdBy: Pick<User, 'id' | 'name' | 'avatarUrl'>;
+    _count: {
+        items: number;
+    };
+}
+
+export interface TagCloudDto {
+    id: string;
+    name: string;
+    count: number;
+}
+
+export interface NumericStatDto {
+    customFieldId: string;
+    min_val: string | number;
+    max_val: string | number;
+    avg_val: string | number;
+    count_val: string | number;
+}
+
+export interface StringStatDto {
+    customFieldId: string;
+    valueString: string;
+    frequency: string | number;
+}
+
+export interface InventoryStatsDto {
+    totalItems: number;
+    numericStats: NumericStatDto[];
+    stringStats: StringStatDto[];
+}
