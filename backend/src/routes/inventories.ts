@@ -67,6 +67,46 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     }
 });
 
+router.get('/latest', async (_req: Request, res: Response) => {
+    try {
+        const latest = await prisma.inventory.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+            include: {
+                createdBy: {
+                    select: { name: true, avatarUrl: true },
+                },
+                _count: { select: { items: true } },
+            },
+        });
+        res.status(200).json(latest);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server error while fetching latest inventories',
+        });
+    }
+});
+
+router.get('/popular', async (_req: Request, res: Response) => {
+    try {
+        const popular = await prisma.inventory.findMany({
+            orderBy: { items: { _count: 'desc' } },
+            take: 5,
+            include: {
+                createdBy: {
+                    select: { name: true, avatarUrl: true },
+                },
+                _count: { select: { items: true } },
+            },
+        });
+        res.status(200).json(popular);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server error while fetching popular inventories',
+        });
+    }
+});
+
 router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
     try {
         const inventory = await prisma.inventory.findUnique({
