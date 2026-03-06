@@ -8,6 +8,14 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default defineConfig([
     {
+        ignores: [
+            '.pnpm-store/**',
+            '**/dist/**',
+            '**/build/**',
+            '**/node_modules/**',
+        ],
+    },
+    {
         languageOptions: {
             globals: globals.browser,
             parserOptions: {

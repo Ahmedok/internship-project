@@ -9,5 +9,6 @@
         "forceConsistentCasingInFileNames": true,
         "noUncheckedIndexedAccess": true,
         "isolatedModules": true
-    }
+    },
+    "exclude": ["node_modules", "**/*/node_modules/*", "dist", "build"]
 }
