@@ -36,7 +36,7 @@ export default function ItemDetailPage() {
         const fieldType = fv.customField?.fieldType;
 
         if (fieldType === 'BOOLEAN') {
-            return fv.valueBoolean ? 'Yes' : 'No';
+            return fv.valueBoolean ? 'True' : 'False';
         }
         if (fieldType === 'NUMBER') {
             return fv.valueNumber !== null ? String(fv.valueNumber) : '-';

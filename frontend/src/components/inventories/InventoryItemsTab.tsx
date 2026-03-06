@@ -108,7 +108,7 @@ export function InventoryItemsTab({
         if (valueObj.valueString !== null) return valueObj.valueString;
         if (valueObj.valueNumber !== null) return valueObj.valueNumber;
         if (valueObj.valueBoolean !== null)
-            return valueObj.valueBoolean ? 'Yes' : 'No';
+            return valueObj.valueBoolean ? 'True' : 'False';
         return '-';
     };
 
