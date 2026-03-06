@@ -11,7 +11,7 @@ import {
     BulkDeleteItemsSchema,
     CreateCommentSchema,
 } from '@inventory/shared';
-import { z } from 'zod';
+import { string, z } from 'zod';
 import { io } from '../socket';
 
 const router = Router();
@@ -984,6 +984,82 @@ router.post(
         } catch (error) {
             res.status(500).json({
                 message: 'Server error while posting comment',
+            });
+        }
+    },
+);
+
+// --- Statistics APIs ---
+
+router.get(
+    '/:id/stats',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+
+            const totalItems = await prisma.item.count({
+                where: { inventoryId },
+            });
+            if (totalItems === 0) {
+                return res.status(200).json({
+                    totalItems: 0,
+                    numericStats: [],
+                    stringStats: [],
+                });
+            }
+
+            const numericStats = await prisma.$queryRaw`
+                SELECT
+                    ifv."customFieldId",
+                    MIN(ifv."valueNumber") AS min_val,
+                    MAX(ifv."valueNumber") AS max_val,
+                    AVG(ifv."valueNumber") AS avg_val,
+                    CAST(COUNT(ifv.id) AS INTEGER) AS count_val
+                FROM "ItemFieldValue" ifv
+                JOIN "Item" i ON i.id = ifv."itemId"
+                WHERE i."inventoryId" = ${inventoryId} AND ifv."valueNumber" IS NOT NULL
+                GROUP BY ifv."customFieldId"
+            `;
+
+            const stringStats = await prisma.$queryRaw`
+                WITH RankedValues AS (
+                    SELECT
+                        ifv."customFieldId",
+                        ifv."valueString",
+                        CAST(COUNT(ifv.id) AS INTEGER) AS frequency,
+                        ROW_NUMBER() OVER(
+                            PARTITION BY ifv."customFieldId"
+                            ORDER BY COUNT(ifv.id) DESC
+                        ) AS rank
+                    FROM "ItemFieldValue" ifv
+                    JOIN "Item" i ON i.id = ifv."itemId"
+                    WHERE i."inventoryId" = ${inventoryId}
+                        AND ifv."valueString" IS NOT NULL
+                        AND ifv."valueString" != ''
+                    GROUP BY ifv."customFieldId", ifv."valueString"
+                )
+                SELECT "customFieldId", "valueString", frequency
+                FROM RankedValues
+                WHERE rank <= 5
+            `;
+
+            res.status(200).json({
+                totalItems,
+                numericStats: JSON.parse(
+                    JSON.stringify(numericStats, (_key, value) =>
+                        typeof value === 'bigint' ? value.toString() : value,
+                    ),
+                ),
+                stringStats: JSON.parse(
+                    JSON.stringify(stringStats, (_key, value) =>
+                        typeof value === 'bigint' ? value.toString() : value,
+                    ),
+                ),
+            });
+        } catch (error) {
+            console.error('Error fetching inventory stats:', error);
+            res.status(500).json({
+                message: 'Server error while fetching inventory statistics',
             });
         }
     },
