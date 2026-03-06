@@ -15,7 +15,7 @@ import {
     TableCell,
 } from '../components/ui/table';
 
-export function SearchResultsPage() {
+export default function SearchResultsPage() {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q') || '';
 

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import type { InventoryItemDto, ItemFieldValueDto } from '@inventory/shared';
 
-export function ItemDetailPage() {
+export default function ItemDetailPage() {
     const { id } = useParams<{ id: string }>();
 
     const {

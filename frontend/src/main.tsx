@@ -12,6 +12,8 @@ import AdminPage from './routes/AdminPage';
 import PersonalPage from './routes/PersonalPage';
 import CreateInventoryPage from './routes/CreateInventoryPage';
 import InventoryManagePage from './routes/InventoryManagePage';
+import SearchResultsPage from './routes/SearchResultsPage';
+import ItemDetailPage from './routes/ItemDetailPage';
 
 const queryClient = new QueryClient();
 
@@ -46,7 +48,15 @@ const router = createBrowserRouter([
                         path: '/inventories/:id/manage',
                         element: <InventoryManagePage />,
                     },
-                    // TODO: Add other routes here
+                    {
+                        path: '/search',
+                        element: <SearchResultsPage />,
+                    },
+                    {
+                        path: '/items/:id',
+                        element: <ItemDetailPage />,
+                    },
+                    // TODO: Add other routes
                 ],
             },
         ],
