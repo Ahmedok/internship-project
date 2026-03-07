@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useDebounce } from '@/hooks/useDebounce';
 import {
     InventorySchema,
     type InventoryDetail,
@@ -19,6 +20,23 @@ export function InventorySettingsTab({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [conflictError, setConflictError] = useState<string | null>(null);
+
+    const [tagInput, setTagInput] = useState('');
+
+    const debouncedTag = useDebounce(tagInput, 300);
+
+    const { data: tagSuggestions } = useQuery({
+        queryKey: ['tag-autocomplete', debouncedTag],
+        queryFn: async () => {
+            if (!debouncedTag.trim()) return [];
+            const res = await fetch(
+                `/api/tags?q=${encodeURIComponent(debouncedTag)}`,
+            );
+            if (!res.ok) return [];
+            return res.json() as Promise<string[]>;
+        },
+        enabled: debouncedTag.length > 0,
+    });
 
     const {
         register,
@@ -42,6 +60,29 @@ export function InventorySettingsTab({
     });
 
     const formValues = watch();
+
+    const handleAddTag = (tagToAdd: string) => {
+        const cleanedTag = tagToAdd.trim().toLowerCase();
+        if (!cleanedTag) return;
+
+        const currentTags = getValues('tags') || [];
+        if (!currentTags.includes(cleanedTag)) {
+            setValue('tags', [...currentTags, cleanedTag], {
+                shouldDirty: true,
+                shouldValidate: true,
+            });
+        }
+        setTagInput('');
+    };
+
+    const handleRemoveTag = (tagToRemove: string) => {
+        const currentTags = getValues('tags') || [];
+        setValue(
+            'tags',
+            currentTags.filter((t) => t !== tagToRemove),
+            { shouldDirty: true, shouldValidate: true },
+        );
+    };
 
     const autoSaveMutation = useMutation({
         mutationFn: async (data: Partial<InventoryInput>) => {
@@ -262,21 +303,68 @@ export function InventorySettingsTab({
                     />
                 </div>
 
-                {/* Tags (TODO: Proper tags) */}
+                {/* Tags */}
                 <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Tags (TEMP readonly)
+                    <label className="block text-sm font-medium mb-2">
+                        Tags (press Enter to add)
                     </label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mb-3 border p-3 rounded-md min-h-12.5 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                         {formValues.tags?.map((tag: string) => (
-                            <Badge key={tag} variant="secondary">
-                                {tag}
+                            <Badge
+                                key={tag}
+                                variant="secondary"
+                                className="flex items-center gap-1 px-2 py-1"
+                            >
+                                #{tag}
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveTag(tag)}
+                                    className="ml-1 rounded-full focus:outline-none text-zinc-500 hover:text-red-500"
+                                >
+                                    &times;
+                                </button>
                             </Badge>
                         ))}
+                        {(!formValues.tags || formValues.tags.length === 0) && (
+                            <span className="text-zinc-400 text-sm flex items-center">
+                                No tags
+                            </span>
+                        )}
                     </div>
-                    <p className="text-xs text-zinc-500 mt-1">
-                        TODO: Tag editing with autocomplete
-                    </p>
+
+                    <div className="relative">
+                        <Input
+                            type="text"
+                            value={tagInput}
+                            onChange={(e) => setTagInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddTag(tagInput);
+                                }
+                            }}
+                            placeholder="Start entering a tag..."
+                            className="w-full"
+                        />
+
+                        {tagSuggestions &&
+                            tagSuggestions.length > 0 &&
+                            tagInput && (
+                                <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg max-h-48 overflow-auto">
+                                    {tagSuggestions.map((suggestion, idx) => (
+                                        <li
+                                            key={idx}
+                                            onClick={() =>
+                                                handleAddTag(suggestion)
+                                            }
+                                            className="px-4 py-2 text-sm cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                        >
+                                            #{suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                    </div>
                 </div>
             </form>
         </div>
