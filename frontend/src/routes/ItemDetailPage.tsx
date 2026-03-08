@@ -3,6 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import type { InventoryItemDto, ItemFieldValueDto } from '@inventory/shared';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+
 interface LikeData {
     count: number;
     isLiked: boolean;
@@ -156,21 +159,66 @@ export default function ItemDetailPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {item.fieldValues.map((fv) => (
-                    <div
-                        key={fv.id}
-                        className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border"
-                    >
-                        <div className="text-sm font-medium text-zinc-500 mb-1">
-                            {fv.customField?.title || 'Unknown Field'}
-                        </div>
-                        <div className="text-lg text-zinc-900 dark:text-zinc-100">
-                            {renderFieldValue(fv)}
-                        </div>
+            <Tabs defaultValue="table" className="w-full">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">Item Properties</h2>
+                    <TabsList>
+                        <TabsTrigger value="table">Table</TabsTrigger>
+                        <TabsTrigger value="grid">Grid</TabsTrigger>
+                    </TabsList>
+                </div>
+
+                <TabsContent value="table" className="mt-0">
+                    <div className="border rounded-md overflow-hidden bg-white dark:bg-zinc-950">
+                        <Table>
+                            <TableBody>
+                                {item.fieldValues.map((fv) => (
+                                    <TableRow
+                                        key={fv.id}
+                                        className="hover:bg-transparent"
+                                    >
+                                        <TableCell className="w-1/3 font-medium text-zinc-500 bg-zinc-50 dark:bg-zinc-900/50 border-r">
+                                            {fv.customField?.title ||
+                                                'Unknown Field'}
+                                        </TableCell>
+                                        <TableCell className="text-zinc-900 dark:text-zinc-100">
+                                            {renderFieldValue(fv)}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {item.fieldValues.length === 0 && (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={2}
+                                            className="text-center text-zinc-500 py-8"
+                                        >
+                                            This item has no fields.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
                     </div>
-                ))}
-            </div>
+                </TabsContent>
+
+                <TabsContent value="grid" className="mt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {item.fieldValues.map((fv) => (
+                            <div
+                                key={fv.id}
+                                className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border"
+                            >
+                                <div className="text-sm font-medium text-zinc-500 mb-1">
+                                    {fv.customField?.title || 'Unknown Field'}
+                                </div>
+                                <div className="text-lg text-zinc-900 dark:text-zinc-100">
+                                    {renderFieldValue(fv)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }
