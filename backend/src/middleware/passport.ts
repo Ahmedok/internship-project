@@ -12,7 +12,7 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
-passport.serializeUser((user: any, done) => {
+passport.serializeUser((user: Express.User, done) => {
     done(null, user.id);
 });
 
