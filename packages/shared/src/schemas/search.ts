@@ -1,11 +1,9 @@
-import { z } from 'zod';
-
 export interface SearchInventoryDto {
     id: string;
     title: string;
     description: string | null;
     imageUrl: string | null;
-    categoryId: string;
+    category: string;
     rank: number;
 }
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { FieldType } from './inventory';
 
 export const ItemFieldValueInputSchema = z.object({
     customFieldId: z.string().uuid(),
@@ -33,7 +34,7 @@ export interface ItemFieldValueDto {
     valueBoolean: boolean | null;
     customField?: {
         title: string;
-        fieldType: 'STRING' | 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'DOCUMENT';
+        fieldType: FieldType;
     };
 }
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { User } from './user';
 
 export const CreateCommentSchema = z.object({
     content: z
@@ -9,11 +10,7 @@ export const CreateCommentSchema = z.object({
 
 export type CreateCommentInput = z.infer<typeof CreateCommentSchema>;
 
-export interface CommentAuthorDto {
-    id: string;
-    name: string;
-    avatarUrl: string | null;
-}
+export type CommentAuthorDto = Pick<User, 'id' | 'name' | 'avatarUrl'>;
 
 export interface CommentDto {
     id: string;

@@ -39,8 +39,8 @@ export interface InventoryDetail {
     isPublic: boolean;
     version: number;
     createdById: string;
-    createdAt: string | Date;
-    updatedAt: string | Date;
+    createdAt: string;
+    updatedAt: string;
 
     idCounter: number;
 
@@ -74,8 +74,10 @@ export type CustomFieldInput = z.infer<typeof CustomFieldSchema>;
 export interface InventorySummaryDto {
     id: string;
     title: string;
+    category: 'COLLECTIONS' | 'ELECTRONICS' | 'BOOKS' | 'TOOLS' | 'OTHER';
     description: string | null;
     imageUrl: string | null;
+    isPublic: boolean;
     createdAt: string;
     updatedAt: string;
     createdBy: Pick<User, 'id' | 'name' | 'avatarUrl'>;
