@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Prisma, PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { requireAuth } from '../middleware/auth';
+import { accessPolicy } from '../utils/permissions';
 import {
     InventorySchema,
     CustomFieldUpdateSchema,
@@ -11,7 +12,7 @@ import {
     BulkDeleteItemsSchema,
     CreateCommentSchema,
 } from '@inventory/shared';
-import { string, z } from 'zod';
+import { z } from 'zod';
 import { io } from '../socket';
 
 const router = Router();
@@ -128,19 +129,6 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
             return res.status(404).json({ message: 'Inventory not found' });
         }
 
-        if (!inventory.isPublic) {
-            const userId = req.user?.id;
-            const isAdmin = req.user?.role === 'ADMIN';
-            const isCreator = inventory.createdById === userId;
-            const hasAccess = inventory.accessList.some(
-                (a) => a.userId === userId,
-            );
-
-            if (!isAdmin && !isCreator && !hasAccess) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-        }
-
         res.status(200).json(inventory);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching inventory' });
@@ -185,14 +173,11 @@ router.patch(
             if (!inventory)
                 return res.status(404).json({ message: 'Inventory not found' });
 
-            const userId = req.user!.id;
-            const canEdit =
-                req.user!.role === 'ADMIN' ||
-                inventory.createdById === userId ||
-                inventory.accessList.some((a) => a.userId === userId);
-
-            if (!canEdit)
-                return res.status(403).json({ message: 'No edit access' });
+            if (!accessPolicy.canManage(req.user, inventory)) {
+                return res
+                    .status(403)
+                    .json({ message: 'No management access' });
+            }
 
             const updateData: any = {
                 version: { increment: 1 },
@@ -256,6 +241,7 @@ router.get('/', async (req: Request, res: Response) => {
         const category = (req.query.category as string) || undefined;
         const skip = (page - 1) * limit;
 
+        // TODO: Rethink visibility permissions
         const userId = req.user?.id;
         const isAdmin = req.user?.role === 'ADMIN';
 
@@ -328,20 +314,18 @@ router.delete(
     async (req: Request<{ id: string }>, res: Response) => {
         try {
             const inventoryId = req.params.id;
-            const user = req.user!;
+            const user = req.user;
 
             const inventory = await prisma.inventory.findUnique({
                 where: { id: inventoryId },
+                include: { createdBy: true, accessList: true },
             });
 
             if (!inventory) {
                 return res.status(404).json({ message: 'Inventory not found' });
             }
 
-            const isCreator = inventory.createdById === user.id;
-            const isAdmin = user.role === 'ADMIN';
-
-            if (!isCreator && !isAdmin) {
+            if (!accessPolicy.canManage(user, inventory)) {
                 return res.status(403).json({
                     message: 'No permission to delete this inventory',
                 });
@@ -371,15 +355,13 @@ router.post(
 
             const inventory = await prisma.inventory.findUnique({
                 where: { id: inventoryId },
+                include: { createdBy: true, accessList: true },
             });
             if (!inventory) {
                 return res.status(404).json({ message: 'Inventory not found' });
             }
 
-            if (
-                inventory.createdById !== req.user!.id &&
-                req.user!.role !== 'ADMIN'
-            ) {
+            if (!accessPolicy.canManage(req.user, inventory)) {
                 return res
                     .status(403)
                     .json({ message: 'No permission for access management' });
@@ -422,15 +404,13 @@ router.delete(
 
             const inventory = await prisma.inventory.findUnique({
                 where: { id: inventoryId },
+                include: { createdBy: true, accessList: true },
             });
             if (!inventory) {
                 return res.status(404).json({ message: 'Inventory not found' });
             }
 
-            if (
-                inventory.createdById !== req.user!.id &&
-                req.user!.role !== 'ADMIN'
-            ) {
+            if (!accessPolicy.canManage(req.user, inventory)) {
                 return res
                     .status(403)
                     .json({ message: 'No permission for access management' });
@@ -480,18 +460,16 @@ router.put(
 
             const inventory = await prisma.inventory.findUnique({
                 where: { id: inventoryId },
+                include: { createdBy: true, accessList: true },
             });
             if (!inventory)
                 return res.status(404).json({ message: 'Inventory not found' });
 
-            if (
-                inventory.createdById !== req.user!.id &&
-                req.user!.role !== 'ADMIN'
-            ) {
+            if (!accessPolicy.canManage(req.user, inventory)) {
                 return res.status(403).json({
                     message: 'No permission to update field structure',
                 });
-            } // TODO: Standardize permission checks across endpoints
+            }
 
             const parsed = CustomFieldUpdateSchema.safeParse(req.body);
             if (!parsed.success) {
@@ -616,13 +594,7 @@ router.post(
             if (!inventory)
                 return res.status(404).json({ message: 'Inventory not found' });
 
-            const isCreator = inventory.createdById === userId;
-            const hasAccess = inventory.accessList.some(
-                (a) => a.userId === userId,
-            );
-            const isAdmin = req.user!.role === 'ADMIN';
-
-            if (!isCreator && !isAdmin && !hasAccess) {
+            if (!accessPolicy.canWrite(req.user, inventory)) {
                 return res.status(403).json({
                     message: 'No access to add items',
                 });
@@ -744,7 +716,6 @@ router.post(
     async (req: Request<{ id: string }>, res: Response) => {
         try {
             const inventoryId = req.params.id;
-            const userId = req.user!.id;
 
             const parsed = BulkDeleteItemsSchema.safeParse(req.body);
             if (!parsed.success) {
@@ -763,13 +734,7 @@ router.post(
             if (!inventory)
                 return res.status(404).json({ message: 'Inventory not found' });
 
-            const isCreator = inventory.createdById === userId;
-            const hasAccess = inventory.accessList.some(
-                (a) => a.userId === userId,
-            );
-            const isAdmin = req.user!.role === 'ADMIN';
-
-            if (!isCreator && !isAdmin && !hasAccess) {
+            if (!accessPolicy.canWrite(req.user, inventory)) {
                 return res.status(403).json({
                     message: 'No access to delete items',
                 });
@@ -851,14 +816,12 @@ router.put(
 
             const inventory = await prisma.inventory.findUnique({
                 where: { id: inventoryId },
+                include: { createdBy: true, accessList: true },
             });
             if (!inventory)
                 return res.status(404).json({ message: 'Inventory not found' });
 
-            if (
-                inventory.createdById !== req.user!.id &&
-                req.user!.role !== 'ADMIN'
-            ) {
+            if (!accessPolicy.canManage(req.user, inventory)) {
                 return res.status(403).json({
                     message: 'No permissions to update custom ID format',
                 });
@@ -953,13 +916,7 @@ router.post(
             if (!inventory)
                 return res.status(404).json({ message: 'Inventory not found' });
 
-            const isCreator = inventory.createdById === userId;
-            const hasAccess = inventory.accessList.some(
-                (a) => a.userId === userId,
-            );
-            const isAdmin = req.user!.role === 'ADMIN';
-
-            if (!isCreator && !isAdmin && !hasAccess) {
+            if (!accessPolicy.canWrite(req.user, inventory)) {
                 return res.status(403).json({
                     message: 'No access to leave comments',
                 });

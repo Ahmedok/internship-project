@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Prisma, PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { requireAuth } from '../middleware/auth';
+import { accessPolicy } from '../utils/permissions';
 import { UpdateItemSchema } from '@inventory/shared';
 
 const router = Router();
@@ -63,21 +64,18 @@ router.patch(
                 where: { id: req.params.id },
                 include: {
                     inventory: {
-                        select: { createdById: true, accessList: true },
+                        select: {
+                            createdById: true,
+                            isPublic: true,
+                            accessList: true,
+                        },
                     },
                 },
             });
             if (!item)
                 return res.status(404).json({ message: 'Item not found' });
 
-            const userId = req.user!.id;
-            const isCreator = item.inventory.createdById === userId;
-            const hasAccess = item.inventory.accessList.some(
-                (a) => a.userId === userId,
-            );
-            const isAdmin = req.user!.role === 'ADMIN';
-
-            if (!isCreator && !isAdmin && !hasAccess) {
+            if (!accessPolicy.canWrite(req.user, item.inventory)) {
                 return res.status(403).json({ message: 'No item edit access' });
             }
 
@@ -173,7 +171,11 @@ router.delete(
                 where: { id: req.params.id },
                 include: {
                     inventory: {
-                        select: { createdById: true, accessList: true },
+                        select: {
+                            createdById: true,
+                            isPublic: true,
+                            accessList: true,
+                        },
                     },
                 },
             });
@@ -181,14 +183,7 @@ router.delete(
                 return res.status(404).json({ message: 'Item not found' });
             }
 
-            const userId = req.user!.id;
-            const isCreator = item.inventory.createdById === userId;
-            const hasAccess = item.inventory.accessList.some(
-                (a) => a.userId === userId,
-            );
-            const isAdmin = req.user!.role === 'ADMIN';
-
-            if (!isCreator && !isAdmin && !hasAccess) {
+            if (!accessPolicy.canWrite(req.user, item.inventory)) {
                 return res
                     .status(403)
                     .json({ message: 'No item delete access' });
@@ -209,33 +204,36 @@ router.delete(
 
 // --- Likes API ---
 
-router.get(
-    '/:id/like',
-    requireAuth,
-    async (req: Request<{ id: string }>, res: Response) => {
-        try {
-            const itemId = req.params.id;
-            const userId = req.user!.id;
+router.get('/:id/like', async (req: Request<{ id: string }>, res: Response) => {
+    try {
+        const itemId = req.params.id;
+        const userId = req.user?.id;
 
+        if (userId) {
             const [totalLikes, userLike] = await Promise.all([
                 prisma.itemLike.count({ where: { itemId } }),
                 prisma.itemLike.findUnique({
                     where: { userId_itemId: { userId, itemId } },
                 }),
             ]);
-
-            res.status(200).json({
+            return res.status(200).json({
                 count: totalLikes,
                 isLiked: !!userLike,
             });
-        } catch (error) {
-            console.error('Error when fetching likes:', error);
-            res.status(500).json({
-                message: 'Server error while fetching likes',
-            });
         }
-    },
-);
+
+        const totalLikes = await prisma.itemLike.count({ where: { itemId } });
+        res.status(200).json({
+            count: totalLikes,
+            isLiked: false,
+        });
+    } catch (error) {
+        console.error('Error when fetching likes:', error);
+        res.status(500).json({
+            message: 'Server error while fetching likes',
+        });
+    }
+});
 
 router.post(
     '/:id/like',
