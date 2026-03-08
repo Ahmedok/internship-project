@@ -1,16 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
-import { PrismaClient } from '../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-
-const adapter = new PrismaPg({
-    connectionString:
-        process.env.DATABASE_URL ||
-        'postgresql://user:password@localhost:5432/mydb',
-});
-
-const prisma = new PrismaClient({ adapter });
+import { prisma } from '../lib/prisma';
 
 passport.serializeUser((user: Express.User, done) => {
     done(null, user.id);

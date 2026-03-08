@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { Prisma, PrismaClient } from '../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { Prisma } from '../generated/prisma/client';
+import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { accessPolicy } from '../utils/permissions';
 import {
@@ -16,13 +16,6 @@ import { z } from 'zod';
 import { io } from '../socket';
 
 const router = Router();
-
-const adapter = new PrismaPg({
-    connectionString:
-        process.env.DATABASE_URL ||
-        'postgresql://user:password@localhost:5432/mydb',
-});
-const prisma = new PrismaClient({ adapter });
 
 router.post('/', requireAuth, async (req: Request, res: Response) => {
     try {

@@ -1,18 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { Prisma, PrismaClient } from '../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { Prisma } from '../generated/prisma/client';
+import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { accessPolicy } from '../utils/permissions';
 import { UpdateItemSchema } from '@inventory/shared';
 
 const router = Router();
-
-const adapter = new PrismaPg({
-    connectionString:
-        process.env.DATABASE_URL ||
-        'postgresql://user:password@localhost:5432/mydb',
-});
-const prisma = new PrismaClient({ adapter });
 
 router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
     try {
