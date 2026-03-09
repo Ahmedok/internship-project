@@ -9,12 +9,14 @@ export const UserSchema = z.object({
     blocked: z.boolean().default(false),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
+    preferedLanguage: z.enum(['en', 'ru']).default('en'),
+    preferedTheme: z.enum(['light', 'dark', 'system']).default('system'),
 });
 
-export const UpdatePreferenceSchema = z.object({
-    preferedLanguage: z.enum(['en', 'ru']).optional(),
-    preferedTheme: z.enum(['light', 'dark', 'system']).optional(),
-});
+export const UpdatePreferenceSchema = UserSchema.pick({
+    preferedLanguage: true,
+    preferedTheme: true,
+}).partial();
 
 export type User = z.infer<typeof UserSchema>;
 export type UpdatePreferenceInput = z.infer<typeof UpdatePreferenceSchema>;
