@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Button } from '../ui/button';
@@ -19,13 +20,14 @@ import {
 
 interface InventoryItemsTabProps {
     inventory: InventoryDetail;
-    onOpenItemModal: (itemId?: string) => void;
+    onOpenItemModal: () => void;
 }
 
 export function InventoryItemsTab({
     inventory,
     onOpenItemModal,
 }: InventoryItemsTabProps) {
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [page, setPage] = useState(1);
@@ -183,7 +185,9 @@ export function InventoryItemsTab({
                                 <TableRow
                                     key={item.id}
                                     className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
-                                    onClick={() => onOpenItemModal(item.id)}
+                                    onClick={() =>
+                                        navigate(`/items/${item.id}`)
+                                    }
                                 >
                                     <TableCell
                                         onClick={(e) => e.stopPropagation()}

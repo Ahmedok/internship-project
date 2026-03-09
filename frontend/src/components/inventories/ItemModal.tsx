@@ -20,17 +20,10 @@ interface ItemModalProps {
     isOpen: boolean;
     onClose: () => void;
     inventory: InventoryDetail;
-    itemId?: string;
 }
 
-export function ItemModal({
-    isOpen,
-    onClose,
-    inventory,
-    itemId,
-}: ItemModalProps) {
+export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
     const queryClient = useQueryClient();
-    const isEditing = !!itemId;
 
     const { data: fields } = useQuery<CustomFieldInput[]>({
         queryKey: ['inventory-fields', inventory.id],
@@ -40,16 +33,6 @@ export function ItemModal({
             return res.json();
         },
         enabled: isOpen,
-    });
-
-    const { data: itemData, isLoading: isLoadingItem } = useQuery({
-        queryKey: ['item', itemId],
-        queryFn: async () => {
-            const res = await fetch(`/api/items/${itemId}`);
-            if (!res.ok) throw new Error('Failed to fetch item');
-            return res.json();
-        },
-        enabled: isOpen && isEditing,
     });
 
     const dynamicSchema = useMemo(() => {
@@ -82,29 +65,14 @@ export function ItemModal({
         register,
         handleSubmit,
         reset,
-        setValue,
         formState: { errors },
     } = useForm<FormData>({
         resolver: zodResolver(dynamicSchema),
     });
 
     useEffect(() => {
-        if (isOpen && !isEditing) {
-            reset();
-        } else if (isOpen && isEditing && itemData && fields) {
-            // TODO: Type properly
-            itemData.fieldValues.forEach((fv: any) => {
-                const fieldDef = fields.find((f) => f.id === fv.customFieldId);
-                if (!fieldDef) return;
-
-                if (fieldDef.fieldType === 'NUMBER')
-                    setValue(fv.customFieldId, fv.valueNumber ?? undefined);
-                else if (fieldDef.fieldType === 'BOOLEAN')
-                    setValue(fv.customFieldId, fv.valueBoolean ?? false);
-                else setValue(fv.customFieldId, fv.valueString ?? '');
-            });
-        }
-    }, [isOpen, isEditing, itemData, fields, reset, setValue]);
+        if (isOpen) reset();
+    }, [isOpen, reset]);
 
     const saveMutation = useMutation({
         mutationFn: async (data: FormData) => {
@@ -134,25 +102,15 @@ export function ItemModal({
                     };
                 }) || [];
 
-            const url = isEditing
-                ? `/api/items/${itemId}`
-                : `/api/inventories/${inventory.id}/items`;
-            const method = isEditing ? 'PATCH' : 'POST';
-
-            const payload: any = { fields: mappedFields }; // TODO: Type properly
-            if (isEditing) {
-                payload.version = itemData.version;
-            }
-
-            const res = await fetch(url, {
-                method,
+            const res = await fetch(`/api/inventories/${inventory.id}/items`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({ fields: mappedFields }),
             });
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.message || 'Failed to save item');
+                throw new Error(errorData.message || 'Failed to create item');
             }
         },
         onSuccess: () => {
@@ -174,9 +132,7 @@ export function ItemModal({
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-125">
                 <DialogHeader>
-                    <DialogTitle>
-                        {isEditing ? 'Edit Item' : 'Add Item'}
-                    </DialogTitle>
+                    <DialogTitle>Add Item</DialogTitle>
                     <DialogDescription>
                         Fill out item details below. Custom ID is generated
                         automatically, but you can specify your own in the
@@ -184,75 +140,60 @@ export function ItemModal({
                     </DialogDescription>
                 </DialogHeader>
 
-                {isLoadingItem ? (
-                    <div className="py-4 text-center">Loading data...</div>
-                ) : (
-                    <form
-                        id="item-form"
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4"
-                    >
-                        {isEditing && itemData && (
-                            <div className="bg-zinc-100 dark:bg-zinc-900 p-3 rounded-md mb-2 text-sm flex items-center justify-between border">
-                                <span className="text-zinc-500 font-medium">
-                                    Item ID:
-                                </span>
-                                <code className="font-mono font-bold text-zinc-800 dark:text-zinc-200">
-                                    {itemData.customId}
-                                </code>
-                            </div>
-                        )}
+                <form
+                    id="item-form"
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="space-y-4"
+                >
+                    {fields.map((field) => (
+                        <div key={field.id} className="space-y-1">
+                            <label className="text-sm font-medium">
+                                {field.title}{' '}
+                                {field.fieldType === 'DOCUMENT' && '(URL)'}
+                            </label>
 
-                        {fields.map((field) => (
-                            <div key={field.id} className="space-y-1">
-                                <label className="text-sm font-medium">
-                                    {field.title}{' '}
-                                    {field.fieldType === 'DOCUMENT' && '(URL)'}
-                                </label>
-
-                                {field.fieldType === 'BOOLEAN' ? (
-                                    <div className="flex items-center mt-2">
-                                        <input
-                                            type="checkbox"
-                                            className="w-4 h-4"
-                                            {...register(field.id!)}
-                                        />
-                                        <span className="ml-2 text-sm text-zinc-500">
-                                            True / False
-                                        </span>
-                                    </div>
-                                ) : (
-                                    <Input
-                                        type={
-                                            field.fieldType === 'NUMBER'
-                                                ? 'number'
-                                                : 'text'
-                                        }
-                                        step={
-                                            field.fieldType === 'NUMBER'
-                                                ? 'any'
-                                                : undefined
-                                        }
-                                        placeholder={field.description || ''}
-                                        {...register(field.id!, {
-                                            setValueAs: (v) =>
-                                                field.fieldType === 'NUMBER' &&
-                                                v !== ''
-                                                    ? parseFloat(v)
-                                                    : v,
-                                        })}
+                            {field.fieldType === 'BOOLEAN' ? (
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4"
+                                        {...register(field.id!)}
                                     />
-                                )}
-
-                                {errors[field.id!] && (
-                                    <span className="text-sm text-red-500">
-                                        {String(errors[field.id!]?.message)}
+                                    <span className="ml-2 text-sm text-zinc-500">
+                                        True / False
                                     </span>
-                                )}
-                            </div>
-                        ))}
-                    </form>
-                )}
+                                </div>
+                            ) : (
+                                <Input
+                                    type={
+                                        field.fieldType === 'NUMBER'
+                                            ? 'number'
+                                            : 'text'
+                                    }
+                                    step={
+                                        field.fieldType === 'NUMBER'
+                                            ? 'any'
+                                            : undefined
+                                    }
+                                    placeholder={field.description || ''}
+                                    {...register(field.id!, {
+                                        setValueAs: (v) =>
+                                            field.fieldType === 'NUMBER' &&
+                                            v !== ''
+                                                ? parseFloat(v)
+                                                : v,
+                                    })}
+                                />
+                            )}
+
+                            {errors[field.id!] && (
+                                <span className="text-sm text-red-500">
+                                    {String(errors[field.id!]?.message)}
+                                </span>
+                            )}
+                        </div>
+                    ))}
+                </form>
 
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose} type="button">

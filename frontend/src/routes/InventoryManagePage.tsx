@@ -16,15 +16,11 @@ import { type InventoryDetail } from '@inventory/shared';
 
 export default function InventoryManagePage() {
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-    const [editingItemId, setEditingItemId] = useState<string | undefined>(
-        undefined,
-    );
 
     const { id } = useParams();
     const { user } = useAuthStore();
 
-    const handleOpenItemModal = (itemId?: string) => {
-        setEditingItemId(itemId);
+    const handleOpenItemModal = () => {
         setIsItemModalOpen(true);
     };
 
@@ -166,7 +162,6 @@ export default function InventoryManagePage() {
                 isOpen={isItemModalOpen}
                 onClose={() => setIsItemModalOpen(false)}
                 inventory={inventory}
-                itemId={editingItemId}
             />
         </div>
     );
