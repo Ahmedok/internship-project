@@ -29,7 +29,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
     }
 });
 
-router.put(
+router.patch(
     '/me/preferences',
     requireAuth,
     async (req: Request, res: Response) => {

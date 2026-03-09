@@ -1,4 +1,6 @@
 import { useThemeStore } from '@/stores/themeStore';
+import { useAuthStore } from '@/stores/authStore';
+import { syncUserPreferences } from '@/api/preferences';
 import { Button } from './ui/button';
 import {
     DropdownMenu,
@@ -10,6 +12,16 @@ import { Moon, Sun, Laptop } from 'lucide-react';
 
 export function ThemeToggle() {
     const { setTheme } = useThemeStore();
+    const { user } = useAuthStore();
+
+    const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
+        setTheme(theme);
+        if (user) {
+            syncUserPreferences({ preferedTheme: theme }).catch((err) => {
+                console.error('Failed to sync theme preference:', err);
+            });
+        }
+    };
 
     return (
         <DropdownMenu>
@@ -21,15 +33,15 @@ export function ThemeToggle() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme('light')}>
+                <DropdownMenuItem onClick={() => handleThemeChange('light')}>
                     <Sun className="ml-auto h-4 w-4" />
                     Light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>
+                <DropdownMenuItem onClick={() => handleThemeChange('dark')}>
                     <Moon className="ml-auto h-4 w-4" />
                     Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('system')}>
+                <DropdownMenuItem onClick={() => handleThemeChange('system')}>
                     <Laptop className="ml-auto h-4 w-4" />
                     System
                 </DropdownMenuItem>

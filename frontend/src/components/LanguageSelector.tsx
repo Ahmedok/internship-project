@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/stores/authStore';
+import { syncUserPreferences } from '@/api/preferences';
 import { Button } from './ui/button';
 import {
     DropdownMenu,
@@ -9,10 +11,15 @@ import {
 
 export function LanguageSelector() {
     const { i18n } = useTranslation();
+    const { user } = useAuthStore();
 
-    const handleLanguageChange = (lang: string) => {
+    const handleLanguageChange = (lang: 'en' | 'ru') => {
         i18n.changeLanguage(lang);
-        // TODO: Send PATCH request to backend to save user preference
+        if (user) {
+            syncUserPreferences({ preferedLanguage: lang }).catch((err) => {
+                console.error('Failed to sync language preference:', err);
+            });
+        }
     };
 
     return (
