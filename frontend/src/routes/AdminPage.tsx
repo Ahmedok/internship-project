@@ -222,9 +222,11 @@ export default function AdminPage() {
                     className="max-w-sm border-zinc-200"
                 />
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Button
                         variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('block')}
                     >
@@ -232,6 +234,8 @@ export default function AdminPage() {
                     </Button>
                     <Button
                         variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('unblock')}
                     >
@@ -239,6 +243,8 @@ export default function AdminPage() {
                     </Button>
                     <Button
                         variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('promote')}
                     >
@@ -246,6 +252,8 @@ export default function AdminPage() {
                     </Button>
                     <Button
                         variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('demote')}
                     >
@@ -253,6 +261,8 @@ export default function AdminPage() {
                     </Button>
                     <Button
                         variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('delete')}
                     >

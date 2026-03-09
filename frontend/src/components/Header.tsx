@@ -144,7 +144,7 @@ export function Header() {
                                     <span className="text-sm">
                                         {t('header.preferences')}
                                     </span>
-                                    <div className="flex gap-1">
+                                    <div className="flex items-center gap-1">
                                         <ThemeToggle />
                                         <LanguageSelector />
                                     </div>
