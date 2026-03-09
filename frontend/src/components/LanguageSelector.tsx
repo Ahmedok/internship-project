@@ -27,7 +27,7 @@ export function LanguageSelector() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="w-9 px-0">
                     {i18n.resolvedLanguage === 'ru' ? 'RU' : 'EN'}
-                    <span className="sr-only">Переключить язык</span>
+                    <span className="sr-only">Toggle Language</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
