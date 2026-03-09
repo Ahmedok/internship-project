@@ -10,6 +10,7 @@ import {
 } from '@inventory/shared';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
+import { TriangleAlert } from 'lucide-react';
 
 export function InventorySettingsTab({
     initialData,
@@ -20,6 +21,53 @@ export function InventorySettingsTab({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [conflictError, setConflictError] = useState<string | null>(null);
+
+    const handleReload = async () => {
+        try {
+            const res = await fetch(`/api/inventories/${initialData.id}`);
+            if (!res.ok) {
+                throw new Error('Failed to fetch latest inventory data');
+            }
+            const latestData: InventoryDetail = await res.json();
+
+            reset({
+                title: latestData.title,
+                description: latestData.description || '',
+                category: latestData.category,
+                isPublic: latestData.isPublic,
+                imageUrl: latestData.imageUrl,
+                tags: latestData.tags?.map((t: any) => t.tag.name) || [],
+                version: latestData.version,
+            });
+
+            setConflictError(null);
+            queryClient.invalidateQueries({
+                queryKey: ['inventory', initialData.id],
+            });
+        } catch (error) {
+            console.error('Failed to reload inventory data:', error);
+            alert(`Failed to reload inventory data. Check connection.`); // TODO: Replace with nicer toast notification
+        }
+    };
+
+    const handleOverwrite = async () => {
+        try {
+            const res = await fetch(`/api/inventories/${initialData.id}`);
+            if (!res.ok) {
+                throw new Error(
+                    'Failed to fetch latest inventory data version',
+                );
+            }
+            const latestData: InventoryDetail = await res.json();
+
+            setValue('version', latestData.version);
+            setConflictError(null);
+            autoSaveMutation.mutate(getValues());
+        } catch (error) {
+            console.error('Failed to overwrite changes:', error);
+            alert(`Failed to overwrite changes. Check connection.`); // TODO: Replace with nicer toast notification
+        }
+    };
 
     const [tagInput, setTagInput] = useState('');
 
@@ -207,8 +255,33 @@ export function InventorySettingsTab({
             </div>
 
             {conflictError && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-md text-sm">
-                    {conflictError}
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg space-y-3 shadow-sm">
+                    <div className="flex items-start gap-3 text-amber-800 dark:text-amber-400">
+                        <TriangleAlert />
+                        <div>
+                            <h4 className="font-semibold text-sm">
+                                Version Conflict Detected
+                            </h4>
+                            <p className="text-sm mt-1 opacity-90">
+                                This inventory has been modified elsewhere while
+                                you were editing it. Auto-save has been stopped.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3 pt-2 ml-8">
+                        <button
+                            onClick={handleReload}
+                            className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
+                        >
+                            Reload (lose your changes)
+                        </button>
+                        <button
+                            onClick={handleOverwrite}
+                            className="px-3 py-1.5 text-sm font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
+                        >
+                            Overwrite (force save your version)
+                        </button>
+                    </div>
                 </div>
             )}
 
