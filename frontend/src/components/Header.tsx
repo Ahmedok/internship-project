@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
+import { LanguageSelector } from './LanguageSelector';
 import { GlobalSearchBar } from './GlobalSearchBar';
 
 import { Button } from './ui/button';
@@ -14,6 +16,7 @@ import {
 } from './ui/dropdown-menu';
 
 export function Header() {
+    const { t } = useTranslation('common');
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
 
@@ -27,7 +30,8 @@ export function Header() {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 {/* Logo */}
                 <Link to="/" className="text-xl font-bold shrink-0">
-                    InventoryApp {/* TODO: Replace with actual logo */}
+                    {t('header.app_name')}{' '}
+                    {/* TODO: Replace with actual logo */}
                 </Link>
 
                 {/* Search Bar */}
@@ -37,6 +41,8 @@ export function Header() {
 
                 {/* User Menu */}
                 <div className="flex items-center gap-4 shrink-0">
+                    <LanguageSelector />
+
                     {user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -77,7 +83,7 @@ export function Header() {
                                         to="/personal"
                                         className="cursor-pointer w-full"
                                     >
-                                        Personal Profile
+                                        {t('header.profile')}
                                     </Link>
                                 </DropdownMenuItem>
 
@@ -87,7 +93,7 @@ export function Header() {
                                             to="/admin"
                                             className="cursor-pointer w-full text-red-600 dark:text-red-400"
                                         >
-                                            Admin Panel
+                                            {t('header.admin_panel')}
                                         </Link>
                                     </DropdownMenuItem>
                                 )}
@@ -97,13 +103,13 @@ export function Header() {
                                     onClick={handleLogout}
                                     className="cursor-pointer text-zinc-500"
                                 >
-                                    Logout
+                                    {t('header.logout')}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
                         <Button size="sm" onClick={() => navigate('/login')}>
-                            Login
+                            {t('header.login')}
                         </Button>
                     )}
                 </div>
