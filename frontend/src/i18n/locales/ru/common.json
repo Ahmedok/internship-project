@@ -1,0 +1,16 @@
+{
+    "header": {
+        "app_name": "InventoryApp",
+        "search_placeholder": "Поиск по инвентарям и предметам...",
+        "login": "Войти",
+        "logout": "Выйти",
+        "profile": "Личный кабинет",
+        "admin_panel": "Панель администратора"
+    },
+    "common": {
+        "loading": "Загрузка...",
+        "error": "Произошла ошибка.",
+        "save": "Сохранить",
+        "cancel": "Отмена"
+    }
+}

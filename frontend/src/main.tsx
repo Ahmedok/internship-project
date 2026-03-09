@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
+import './i18n';
 
 import RootLayout from './routes/RootLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
