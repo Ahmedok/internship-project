@@ -11,14 +11,16 @@ import {
 
 export function LanguageSelector() {
     const { i18n } = useTranslation();
-    const { user } = useAuthStore();
+    const { user, setUserPreference } = useAuthStore();
 
     const handleLanguageChange = (lang: 'en' | 'ru') => {
         i18n.changeLanguage(lang);
         if (user) {
-            syncUserPreferences({ preferedLanguage: lang }).catch((err) => {
-                console.error('Failed to sync language preference:', err);
-            });
+            syncUserPreferences({ preferedLanguage: lang })
+                .then(() => setUserPreference({ preferedLanguage: lang }))
+                .catch((err) => {
+                    console.error('Failed to sync language preference:', err);
+                });
         }
     };
 

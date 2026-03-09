@@ -12,14 +12,16 @@ import { Moon, Sun, Laptop } from 'lucide-react';
 
 export function ThemeToggle() {
     const { setTheme } = useThemeStore();
-    const { user } = useAuthStore();
+    const { user, setUserPreference } = useAuthStore();
 
     const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
         setTheme(theme);
         if (user) {
-            syncUserPreferences({ preferedTheme: theme }).catch((err) => {
-                console.error('Failed to sync theme preference:', err);
-            });
+            syncUserPreferences({ preferedTheme: theme })
+                .then(() => setUserPreference({ preferedTheme: theme }))
+                .catch((err) => {
+                    console.error('Failed to sync theme preference:', err);
+                });
         }
     };
 

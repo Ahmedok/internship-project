@@ -8,6 +8,9 @@ interface AuthState {
     isLoading: boolean;
     checkAuth: () => Promise<void>;
     logout: () => Promise<void>;
+    setUserPreference: (
+        prefs: Partial<Pick<User, 'preferedLanguage' | 'preferedTheme'>>,
+    ) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -59,4 +62,9 @@ export const useAuthStore = create<AuthState>((set) => ({
             console.error('Logout failed:', error);
         }
     },
+
+    setUserPreference: (prefs) =>
+        set((state) => ({
+            user: state.user ? { ...state.user, ...prefs } : null,
+        })),
 }));
