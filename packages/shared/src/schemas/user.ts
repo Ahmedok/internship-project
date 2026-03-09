@@ -11,4 +11,10 @@ export const UserSchema = z.object({
     updatedAt: z.coerce.date(),
 });
 
+export const UpdatePreferenceSchema = z.object({
+    preferedLanguage: z.enum(['en', 'ru']).optional(),
+    preferedTheme: z.enum(['light', 'dark', 'system']).optional(),
+});
+
 export type User = z.infer<typeof UserSchema>;
+export type UpdatePreferenceInput = z.infer<typeof UpdatePreferenceSchema>;

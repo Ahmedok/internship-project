@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
+import { UpdatePreferenceSchema } from '@inventory/shared';
 
 const router = Router();
 
@@ -27,5 +28,46 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Server error when searching users' });
     }
 });
+
+router.put(
+    '/me/preferences',
+    requireAuth,
+    async (req: Request, res: Response) => {
+        try {
+            const parsed = UpdatePreferenceSchema.safeParse(req.body);
+
+            if (!parsed.success) {
+                return res.status(400).json({ errors: parsed.error.errors });
+            }
+
+            const { preferedLanguage, preferedTheme } = parsed.data;
+
+            if (!preferedLanguage && !preferedTheme) {
+                return res
+                    .status(400)
+                    .json({ error: 'No valid preferences provided' });
+            }
+
+            const updatedUser = await prisma.user.update({
+                where: { id: req.user!.id },
+                data: {
+                    ...(preferedLanguage && { preferedLanguage }),
+                    ...(preferedTheme && { preferedTheme }),
+                },
+                select: {
+                    preferedLanguage: true,
+                    preferedTheme: true,
+                },
+            });
+
+            res.status(200).json(updatedUser);
+        } catch (error) {
+            console.error('Error updating user preferences:', error);
+            res.status(500).json({
+                error: 'Server error when updating preferences',
+            });
+        }
+    },
+);
 
 export default router;
