@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { LanguageSelector } from './LanguageSelector';
+import { ThemeToggle } from './ThemeToggle';
 import { GlobalSearchBar } from './GlobalSearchBar';
 
 import { Button } from './ui/button';
@@ -42,6 +43,7 @@ export function Header() {
                 {/* User Menu */}
                 <div className="flex items-center gap-4 shrink-0">
                     <LanguageSelector />
+                    <ThemeToggle />
 
                     {user ? (
                         <DropdownMenu>
