@@ -46,16 +46,18 @@ enum IdElementType {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String?  @unique
-  name       String
-  avatarUrl  String?
-  provider   String
-  providerId String
-  role       Role     @default(USER)
-  blocked    Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id               String   @id @default(uuid())
+  email            String?  @unique
+  name             String
+  avatarUrl        String?
+  provider         String
+  providerId       String
+  role             Role     @default(USER)
+  blocked          Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  preferedLanguage String   @default("en")
+  preferedTheme    String   @default("system")
 
   inventories           Inventory[]       @relation("CreatedInventories")
   accessibleInventories InventoryAccess[]
