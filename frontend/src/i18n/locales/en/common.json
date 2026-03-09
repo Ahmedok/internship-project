@@ -1,7 +1,9 @@
 {
     "header": {
         "app_name": "InventoryApp",
+        "home": "Home",
         "search_placeholder": "Search inventories and items...",
+        "preferences": "Preferences",
         "login": "Sign In",
         "logout": "Log Out",
         "profile": "My Profile",

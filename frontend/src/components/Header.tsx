@@ -5,6 +5,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
 import { GlobalSearchBar } from './GlobalSearchBar';
 
+import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
@@ -15,6 +16,13 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from './ui/dropdown-menu';
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+    SheetTitle,
+    SheetHeader,
+} from './ui/sheet';
 
 export function Header() {
     const { t } = useTranslation('common');
@@ -29,21 +37,73 @@ export function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-zinc-950/95 backdrop-blur supports-backdrop-filter:bg-white/60">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-                {/* Logo */}
-                <Link to="/" className="text-xl font-bold shrink-0">
-                    {t('header.app_name')}{' '}
-                    {/* TODO: Replace with actual logo */}
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="md:hidden"
+                            >
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Open Menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-75 sm:w-87.5">
+                            <SheetHeader>
+                                <SheetTitle className="text-left">
+                                    {t('header.app_name')}
+                                </SheetTitle>
+                            </SheetHeader>
+                            <div className="flex flex-col gap-6 mt-6">
+                                <div className="w-full block md:hidden">
+                                    <GlobalSearchBar />
+                                </div>
+                                <nav className="flex flex-col gap-3">
+                                    <Link
+                                        to="/"
+                                        className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-400"
+                                    >
+                                        {t('header.home')}
+                                    </Link>
+                                    {user && (
+                                        <Link
+                                            to="/personal"
+                                            className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-400"
+                                        >
+                                            {t('header.profile')}
+                                        </Link>
+                                    )}
+                                    {user?.role === 'ADMIN' && (
+                                        <Link
+                                            to="/admin"
+                                            className="text-lg font-medium text-red-600 dark:text-red-400"
+                                        >
+                                            {t('header.admin_panel')}
+                                        </Link>
+                                    )}
+                                </nav>
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                    {/* Logo */}
+                    <Link to="/" className="text-xl font-bold shrink-0">
+                        {t('header.app_name')}{' '}
+                        {/* TODO: Replace with actual logo */}
+                    </Link>
+                </div>
 
                 {/* Search Bar */}
-                <div className="flex-1 flex justify-center">
+                <div className="flex-1 hidden md:flex justify-center max-w-xl px-4">
                     <GlobalSearchBar />
                 </div>
 
                 {/* User Menu */}
-                <div className="flex items-center gap-4 shrink-0">
-                    <LanguageSelector />
-                    <ThemeToggle />
+                <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                    <div className="hidden sm:flex items-center gap-2">
+                        <ThemeToggle />
+                        <LanguageSelector />
+                    </div>
 
                     {user ? (
                         <DropdownMenu>
@@ -79,6 +139,17 @@ export function Header() {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
+
+                                <div className="sm:hidden flex items-center justify-between px-2 py-1.5">
+                                    <span className="text-sm">
+                                        {t('header.preferences')}
+                                    </span>
+                                    <div className="flex gap-1">
+                                        <ThemeToggle />
+                                        <LanguageSelector />
+                                    </div>
+                                </div>
+                                <DropdownMenuSeparator className="sm:hidden" />
 
                                 <DropdownMenuItem asChild>
                                     <Link

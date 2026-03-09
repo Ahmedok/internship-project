@@ -1,7 +1,9 @@
 {
     "header": {
         "app_name": "InventoryApp",
+        "home": "Главная",
         "search_placeholder": "Поиск по инвентарям и предметам...",
+        "preferences": "Настройки",
         "login": "Войти",
         "logout": "Выйти",
         "profile": "Личный кабинет",
