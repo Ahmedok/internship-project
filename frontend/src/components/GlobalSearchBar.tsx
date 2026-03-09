@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Input } from './ui/input';
+import { TextSearch } from 'lucide-react';
 
 export function GlobalSearchBar() {
     const [query, setQuery] = useState('');
@@ -19,7 +20,7 @@ export function GlobalSearchBar() {
             className="relative w-full max-w-md hidden md:block"
         >
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
-                S {/* TODO: Replace with actual search icon */}
+                <TextSearch className="w-4 h-4" />
             </div>
 
             <Input
