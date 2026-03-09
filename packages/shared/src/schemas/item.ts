@@ -42,6 +42,7 @@ export interface InventoryItemDto {
     id: string;
     customId: string;
     inventoryId: string;
+    version: number;
     createdById: string;
     createdAt: string;
     updatedAt: string;
