@@ -565,6 +565,7 @@ router.post(
                 return res.status(400).json({ errors: parsed.error.issues });
             }
             const incomingFields = parsed.data.fields;
+            const providedCustomId = parsed.data.customId;
 
             const aggregatedSearchText = incomingFields
                 .map((f) => {
@@ -595,26 +596,30 @@ router.post(
 
             // ACID
             const newItem = await prisma.$transaction(async (tx) => {
-                const updatedInv = await tx.inventory.update({
-                    where: { id: inventoryId },
-                    data: { idCounter: { increment: 1 } },
-                    include: {
-                        customIdElements: { orderBy: { sortOrder: 'asc' } },
-                    },
-                });
+                let finalCustomId = providedCustomId;
 
-                const idElements = z
-                    .array(CustomIdElementSchema)
-                    .parse(updatedInv.customIdElements);
-                const customId = generateCustomId(
-                    idElements,
-                    updatedInv.idCounter,
-                );
+                if (!finalCustomId) {
+                    const updatedInv = await tx.inventory.update({
+                        where: { id: inventoryId },
+                        data: { idCounter: { increment: 1 } },
+                        include: {
+                            customIdElements: { orderBy: { sortOrder: 'asc' } },
+                        },
+                    });
+
+                    const idElements = z
+                        .array(CustomIdElementSchema)
+                        .parse(updatedInv.customIdElements);
+                    finalCustomId = generateCustomId(
+                        idElements,
+                        updatedInv.idCounter,
+                    );
+                }
 
                 return tx.item.create({
                     data: {
                         inventoryId,
-                        customId,
+                        customId: finalCustomId,
                         createdById: userId,
                         searchText: aggregatedSearchText,
                         fieldValues: {
@@ -634,13 +639,12 @@ router.post(
             });
 
             res.status(201).json(newItem);
-        } catch (error: any) {
-            // TODO: Refine error typing here
+        } catch (error: unknown) {
             console.error('Error creating item:', error);
 
             if (
-                error.code === 'P2002' &&
-                error.meta?.target?.includes('customId')
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
             ) {
                 return res.status(409).json({
                     code: 'CUSTOM_ID_CONFLICT',

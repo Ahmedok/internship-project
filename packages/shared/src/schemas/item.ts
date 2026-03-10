@@ -10,6 +10,7 @@ export const ItemFieldValueInputSchema = z.object({
 
 export const CreateItemSchema = z.object({
     fields: z.array(ItemFieldValueInputSchema),
+    customId: z.string().optional(),
 });
 
 export const UpdateItemSchema = z.object({
