@@ -1,8 +1,15 @@
 import { Navigate, Outlet } from 'react-router';
 import { useAuthStore } from '@/stores/authStore';
+import UnauthorizedPage from './UnauthorizedPage';
 
-export default function ProtectedRoute() {
-    const { isAuthenticated, isLoading } = useAuthStore();
+interface ProtectedRouteProps {
+    requiredAdmin?: boolean;
+}
+
+export default function ProtectedRoute({
+    requiredAdmin = false,
+}: ProtectedRouteProps) {
+    const { isAuthenticated, isLoading, user } = useAuthStore();
 
     if (isLoading) {
         return (
@@ -16,6 +23,10 @@ export default function ProtectedRoute() {
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
+    }
+
+    if (requiredAdmin && user?.role !== 'ADMIN') {
+        return <UnauthorizedPage />;
     }
 
     return <Outlet />;
