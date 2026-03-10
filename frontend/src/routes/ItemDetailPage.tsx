@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface LikeData {
     count: number;
@@ -94,6 +95,9 @@ export default function ItemDetailPage() {
             const res = await fetch(`/api/items/${id}/like`, {
                 method: 'POST',
             });
+            if (res.status === 401) {
+                throw new Error('401 Unauthorized');
+            }
             if (!res.ok) throw new Error('Failed to toggle like');
             return res.json();
         },
@@ -114,7 +118,10 @@ export default function ItemDetailPage() {
             });
             return { previousLikeData };
         },
-        onError: (_err, _newTodo, context) => {
+        onError: (err: Error, _newTodo, context) => {
+            if (err.message.includes('401')) {
+                toast.error('You must be logged in to like items');
+            }
             if (context?.previousLikeData) {
                 queryClient.setQueryData<LikeData>(
                     ['item-like', id],
