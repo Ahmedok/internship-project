@@ -3,6 +3,7 @@ import { Prisma } from '../generated/prisma/client';
 import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { accessPolicy } from '../utils/permissions';
+import { sanitizeInput } from '../utils/sanitize';
 import {
     InventorySchema,
     CustomFieldUpdateSchema,
@@ -27,10 +28,12 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
         const { title, description, category, isPublic, tags } = parsed.data;
         const userId = req.user!.id;
 
+        const cleanDescription = sanitizeInput(description);
+
         const newInventory = await prisma.inventory.create({
             data: {
                 title,
-                description: description || '',
+                description: cleanDescription,
                 category,
                 isPublic,
                 createdById: userId,
@@ -177,7 +180,8 @@ router.patch(
             };
 
             if (title !== undefined) updateData.title = title;
-            if (description !== undefined) updateData.description = description;
+            if (description !== undefined)
+                updateData.description = sanitizeInput(description);
             if (category !== undefined) updateData.category = category;
             if (isPublic !== undefined) updateData.isPublic = isPublic;
             if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
@@ -924,7 +928,7 @@ router.post(
                 data: {
                     inventoryId,
                     authorId: userId,
-                    content: parsed.data.content,
+                    content: sanitizeInput(parsed.data.content),
                 },
                 include: {
                     author: {
