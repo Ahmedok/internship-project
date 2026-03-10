@@ -17,6 +17,7 @@ import tagsRoutes from './routes/tags';
 import uploadRoutes from './routes/upload';
 import userRoutes from './routes/users';
 import searchRoutes from './routes/search';
+import { globalLimiter } from './middleware/rateLimiter';
 
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -30,10 +31,12 @@ app.use(helmet());
 
 app.use(
     cors({
-        origin: 'http://localhost:3000',
+        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
         credentials: true,
     }),
 );
+
+app.use(globalLimiter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

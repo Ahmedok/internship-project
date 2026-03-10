@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import passport from 'passport';
+import { authLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+router.use(authLimiter);
 
 router.get(
     '/google',
