@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    keepPreviousData,
+} from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Button } from '../ui/button';
 import type {
@@ -31,6 +36,7 @@ export function InventoryItemsTab({
     const queryClient = useQueryClient();
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [page, setPage] = useState(1);
+    const limit = 10; // TODO: Make this user-configurable (or store in some global settings)
 
     const { data: fields } = useQuery<CustomFieldInput[]>({
         queryKey: ['inventory-fields', inventory.id],
@@ -45,11 +51,12 @@ export function InventoryItemsTab({
         queryKey: ['inventory-items', inventory.id, page],
         queryFn: async () => {
             const res = await fetch(
-                `/api/inventories/${inventory.id}/items?page=${page}&limit=20`,
+                `/api/inventories/${inventory.id}/items?page=${page}&limit=${limit}`,
             );
             if (!res.ok) throw new Error('Failed to fetch items');
             return res.json();
         },
+        placeholderData: keepPreviousData,
     });
 
     const deleteMutation = useMutation({
