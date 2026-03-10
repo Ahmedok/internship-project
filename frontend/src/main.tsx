@@ -9,6 +9,7 @@ import './i18n';
 
 import RootLayout from './routes/RootLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
+import NotFoundPage from './routes/NotFoundPage';
 import LoginPage from './routes/LoginPage';
 import HomePage from './routes/HomePage';
 import AdminPage from './routes/AdminPage';
@@ -48,10 +49,6 @@ const router = createBrowserRouter([
                 element: <ProtectedRoute />,
                 children: [
                     {
-                        path: '/admin',
-                        element: <AdminPage />,
-                    },
-                    {
                         path: '/personal',
                         element: <PersonalPage />,
                     },
@@ -59,8 +56,20 @@ const router = createBrowserRouter([
                         path: '/inventories/new',
                         element: <CreateInventoryPage />,
                     },
-                    // TODO: Add other routes
                 ],
+            },
+            {
+                element: <ProtectedRoute requiredAdmin={true} />,
+                children: [
+                    {
+                        path: '/admin',
+                        element: <AdminPage />,
+                    },
+                ],
+            },
+            {
+                path: '*',
+                element: <NotFoundPage />,
             },
         ],
     },
