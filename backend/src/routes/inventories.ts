@@ -643,6 +643,7 @@ router.post(
                 error.meta?.target?.includes('customId')
             ) {
                 return res.status(409).json({
+                    code: 'CUSTOM_ID_CONFLICT',
                     message:
                         'Custom ID conflict: The generated ID already exists.',
                 });

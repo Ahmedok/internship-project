@@ -134,8 +134,8 @@ router.patch(
                 error.code === 'P2002'
             ) {
                 return res.status(409).json({
-                    message:
-                        'Error: This custom ID already exists in this inventory',
+                    code: 'CUSTOM_ID_CONFLICT',
+                    message: 'This custom ID already exists in this inventory',
                 });
             }
             if (
@@ -143,8 +143,9 @@ router.patch(
                 error.message === 'CONCURRENCY_CONFLICT'
             ) {
                 return res.status(409).json({
+                    code: 'VERSION_CONFLICT',
                     message:
-                        'Version conflict: item has been modified by another user',
+                        'This item was modified by someone else while you were editing it.',
                 });
             }
             console.error('Critical error:', error);
