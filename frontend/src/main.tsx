@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { ThemeProvider } from './components/ThemeProvider';
@@ -12,14 +12,25 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import NotFoundPage from './routes/NotFoundPage';
 import LoginPage from './routes/LoginPage';
 import HomePage from './routes/HomePage';
-import AdminPage from './routes/AdminPage';
-import PersonalPage from './routes/PersonalPage';
-import CreateInventoryPage from './routes/CreateInventoryPage';
-import InventoryManagePage from './routes/InventoryManagePage';
 import SearchResultsPage from './routes/SearchResultsPage';
-import ItemDetailPage from './routes/ItemDetailPage';
+
+const AdminPage = lazy(() => import('./routes/AdminPage'));
+const PersonalPage = lazy(() => import('./routes/PersonalPage'));
+const CreateInventoryPage = lazy(() => import('./routes/CreateInventoryPage'));
+const InventoryManagePage = lazy(() => import('./routes/InventoryManagePage'));
+const ItemDetailPage = lazy(() => import('./routes/ItemDetailPage'));
 
 const queryClient = new QueryClient();
+
+const PageLoader = () => (
+    <div className="h-[50vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    </div>
+);
+
+const lazily = (element: React.ReactNode) => (
+    <Suspense fallback={<PageLoader />}>{element}</Suspense>
+);
 
 const router = createBrowserRouter([
     {
@@ -39,22 +50,22 @@ const router = createBrowserRouter([
             },
             {
                 path: '/items/:id',
-                element: <ItemDetailPage />,
+                element: lazily(<ItemDetailPage />),
             },
             {
                 path: '/inventories/:id',
-                element: <InventoryManagePage />,
+                element: lazily(<InventoryManagePage />),
             },
             {
                 element: <ProtectedRoute />,
                 children: [
                     {
                         path: '/personal',
-                        element: <PersonalPage />,
+                        element: lazily(<PersonalPage />),
                     },
                     {
                         path: '/inventories/new',
-                        element: <CreateInventoryPage />,
+                        element: lazily(<CreateInventoryPage />),
                     },
                 ],
             },
@@ -63,7 +74,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: '/admin',
-                        element: <AdminPage />,
+                        element: lazily(<AdminPage />),
                     },
                 ],
             },
