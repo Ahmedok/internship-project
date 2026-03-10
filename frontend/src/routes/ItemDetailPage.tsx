@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
+import { TriangleAlert } from 'lucide-react';
 import type {
     InventoryItemDto,
     ItemFieldValueDto,
@@ -31,6 +32,14 @@ export default function ItemDetailPage() {
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const [conflictType, setConflictType] = useState<
+        'version' | 'custom_id' | null
+    >(null);
+    const [customIdInput, setCustomIdInput] = useState('');
+    const editVersionRef = useRef<number | null>(null);
+    const versionOverrideRef = useRef<number | null>(null);
+    const lastFormDataRef = useRef<FormData | null>(null);
+    const formInitializedRef = useRef(false);
 
     const {
         data: item,
@@ -150,7 +159,8 @@ export default function ItemDetailPage() {
     });
 
     useEffect(() => {
-        if (isEditing && fields && item) {
+        if (isEditing && fields && item && !formInitializedRef.current) {
+            setCustomIdInput(item.customId);
             item.fieldValues.forEach((fv) => {
                 const fieldDef = fields.find((f) => f.id === fv.customFieldId);
                 if (!fieldDef) return;
@@ -160,6 +170,7 @@ export default function ItemDetailPage() {
                     setValue(fv.customFieldId, fv.valueBoolean ?? false);
                 else setValue(fv.customFieldId, fv.valueString ?? '');
             });
+            formInitializedRef.current = true;
         }
     }, [isEditing, fields, item, setValue]);
 
@@ -190,34 +201,110 @@ export default function ItemDetailPage() {
                             : null,
                 };
             });
+            const versionToSend =
+                versionOverrideRef.current ??
+                editVersionRef.current ??
+                item.version;
             const res = await fetch(`/api/items/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     fields: mappedFields,
-                    version: item.version,
+                    customId: customIdInput,
+                    version: versionToSend,
                 }),
             });
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.message || 'Failed to save item');
+                const errorData = (await res.json()) as {
+                    message?: string;
+                    code?: string;
+                };
+                const err = new Error(
+                    errorData.message || 'Failed to save item',
+                ) as Error & { code?: string };
+                err.code = errorData.code;
+                throw err;
             }
             return res.json();
         },
         onSuccess: () => {
+            versionOverrideRef.current = null;
+            editVersionRef.current = null;
+            formInitializedRef.current = false;
+            setConflictType(null);
             queryClient.invalidateQueries({ queryKey: ['item-detail', id] });
             setIsEditing(false);
         },
         onError: (err: Error) => {
-            alert(err.message); // TODO: Replace with toast notification
+            const code = (err as Error & { code?: string }).code;
+            if (code === 'VERSION_CONFLICT') {
+                setConflictType('version');
+            } else if (code === 'CUSTOM_ID_CONFLICT') {
+                setConflictType('custom_id');
+            }
         },
     });
 
-    const onSubmit = (data: FormData) => saveMutation.mutate(data);
+    const onSubmit = (data: FormData) => {
+        lastFormDataRef.current = data;
+        saveMutation.mutate(data);
+    };
 
     const handleCancelEdit = () => {
         setIsEditing(false);
+        setConflictType(null);
+        editVersionRef.current = null;
+        versionOverrideRef.current = null;
+        formInitializedRef.current = false;
         reset();
+    };
+
+    const handleReload = async () => {
+        try {
+            const res = await fetch(`/api/items/${id}`);
+            if (!res.ok) throw new Error('Failed to reload item');
+            const freshItem: InventoryItemDto = await res.json();
+            const newFormValues: FormData = {};
+            freshItem.fieldValues.forEach((fv) => {
+                const fieldDef = fields?.find((f) => f.id === fv.customFieldId);
+                if (!fieldDef) return;
+                if (fieldDef.fieldType === 'NUMBER')
+                    newFormValues[fv.customFieldId] =
+                        fv.valueNumber ?? undefined;
+                else if (fieldDef.fieldType === 'BOOLEAN')
+                    newFormValues[fv.customFieldId] = fv.valueBoolean ?? false;
+                else newFormValues[fv.customFieldId] = fv.valueString ?? '';
+            });
+            reset(newFormValues);
+            setCustomIdInput(freshItem.customId);
+            setConflictType(null);
+            queryClient.setQueryData<InventoryItemDto>(
+                ['item-detail', id],
+                freshItem,
+            );
+        } catch (error) {
+            console.error('Failed to reload item:', error);
+        }
+    };
+
+    const handleOverwrite = async () => {
+        try {
+            const res = await fetch(`/api/items/${id}`);
+            if (!res.ok) throw new Error('Failed to fetch latest version');
+            const freshItem: InventoryItemDto = await res.json();
+            versionOverrideRef.current = freshItem.version;
+            setConflictType(null);
+            if (lastFormDataRef.current) {
+                saveMutation.mutate(lastFormDataRef.current);
+            }
+        } catch (error) {
+            console.error('Failed to overwrite item:', error);
+        }
+    };
+
+    const handleResetCustomId = () => {
+        if (item) setCustomIdInput(item.customId);
+        setConflictType(null);
     };
 
     if (isLoading)
@@ -311,7 +398,10 @@ export default function ItemDetailPage() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setIsEditing(true)}
+                            onClick={() => {
+                                editVersionRef.current = item.version;
+                                setIsEditing(true);
+                            }}
                         >
                             Edit
                         </Button>
@@ -329,7 +419,10 @@ export default function ItemDetailPage() {
                                 size="sm"
                                 type="submit"
                                 form="item-edit-form"
-                                disabled={saveMutation.isPending}
+                                disabled={
+                                    saveMutation.isPending ||
+                                    conflictType === 'version'
+                                }
                             >
                                 {saveMutation.isPending ? 'Saving...' : 'Save'}
                             </Button>
@@ -407,6 +500,41 @@ export default function ItemDetailPage() {
                     <h2 className="text-xl font-semibold mb-4">
                         Edit Item Properties
                     </h2>
+                    {conflictType === 'version' && (
+                        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg space-y-3 shadow-sm mb-4">
+                            <div className="flex items-start gap-3 text-amber-800 dark:text-amber-400">
+                                <TriangleAlert
+                                    className="mt-0.5 shrink-0"
+                                    size={20}
+                                />
+                                <div>
+                                    <h4 className="font-semibold text-sm">
+                                        Version Conflict
+                                    </h4>
+                                    <p className="text-sm mt-1 opacity-90">
+                                        This item was modified by someone else
+                                        while you were editing it.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap gap-3 pt-2 ml-8">
+                                <button
+                                    type="button"
+                                    onClick={handleReload}
+                                    className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
+                                >
+                                    Reload (lose your changes)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleOverwrite}
+                                    className="px-3 py-1.5 text-sm font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
+                                >
+                                    Overwrite (force save your version)
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     {!fields ? (
                         <div className="text-center py-8 text-zinc-500">
                             Loading fields...
@@ -417,6 +545,34 @@ export default function ItemDetailPage() {
                             onSubmit={handleSubmit(onSubmit)}
                             className="space-y-4"
                         >
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium">
+                                    Custom ID
+                                </label>
+                                <Input
+                                    value={customIdInput}
+                                    onChange={(e) => {
+                                        setCustomIdInput(e.target.value);
+                                        if (conflictType === 'custom_id')
+                                            setConflictType(null);
+                                    }}
+                                />
+                                {conflictType === 'custom_id' && (
+                                    <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-sm">
+                                        <span className="text-amber-800 dark:text-amber-400">
+                                            This ID already exists in the
+                                            inventory.
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={handleResetCustomId}
+                                            className="ml-2 px-2 py-1 text-xs font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors whitespace-nowrap"
+                                        >
+                                            Reset to original
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             {fields.map((field) => (
                                 <div key={field.id} className="space-y-1">
                                     <label className="text-sm font-medium">

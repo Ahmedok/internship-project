@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { TriangleAlert } from 'lucide-react';
 import type { CustomFieldInput, InventoryDetail } from '@inventory/shared';
 
 import {
@@ -25,11 +26,26 @@ interface ItemModalProps {
 export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
     const queryClient = useQueryClient();
 
+    const [customIdConflict, setCustomIdConflict] = useState(false);
+    const [manualCustomId, setManualCustomId] = useState<string>('');
+
     const { data: fields } = useQuery<CustomFieldInput[]>({
         queryKey: ['inventory-fields', inventory.id],
         queryFn: async () => {
             const res = await fetch(`/api/inventories/${inventory.id}/fields`);
             if (!res.ok) throw new Error('Failed to fetch fields');
+            return res.json();
+        },
+        enabled: isOpen,
+    });
+
+    const { data: idPreview } = useQuery<{ preview: string }>({
+        queryKey: ['inventory-id-preview', inventory.id],
+        queryFn: async () => {
+            const res = await fetch(
+                `/api/inventories/${inventory.id}/id-preview`,
+            );
+            if (!res.ok) throw new Error('Failed to fetch ID preview');
             return res.json();
         },
         enabled: isOpen,
@@ -71,7 +87,11 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
     });
 
     useEffect(() => {
-        if (isOpen) reset();
+        if (isOpen) {
+            reset();
+            setCustomIdConflict(false);
+            setManualCustomId('');
+        }
     }, [isOpen, reset]);
 
     const saveMutation = useMutation({
@@ -102,27 +122,54 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                     };
                 }) || [];
 
+            const payload: Record<string, any> = { fields: mappedFields };
+
+            if (manualCustomId.trim() !== '') {
+                payload.customId = manualCustomId.trim();
+            }
+
             const res = await fetch(`/api/inventories/${inventory.id}/items`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fields: mappedFields }),
+                body: JSON.stringify(payload),
             });
 
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.message || 'Failed to create item');
+                const errorData = (await res.json()) as {
+                    message?: string;
+                    code?: string;
+                };
+                const err = new Error(
+                    errorData.message || 'Failed to create item',
+                ) as Error & { code?: string };
+                err.code = errorData.code;
+                throw err;
             }
         },
         onSuccess: () => {
+            setCustomIdConflict(false);
+            setManualCustomId('');
             onClose();
             queryClient.invalidateQueries({
                 queryKey: ['inventory-items', inventory.id],
             });
         },
         onError: (err: Error) => {
-            alert(err.message); // TODO: Replace with toast notification
+            if (
+                (err as Error & { code?: string }).code === 'CUSTOM_ID_CONFLICT'
+            ) {
+                setCustomIdConflict(true);
+            }
         },
     });
+
+    const handleRegenerateId = async () => {
+        setCustomIdConflict(false);
+        setManualCustomId('');
+        await queryClient.invalidateQueries({
+            queryKey: ['inventory-id-preview', inventory.id],
+        });
+    };
 
     const onSubmit = (data: FormData) => saveMutation.mutate(data);
 
@@ -135,10 +182,66 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                     <DialogTitle>Add Item</DialogTitle>
                     <DialogDescription>
                         Fill out item details below. Custom ID is generated
-                        automatically, but you can specify your own in the
-                        settings.
+                        automatically.
                     </DialogDescription>
                 </DialogHeader>
+
+                <div className="bg-zinc-50 dark:bg-zinc-900 px-3 py-3 rounded-md text-sm border space-y-3">
+                    <div className="flex items-center justify-between">
+                        <span className="text-zinc-500 font-medium">
+                            Custom ID
+                        </span>
+                        {!customIdConflict && !manualCustomId && (
+                            <button
+                                type="button"
+                                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                onClick={() =>
+                                    setManualCustomId(idPreview?.preview || '')
+                                }
+                            >
+                                Edit Manually
+                            </button>
+                        )}
+                    </div>
+
+                    {customIdConflict || manualCustomId !== '' ? (
+                        <Input
+                            value={manualCustomId}
+                            onChange={(e) => {
+                                setManualCustomId(e.target.value);
+                                setCustomIdConflict(false);
+                            }}
+                            placeholder="Enter unique ID"
+                            className={
+                                customIdConflict
+                                    ? 'border-red-500 bg-red-50 dark:bg-red-950'
+                                    : ''
+                            }
+                        />
+                    ) : (
+                        <code className="font-mono font-bold text-zinc-800 dark:text-zinc-200 block bg-white dark:bg-zinc-950 p-2 border rounded">
+                            {idPreview?.preview ?? 'Generating...'}
+                        </code>
+                    )}
+
+                    {customIdConflict && (
+                        <div className="flex items-start gap-2 text-red-600 dark:text-red-400 text-xs mt-2">
+                            <TriangleAlert className="shrink-0 w-4 h-4" />
+                            <div className="flex gap-3 mt-2">
+                                <p className="font-medium text-sm">
+                                    This ID is already in use.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handleRegenerateId}
+                                    className="text-blue-600 dark:text-blue-400 hover:underline mt-1 font-medium text-xs cursor-pointer"
+                                >
+                                    Generate New ID
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <form
                     id="item-form"
@@ -202,7 +305,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                     <Button
                         type="submit"
                         form="item-form"
-                        disabled={saveMutation.isPending}
+                        disabled={saveMutation.isPending || customIdConflict}
                     >
                         {saveMutation.isPending ? 'Saving...' : 'Save'}
                     </Button>
