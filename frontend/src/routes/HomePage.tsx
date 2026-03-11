@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import type { InventorySummaryDto, TagCloudDto } from '@inventory/shared';
 import {
@@ -12,6 +13,7 @@ import {
 } from '../components/ui/table';
 
 export default function HomePage() {
+    const { t } = useTranslation('common');
     const navigate = useNavigate();
 
     const { data: latest, isLoading: loadingLatest } = useQuery<
@@ -67,9 +69,13 @@ export default function HomePage() {
     return (
         <div className="max-w-7xl mx-auto p-6 space-y-12">
             <section className="bg-zinc-50 dark:bg-zinc-900/50 p-8 rounded-xl border text-center">
-                <h2 className="text-2xl font-bold mb-6">Popular Tags</h2>
+                <h2 className="text-2xl font-bold mb-6">
+                    {t('home_page.tag_cloud')}
+                </h2>
                 {loadingTags ? (
-                    <div className="text-zinc-500">Loading tags...</div>
+                    <div className="text-zinc-500">
+                        {t('home_page.loading_tags')}
+                    </div>
                 ) : (
                     <div className="flex flex-wrap justify-center items-center gap-4">
                         {tags?.map((tag) => (
@@ -95,17 +101,23 @@ export default function HomePage() {
                 {/* Latest Inventories */}
                 <section>
                     <h2 className="text-xl font-bold mb-4">
-                        Latest Inventories
+                        {t('home_page.latest_inventories')}
                     </h2>
                     <div className="border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Author</TableHead>
-                                    <TableHead>Created At</TableHead>
+                                    <TableHead>
+                                        {t('inventories.title')}
+                                    </TableHead>
+                                    <TableHead>
+                                        {t('inventories.author')}
+                                    </TableHead>
+                                    <TableHead>
+                                        {t('inventories.createdAt')}
+                                    </TableHead>
                                     <TableHead className="text-right">
-                                        Items
+                                        {t('inventories.items')}
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -116,7 +128,7 @@ export default function HomePage() {
                                             colSpan={4}
                                             className="text-center py-4"
                                         >
-                                            Loading...
+                                            {t('common.loading')}
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -153,17 +165,23 @@ export default function HomePage() {
                 {/* Popular Inventories */}
                 <section>
                     <h2 className="text-xl font-bold mb-4">
-                        Popular Inventories
+                        {t('home_page.popular_inventories')}
                     </h2>
                     <div className="border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Author</TableHead>
-                                    <TableHead>Updated At</TableHead>
+                                    <TableHead>
+                                        {t('inventories.title')}
+                                    </TableHead>
+                                    <TableHead>
+                                        {t('inventories.author')}
+                                    </TableHead>
+                                    <TableHead>
+                                        {t('inventories.updatedAt')}
+                                    </TableHead>
                                     <TableHead className="text-right">
-                                        Items
+                                        {t('inventories.items')}
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -174,7 +192,7 @@ export default function HomePage() {
                                             colSpan={4}
                                             className="text-center py-4"
                                         >
-                                            Loading...
+                                            {t('common.loading')}
                                         </TableCell>
                                     </TableRow>
                                 ) : (

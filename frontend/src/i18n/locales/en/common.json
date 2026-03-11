@@ -35,9 +35,20 @@
         "loader": "Loading your inventories...",
         "create_inventory": "Create New Inventory"
     },
+    "home_page": {
+        "tag_cloud": "Popular Tags",
+        "loading_tags": "Loading tags...",
+        "latest_inventories": "Latest Inventories",
+        "popular_inventories": "Popular Inventories"
+    },
     "inventories": {
         "title": "Title",
+        "author": "Author",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At",
         "category": "Category",
+        "tags": "Tags",
+        "items": "Items",
         "access": "Access",
         "access_public": "Public",
         "access_private": "Private",

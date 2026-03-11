@@ -37,9 +37,20 @@
         "my_inventories": "Мои инвентари",
         "accessible_inventories": "Доступные мне инвентари"
     },
+    "home_page": {
+        "tag_cloud": "Популярные теги",
+        "loading_tags": "Загрузка тегов...",
+        "latest_inventories": "Новые инвентари",
+        "popular_inventories": "Популярные инвентари"
+    },
     "inventories": {
         "title": "Название",
+        "author": "Автор",
+        "createdAt": "Создано",
+        "updatedAt": "Обновлено",
         "category": "Категория",
+        "tags": "Теги",
+        "items": "Записей",
         "access": "Доступ",
         "access_public": "Публичный",
         "access_private": "Приватный",
