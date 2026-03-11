@@ -33,7 +33,8 @@
     "personal_page": {
         "title": "Personal Page",
         "loader": "Loading your inventories...",
-        "create_inventory": "Create New Inventory"
+        "my_inventories": "My Inventories",
+        "accessible_inventories": "Inventories with writer access"
     },
     "home_page": {
         "tag_cloud": "Popular Tags",
@@ -42,6 +43,7 @@
         "popular_inventories": "Popular Inventories"
     },
     "inventories": {
+        "create_inventory": "Create New Inventory",
         "title": "Title",
         "author": "Author",
         "createdAt": "Created At",

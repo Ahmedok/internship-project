@@ -33,7 +33,6 @@
     "personal_page": {
         "title": "Личный кабинет",
         "loader": "Загрузка ваших инвентарей...",
-        "create_inventory": "Создать новый инвентарь",
         "my_inventories": "Мои инвентари",
         "accessible_inventories": "Доступные мне инвентари"
     },
@@ -44,6 +43,7 @@
         "popular_inventories": "Популярные инвентари"
     },
     "inventories": {
+        "create_inventory": "Создать новый инвентарь",
         "title": "Название",
         "author": "Автор",
         "createdAt": "Создано",

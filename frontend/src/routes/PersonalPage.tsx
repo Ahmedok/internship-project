@@ -269,7 +269,7 @@ export default function PersonalPage() {
                     {t('personal_page.title')}
                 </h1>
                 <Button onClick={() => navigate('/inventories/new')}>
-                    {t('personal_page.create_inventory')}
+                    {t('inventories.create_inventory')}
                 </Button>
             </div>
 
