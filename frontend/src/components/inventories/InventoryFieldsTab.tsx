@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
     DndContext,
     closestCenter,
@@ -20,6 +21,8 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { toast } from 'sonner';
+import { Grip } from 'lucide-react';
 import type { CustomFieldInput, FieldType } from '@inventory/shared';
 
 function SortableFieldItem({
@@ -31,6 +34,8 @@ function SortableFieldItem({
     onRemove: () => void;
     onChange: (updates: Partial<CustomFieldInput>) => void;
 }) {
+    const { t } = useTranslation('common');
+
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: field.id });
 
@@ -50,18 +55,21 @@ function SortableFieldItem({
                 {...listeners}
                 className="cursor-grab p-1 text-zinc-400 hover:text-zinc-600"
             >
-                Handle
+                <Grip size={16} />
             </div>
 
             <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Input
                     value={field.title}
                     onChange={(e) => onChange({ title: e.target.value })}
-                    placeholder="Field Title (e.g. Author)"
+                    placeholder={t(
+                        'inventory_manage.fields_tab.input_placeholder',
+                    )}
                     className="h-8"
                 />
                 <div className="flex items-center text-sm font-medium px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md w-max">
-                    Type: {field.fieldType}
+                    {t('inventory_manage.fields_tab.type_label')}:{' '}
+                    {t(`inventories.fields.${field.fieldType}`)}
                 </div>
                 <label className="flex items-center gap-2 text-sm">
                     <input
@@ -71,18 +79,20 @@ function SortableFieldItem({
                             onChange({ showInTable: e.target.checked })
                         }
                     />
-                    Show in Table
+                    {t('inventory_manage.fields_tab.show_label')}
                 </label>
             </div>
 
             <Button variant="destructive" size="sm" onClick={onRemove}>
-                Remove
+                {t('inventory_manage.fields_tab.remove_button')}
             </Button>
         </div>
     );
 }
 
 export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
+    const { t } = useTranslation('common');
+
     const queryClient = useQueryClient();
     const [localFields, setLocalFields] = useState<
         (CustomFieldInput & { id: string })[]
@@ -130,7 +140,11 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
             (field) => field.fieldType === type,
         ).length;
         if (count >= 3) {
-            alert(`You can only have up to 3 fields of type ${type}`);
+            toast.error(
+                t('inventory_manage.fields_tab.max_type_error', {
+                    type: t(`inventories.fields.${type}`),
+                }),
+            );
             return;
         }
 
@@ -171,28 +185,37 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
             queryClient.invalidateQueries({
                 queryKey: ['inventory-fields', inventoryId],
             });
-            alert('Field structure saved successfully');
+            toast.success(t('inventory_manage.fields_tab.saved_success'));
         },
-        onError: (error) => alert(error.message),
+        onError: (error) => {
+            // TODO: Add custom message (translated)
+            toast.error((error as Error).message);
+        },
     });
 
-    if (isLoading) return <div className="p-4">Loading structure...</div>;
+    if (isLoading)
+        return (
+            <div className="p-4">{t('inventory_manage.fields_tab.loader')}</div>
+        );
 
     return (
         <div className="space-y-6 max-w-4xl bg-white dark:bg-zinc-950 p-6 rounded-lg border">
             <div className="flex justify-between items-center border-b pb-4">
                 <div>
-                    <h2 className="text-xl font-semibold">Field Constructor</h2>
+                    <h2 className="text-xl font-semibold">
+                        {t('inventory_manage.fields_tab.tab_label')}
+                    </h2>
                     <p className="text-sm text-zinc-500">
-                        Determine the data structure for inventory items.
-                        Maximum of 3 fields per type.
+                        {t('inventory_manage.fields_tab.tab_desc')}
                     </p>
                 </div>
                 <Button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending}
                 >
-                    {saveMutation.isPending ? 'Saving...' : 'Save'}
+                    {saveMutation.isPending
+                        ? t('common.saving')
+                        : t('common.save')}
                 </Button>
             </div>
 
@@ -202,42 +225,42 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
                     size="sm"
                     onClick={() => addField('STRING')}
                 >
-                    + String
+                    + {t('inventories.fields.STRING')}
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => addField('TEXT')}
                 >
-                    + Text
+                    + {t('inventories.fields.TEXT')}
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => addField('NUMBER')}
                 >
-                    + Number
+                    + {t('inventories.fields.NUMBER')}
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => addField('DOCUMENT')}
                 >
-                    + Document
+                    + {t('inventories.fields.DOCUMENT')}
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => addField('BOOLEAN')}
                 >
-                    + Boolean
+                    + {t('inventories.fields.BOOLEAN')}
                 </Button>
             </div>
 
             <div className="mt-6 bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50">
                 {localFields.length === 0 ? (
                     <p className="text-center text-zinc-500 mt-8">
-                        No custom fields. Add new ones using the buttons above.
+                        {t('inventory_manage.fields_tab.no_custom_fields')}
                     </p>
                 ) : (
                     <DndContext
