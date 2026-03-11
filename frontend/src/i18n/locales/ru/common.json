@@ -6,8 +6,7 @@
         "preferences": "Настройки",
         "login": "Войти",
         "logout": "Выйти",
-        "profile": "Личный кабинет",
-        "admin_panel": "Панель администратора"
+        "profile": "Личный кабинет"
     },
     "common": {
         "loading": "Загрузка...",
@@ -30,5 +29,22 @@
         "status": "Статус",
         "status_active": "Активен",
         "status_blocked": "Заблокирован"
+    },
+    "personal_page": {
+        "title": "Личный кабинет",
+        "loader": "Загрузка ваших инвентарей...",
+        "create_inventory": "Создать новый инвентарь",
+        "my_inventories": "Мои инвентари",
+        "accessible_inventories": "Доступные мне инвентари"
+    },
+    "inventories": {
+        "title": "Название",
+        "category": "Категория",
+        "access": "Доступ",
+        "access_public": "Публичный",
+        "access_private": "Приватный",
+        "last_updated": "Последнее обновление",
+        "delete_selected": "Удалить выбранные",
+        "empty_message": "Инвентари не найдены. Создайте свой первый инвентарь!"
     }
 }

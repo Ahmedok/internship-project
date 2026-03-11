@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import {
     type ColumnDef,
@@ -10,6 +11,7 @@ import {
     type SortingState,
     useReactTable,
 } from '@tanstack/react-table';
+import type { InventoryDetail } from '@inventory/shared';
 
 import {
     Table,
@@ -22,65 +24,74 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 
-const columns: ColumnDef<any>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={table.getIsAllPageRowsSelected()}
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label={`Select row ${row.index + 1}`}
-            />
-        ),
-        enableSorting: false,
-    },
-    {
-        accessorKey: 'title',
-        header: 'Title',
-    },
-    {
-        accessorKey: 'category',
-        header: 'Category',
-    },
-    {
-        accessorKey: 'isPublic',
-        header: 'Access',
-        cell: ({ row }) => (
-            <span
-                className={
-                    row.original.isPublic ? 'text-green-600' : 'text-amber-600'
-                }
-            >
-                {row.original.isPublic ? 'Public' : 'Private'}
-            </span>
-        ),
-    },
-    {
-        accessorKey: 'updatedAt',
-        header: 'Last Updated',
-        cell: ({ row }) =>
-            new Date(row.original.updatedAt).toLocaleDateString(),
-    },
-];
-
 function InventoryTable({
     data,
     onDeleteSelected,
     isDeletable,
 }: {
-    data: any[];
+    data: InventoryDetail[];
     onDeleteSelected?: (ids: string[]) => void;
     isDeletable?: boolean;
 }) {
+    const { t } = useTranslation('common');
+
+    const columns = useMemo<ColumnDef<InventoryDetail>[]>(
+        () => [
+            {
+                id: 'select',
+                header: ({ table }) => (
+                    <Checkbox
+                        checked={table.getIsAllPageRowsSelected()}
+                        onCheckedChange={(value) =>
+                            table.toggleAllPageRowsSelected(!!value)
+                        }
+                        aria-label="Select all"
+                    />
+                ),
+                cell: ({ row }) => (
+                    <Checkbox
+                        checked={row.getIsSelected()}
+                        onCheckedChange={(value) => row.toggleSelected(!!value)}
+                        aria-label={`Select row ${row.index + 1}`}
+                    />
+                ),
+                enableSorting: false,
+            },
+            {
+                accessorKey: 'title',
+                header: t('inventories.title'),
+            },
+            {
+                accessorKey: 'category',
+                header: t('inventories.category'),
+            },
+            {
+                accessorKey: 'isPublic',
+                header: t('inventories.access'),
+                cell: ({ row }) => (
+                    <span
+                        className={
+                            row.original.isPublic
+                                ? 'text-green-600'
+                                : 'text-amber-600'
+                        }
+                    >
+                        {row.original.isPublic
+                            ? t('inventories.access_public')
+                            : t('inventories.access_private')}
+                    </span>
+                ),
+            },
+            {
+                accessorKey: 'updatedAt',
+                header: t('inventories.last_updated'),
+                cell: ({ row }) =>
+                    new Date(row.original.updatedAt).toLocaleDateString(),
+            },
+        ],
+        [t],
+    );
+
     const navigate = useNavigate();
     const [rowSelection, setRowSelection] = useState({});
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -117,7 +128,8 @@ function InventoryTable({
                         disabled={!isAnySelected}
                         onClick={handleDelete}
                     >
-                        Delete selected ({selectedIds.length})
+                        {t('inventories.delete_selected')} ({selectedIds.length}
+                        )
                     </Button>
                 </div>
             )}
@@ -186,7 +198,7 @@ function InventoryTable({
                                     colSpan={columns.length}
                                     className="h-24 text-center text-zinc-500"
                                 >
-                                    No inventories found.
+                                    {t('inventories.empty_message')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -198,6 +210,7 @@ function InventoryTable({
 }
 
 export default function PersonalPage() {
+    const { t } = useTranslation('common');
     const { user } = useAuthStore();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -247,22 +260,22 @@ export default function PersonalPage() {
     });
 
     if (isLoading)
-        return <div className="p-8">Loading your inventories...</div>;
+        return <div className="p-8">{t('personal_page.loader')}</div>;
 
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-3xl font-bold tracking-tight">
-                    Personal Page
+                    {t('personal_page.title')}
                 </h1>
                 <Button onClick={() => navigate('/inventories/new')}>
-                    Create New Inventory
+                    {t('personal_page.create_inventory')}
                 </Button>
             </div>
 
             <section className="space-y-4">
                 <h2 className="text-xl font-semibold border-b pb-2">
-                    My Inventories
+                    {t('personal_page.my_inventories')}
                 </h2>
                 <InventoryTable
                     data={myInventories}
@@ -274,7 +287,7 @@ export default function PersonalPage() {
             {accesibleInventories.length > 0 && (
                 <section className="space-y-4 mt-12">
                     <h2 className="text-xl font-semibold border-b pb-2">
-                        Inventories I can access (read/edit only)
+                        {t('personal_page.accessible_inventories')}
                     </h2>
                     <InventoryTable
                         data={accesibleInventories}

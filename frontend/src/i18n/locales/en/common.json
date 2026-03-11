@@ -6,8 +6,7 @@
         "preferences": "Preferences",
         "login": "Sign In",
         "logout": "Log Out",
-        "profile": "My Profile",
-        "admin_panel": "Admin Panel"
+        "profile": "My Profile"
     },
     "common": {
         "loading": "Loading...",
@@ -30,5 +29,20 @@
         "status": "Status",
         "status_active": "Active",
         "status_blocked": "Blocked"
+    },
+    "personal_page": {
+        "title": "Personal Page",
+        "loader": "Loading your inventories...",
+        "create_inventory": "Create New Inventory"
+    },
+    "inventories": {
+        "title": "Title",
+        "category": "Category",
+        "access": "Access",
+        "access_public": "Public",
+        "access_private": "Private",
+        "last_updated": "Last Updated",
+        "delete_selected": "Delete selected",
+        "empty_message": "No inventories found. Create your first inventory!"
     }
 }

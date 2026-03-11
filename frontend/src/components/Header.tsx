@@ -83,7 +83,7 @@ export function Header() {
                                             to="/admin"
                                             className="text-lg font-medium text-red-600 dark:text-red-400"
                                         >
-                                            {t('header.admin_panel')}
+                                            {t('admin_panel.title')}
                                         </Link>
                                     )}
                                 </nav>
@@ -172,7 +172,7 @@ export function Header() {
                                             to="/admin"
                                             className="cursor-pointer w-full text-red-600 dark:text-red-400"
                                         >
-                                            {t('header.admin_panel')}
+                                            {t('admin_panel.title')}
                                         </Link>
                                     </DropdownMenuItem>
                                 )}
