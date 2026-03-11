@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router';
 import { Input } from './ui/input';
 import { TextSearch } from 'lucide-react';
 
-export function GlobalSearchBar() {
+export function GlobalSearchBar({
+    translatedPlaceholder,
+}: {
+    translatedPlaceholder: string;
+}) {
     const [query, setQuery] = useState('');
     const navigate = useNavigate();
 
@@ -27,7 +31,7 @@ export function GlobalSearchBar() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Global search..."
+                placeholder={translatedPlaceholder}
                 className="pl-10 bg-zinc-100 dark:bg-zinc-800 border-transparent focus-visible:ring-2 focus-visible:bg-white dark:focus-visible:bg-zinc-900 transition-colors"
             />
         </form>

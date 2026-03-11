@@ -57,7 +57,11 @@ export function Header() {
                             </SheetHeader>
                             <div className="flex flex-col gap-6 mt-6">
                                 <div className="w-full block md:hidden">
-                                    <GlobalSearchBar />
+                                    <GlobalSearchBar
+                                        translatedPlaceholder={t(
+                                            'header.search_placeholder',
+                                        )}
+                                    />
                                 </div>
                                 <nav className="flex flex-col gap-3">
                                     <Link
@@ -95,7 +99,9 @@ export function Header() {
 
                 {/* Search Bar */}
                 <div className="flex-1 hidden md:flex justify-center max-w-xl px-4">
-                    <GlobalSearchBar />
+                    <GlobalSearchBar
+                        translatedPlaceholder={t('header.search_placeholder')}
+                    />
                 </div>
 
                 {/* User Menu */}
