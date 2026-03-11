@@ -12,7 +12,9 @@
         "loading": "Загрузка...",
         "error": "Произошла ошибка.",
         "save": "Сохранить",
-        "cancel": "Отмена"
+        "cancel": "Отмена",
+        "creating": "Создание...",
+        "create": "Создать"
     },
     "admin_panel": {
         "title": "Панель администратора",
@@ -45,10 +47,19 @@
     "inventories": {
         "create_inventory": "Создать новый инвентарь",
         "title": "Название",
+        "title_placeholder": "Пример: Моя коллекция",
         "author": "Автор",
         "createdAt": "Создано",
         "updatedAt": "Обновлено",
         "category": "Категория",
+        "categories": {
+            "COLLECTIONS": "Коллекции",
+            "ELECTRONICS": "Электроника",
+            "BOOKS": "Книги",
+            "TOOLS": "Инструменты",
+            "OTHER": "Другое"
+        },
+        "description": "Описание",
         "tags": "Теги",
         "items": "Записей",
         "access": "Доступ",

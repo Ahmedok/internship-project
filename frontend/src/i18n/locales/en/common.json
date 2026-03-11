@@ -12,7 +12,9 @@
         "loading": "Loading...",
         "error": "An error occurred.",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "creating": "Creating...",
+        "create": "Create"
     },
     "admin_panel": {
         "title": "Admin Panel",
@@ -45,10 +47,19 @@
     "inventories": {
         "create_inventory": "Create New Inventory",
         "title": "Title",
+        "title_placeholder": "Example: My Collection",
         "author": "Author",
         "createdAt": "Created At",
         "updatedAt": "Updated At",
         "category": "Category",
+        "categories": {
+            "COLLECTIONS": "Collections",
+            "ELECTRONICS": "Electronics",
+            "BOOKS": "Books",
+            "TOOLS": "Tools",
+            "OTHER": "Other"
+        },
+        "description": "Description",
         "tags": "Tags",
         "items": "Items",
         "access": "Access",
