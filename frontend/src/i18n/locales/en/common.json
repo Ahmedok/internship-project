@@ -14,7 +14,13 @@
         "saving": "Saving...",
         "cancel": "Cancel",
         "creating": "Creating...",
-        "create": "Create"
+        "create": "Create",
+        "search_user_placeholder": "Search by name or email",
+        "no_users_found": "Users not found.",
+        "username": "Name",
+        "username_unknown": "Unknown User",
+        "email": "Email",
+        "email_unknown": "Unknown Email"
     },
     "errors": {
         "generic_error": "An error occurred. Please try again.",
@@ -26,19 +32,18 @@
         "reload_error": "Failed to reload data. Please check your connection.",
         "overwrite_error": "Failed to overwrite inventory. Please check your connection.",
         "conflict_error": "Conflict detected. The data has been modified by another user.",
-        "cloudinary_upload_error": "Image upload failed. Please try again."
+        "cloudinary_upload_error": "Image upload failed. Please try again.",
+        "update_public_error": "Failed to update inventory public access. Please try again.",
+        "add_access_error": "Failed to add access. Please try again.",
+        "remove_access_error": "Failed to remove access. Please try again."
     },
     "admin_panel": {
         "title": "Admin Panel",
-        "search_placeholder": "Search by name or email",
         "block": "Block",
         "unblock": "Unblock",
         "promote": "Promote Admin",
         "demote": "Demote Admin",
         "delete": "Delete",
-        "no_users_found": "Users not found.",
-        "username": "Name",
-        "email": "Email",
         "role": "Role",
         "status": "Status",
         "status_active": "Active",
@@ -82,6 +87,19 @@
             "overwrite_button": "Overwrite (force your changes)",
             "uploading_image": "Uploading image...",
             "upload_image": "Upload New Image"
+        },
+        "access_tab": {
+            "public_toggle": "Public Access",
+            "public_toggle_desc": "If enabled, any user will have write access to this inventory. Use with caution!",
+            "add_user_access": "Add User Access",
+            "has_access": "Has Access",
+            "is_creator": "Creator",
+            "add_access": "Add Access",
+            "revoke_access": "Revoke Access",
+            "access_list": "Access List",
+            "sort_by_name": "Sort by Name",
+            "sort_by_email": "Sort by Email",
+            "empty_access_list": "List is empty. Only you have access."
         }
     },
     "inventories": {
