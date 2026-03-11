@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
+import ReactMarkdown from 'react-markdown';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
@@ -64,6 +65,25 @@ export default function InventoryManagePage() {
                     Inventory Management
                 </span>
             </div>
+
+            {(inventory.imageUrl || inventory.description) && (
+                <div className="flex gap-6 p-4 border rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
+                    {inventory.imageUrl && (
+                        <img
+                            src={inventory.imageUrl}
+                            alt={inventory.title}
+                            className="w-40 h-40 object-cover rounded-md shrink-0 border"
+                        />
+                    )}
+                    {inventory.description && (
+                        <div className="prose prose-sm dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300">
+                            <ReactMarkdown>
+                                {inventory.description}
+                            </ReactMarkdown>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <Tabs defaultValue="items" className="w-full">
                 <TabsList className="flex flex-wrap h-auto w-full justify-start gap-2 bg-transparent">
