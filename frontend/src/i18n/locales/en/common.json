@@ -10,11 +10,23 @@
     },
     "common": {
         "loading": "Loading...",
-        "error": "An error occurred.",
         "save": "Save",
+        "saving": "Saving...",
         "cancel": "Cancel",
         "creating": "Creating...",
         "create": "Create"
+    },
+    "errors": {
+        "generic_error": "An error occurred. Please try again.",
+        "not_found_error": "The requested resource was not found.",
+        "unauthorized_error": "You are not authorized to perform this action.",
+        "internal_server_error": "An unexpected server error occurred.",
+        "auto_save_error": "Failed to auto-save changes. Please check your connection.",
+        "validation_error": "Validation failed. Please check your input.",
+        "reload_error": "Failed to reload data. Please check your connection.",
+        "overwrite_error": "Failed to overwrite inventory. Please check your connection.",
+        "conflict_error": "Conflict detected. The data has been modified by another user.",
+        "cloudinary_upload_error": "Image upload failed. Please try again."
     },
     "admin_panel": {
         "title": "Admin Panel",
@@ -56,6 +68,20 @@
             "fields": "Fields",
             "custom_ids": "Custom IDs",
             "statistics": "Statistics"
+        },
+        "save_label": {
+            "conflict": "Stopped (conflict)",
+            "waiting": "Waiting for changes...",
+            "saved": "All changes saved!"
+        },
+        "settings_tab": {
+            "title": "Inventory Settings",
+            "conflict_alert_header": "Version Conflict Detected",
+            "conflict_alert_message": "The inventory has been modified by another user while you were editing it. Auto-save has been stopped.",
+            "reload_button": "Reload (discard your changes)",
+            "overwrite_button": "Overwrite (force your changes)",
+            "uploading_image": "Uploading image...",
+            "upload_image": "Upload New Image"
         }
     },
     "inventories": {
@@ -63,6 +89,8 @@
         "title": "Title",
         "title_placeholder": "Example: My Collection",
         "author": "Author",
+        "cover_image": "Cover Image",
+        "no_image": "No Image",
         "createdAt": "Created At",
         "updatedAt": "Updated At",
         "category": "Category",
@@ -74,7 +102,11 @@
             "OTHER": "Other"
         },
         "description": "Description",
+        "description_placeholder": "Markdown markup supported...",
         "tags": "Tags",
+        "tags_helper": "press Enter to add",
+        "tag_placeholder": "Start entering a tag...",
+        "no_tags": "No tags",
         "items": "Items",
         "access": "Access",
         "access_public": "Public",

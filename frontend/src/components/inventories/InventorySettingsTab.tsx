@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useDebounce } from '@/hooks/useDebounce';
 import {
     InventorySchema,
@@ -11,12 +12,15 @@ import {
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { TriangleAlert } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function InventorySettingsTab({
     initialData,
 }: {
     initialData: InventoryDetail;
 }) {
+    const { t } = useTranslation('common');
+
     const queryClient = useQueryClient();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +50,7 @@ export function InventorySettingsTab({
             });
         } catch (error) {
             console.error('Failed to reload inventory data:', error);
-            alert(`Failed to reload inventory data. Check connection.`); // TODO: Replace with nicer toast notification
+            toast.error(t('errors.reload_error'));
         }
     };
 
@@ -65,7 +69,7 @@ export function InventorySettingsTab({
             autoSaveMutation.mutate(getValues());
         } catch (error) {
             console.error('Failed to overwrite changes:', error);
-            alert(`Failed to overwrite changes. Check connection.`); // TODO: Replace with nicer toast notification
+            toast.error(t('errors.overwrite_error'));
         }
     };
 
@@ -134,8 +138,6 @@ export function InventorySettingsTab({
 
     const autoSaveMutation = useMutation({
         mutationFn: async (data: Partial<InventoryInput>) => {
-            console.log('Sending PATCH with data:', data); // TODO: Delete this after debugging
-
             const res = await fetch(`/api/inventories/${initialData.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -161,32 +163,22 @@ export function InventorySettingsTab({
         },
         onError: (error) => {
             if (error.message === 'CONFLICT') {
-                setConflictError(
-                    'This inventory has been modified elsewhere. Please refresh to get the latest version.',
-                );
+                setConflictError(t('errors.conflict_error'));
             }
+            toast.error(t('errors.auto_save_error'));
         },
     });
 
     useEffect(() => {
-        // TODO: Delete this after debugging
-        console.log('--- FORM REACTION ---');
-        console.log('Dirty (isDirty):', isDirty);
-        console.log('Valid (isValid):', isValid);
-        console.log('Zod Errors (errors):', errors);
-
         if (!isDirty) return;
-
         if (!isValid) {
             console.warn('Auto-save failed due to validation errors:', errors);
             return;
         }
-
         if (conflictError) return;
 
         const timer = setTimeout(() => {
             const latestData = getValues();
-            console.log('TIMER TRIGGERED. SENDING:', latestData);
             autoSaveMutation.mutate(latestData);
         }, 7000);
 
@@ -216,8 +208,8 @@ export function InventorySettingsTab({
                 shouldValidate: true,
             });
         },
-        onError: (err) => {
-            alert(`Cloudinary upload failed: ${err.message}`); // TODO: Delete this after debugging
+        onError: () => {
+            toast.error(t('errors.cloudinary_upload_error'));
         },
     });
 
@@ -230,25 +222,29 @@ export function InventorySettingsTab({
     return (
         <div className="space-y-6 max-w-2xl bg-white dark:bg-zinc-950 p-6 rounded-lg border">
             <div className="flex justify-between items-center border-b pb-4">
-                <h2 className="text-xl font-semibold">Inventory Settings</h2>
+                <h2 className="text-xl font-semibold">
+                    {t('inventory_manage.settings_tab.title')}
+                </h2>
                 <div className="text-sm font-medium">
                     {conflictError ? (
-                        <span className="text-red-500">Stopped (conflict)</span>
+                        <span className="text-red-500">
+                            {t('inventory_manage.save_label.conflict')}
+                        </span>
                     ) : !isValid ? (
                         <span className="text-red-500">
-                            Auto-save failed due to validation errors
+                            {t('errors.validation_error')}
                         </span>
                     ) : autoSaveMutation.isPending ? (
                         <span className="text-amber-500 animate-pulse">
-                            Saving...
+                            {t('common.saving')}
                         </span>
                     ) : isDirty ? (
                         <span className="text-zinc-400">
-                            Waiting for changes...
+                            {t('inventory_manage.save_label.waiting')}
                         </span>
                     ) : (
                         <span className="text-green-600">
-                            All changes saved!
+                            {t('inventory_manage.save_label.saved')}
                         </span>
                     )}
                 </div>
@@ -260,11 +256,14 @@ export function InventorySettingsTab({
                         <TriangleAlert />
                         <div>
                             <h4 className="font-semibold text-sm">
-                                Version Conflict Detected
+                                {t(
+                                    'inventory_manage.settings_tab.conflict_alert_header',
+                                )}
                             </h4>
                             <p className="text-sm mt-1 opacity-90">
-                                This inventory has been modified elsewhere while
-                                you were editing it. Auto-save has been stopped.
+                                {t(
+                                    'inventory_manage.settings_tab.conflict_alert_message',
+                                )}
                             </p>
                         </div>
                     </div>
@@ -273,13 +272,15 @@ export function InventorySettingsTab({
                             onClick={handleReload}
                             className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
                         >
-                            Reload (lose your changes)
+                            {t('inventory_manage.settings_tab.reload_button')}
                         </button>
                         <button
                             onClick={handleOverwrite}
                             className="px-3 py-1.5 text-sm font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
                         >
-                            Overwrite (force save your version)
+                            {t(
+                                'inventory_manage.settings_tab.overwrite_button',
+                            )}
                         </button>
                     </div>
                 </div>
@@ -289,7 +290,7 @@ export function InventorySettingsTab({
                 {/* Image */}
                 <div>
                     <label className="block text-sm font-medium mb-2">
-                        Cover Image
+                        {t('inventories.cover_image')}
                     </label>
                     <div className="flex items-center gap-4">
                         {formValues.imageUrl ? (
@@ -300,7 +301,7 @@ export function InventorySettingsTab({
                             />
                         ) : (
                             <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-md border flex items-center justify-center text-xs text-zinc-500">
-                                No Image
+                                {t('inventories.no_image')}
                             </div>
                         )}
                         <div>
@@ -318,8 +319,12 @@ export function InventorySettingsTab({
                                 className="px-3 py-1.5 text-sm bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-md transition-colors"
                             >
                                 {uploadImageMutation.isPending
-                                    ? 'Uploading...'
-                                    : 'Upload New Image'}
+                                    ? t(
+                                          'inventory_manage.settings_tab.uploading_image',
+                                      )
+                                    : t(
+                                          'inventory_manage.settings_tab.upload_image',
+                                      )}
                             </button>
                         </div>
                     </div>
@@ -330,7 +335,7 @@ export function InventorySettingsTab({
                         htmlFor="title"
                         className="block text-sm font-medium mb-1"
                     >
-                        Title
+                        {t('inventories.title')}
                     </label>
                     <Input id="title" {...register('title')} />
                     {errors.title && (
@@ -345,18 +350,18 @@ export function InventorySettingsTab({
                         htmlFor="category"
                         className="block text-sm font-medium mb-1"
                     >
-                        Category
+                        {t('inventories.category')}
                     </label>
                     <select
                         id="category"
                         {...register('category')}
                         className="flex h-10 w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
                     >
-                        <option value="COLLECTIONS">Collections</option>
-                        <option value="ELECTRONICS">Electronics</option>
-                        <option value="BOOKS">Books</option>
-                        <option value="TOOLS">Tools</option>
-                        <option value="OTHER">Other</option>
+                        {InventorySchema.shape.category.options.map((cat) => (
+                            <option key={cat} value={cat}>
+                                {t(`inventories.categories.${cat}`)}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 {/* Description */}
@@ -365,21 +370,21 @@ export function InventorySettingsTab({
                         htmlFor="description"
                         className="block text-sm font-medium mb-1"
                     >
-                        Description (Markdown)
+                        {t('inventories.description')}
                     </label>
                     <textarea
                         id="description"
                         {...register('description')}
                         rows={6}
                         className="flex w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
-                        placeholder="Markdown markup supported..."
+                        placeholder={t('inventories.description_placeholder')}
                     />
                 </div>
 
                 {/* Tags */}
                 <div>
                     <label className="block text-sm font-medium mb-2">
-                        Tags (press Enter to add)
+                        {t('inventories.tags')} ({t('inventories.tags_helper')})
                     </label>
                     <div className="flex flex-wrap gap-2 mb-3 border p-3 rounded-md min-h-12.5 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                         {formValues.tags?.map((tag: string) => (
@@ -400,7 +405,7 @@ export function InventorySettingsTab({
                         ))}
                         {(!formValues.tags || formValues.tags.length === 0) && (
                             <span className="text-zinc-400 text-sm flex items-center">
-                                No tags
+                                {t('inventories.no_tags')}
                             </span>
                         )}
                     </div>
@@ -416,7 +421,7 @@ export function InventorySettingsTab({
                                     handleAddTag(tagInput);
                                 }
                             }}
-                            placeholder="Start entering a tag..."
+                            placeholder={t('inventories.tag_placeholder')}
                             className="w-full"
                         />
 
