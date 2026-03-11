@@ -8,10 +8,10 @@ import ruCommon from './locales/ru/common.json';
 export const defaultNS = 'common';
 export const resources = {
     en: {
-        common: enCommon,
+        common: enCommon as Record<string, any>,
     },
     ru: {
-        common: ruCommon,
+        common: ruCommon as Record<string, any>,
     },
 } as const;
 

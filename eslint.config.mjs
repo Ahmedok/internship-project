@@ -13,6 +13,7 @@ export default defineConfig([
             '**/dist/**',
             '**/build/**',
             '**/node_modules/**',
+            '**/src/i18n/locales/**/*.json',
         ],
     },
     {
