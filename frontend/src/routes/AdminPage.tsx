@@ -51,11 +51,11 @@ export default function AdminPage() {
             },
             {
                 accessorKey: 'name',
-                header: t('admin_panel.username'),
+                header: t('common.username'),
             },
             {
                 accessorKey: 'email',
-                header: t('admin_panel.email'),
+                header: t('common.email'),
             },
             {
                 accessorKey: 'role',
@@ -224,7 +224,7 @@ export default function AdminPage() {
 
             <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-2 border rounded-md shadow-sm">
                 <Input
-                    placeholder={t('admin_panel.search_placeholder')}
+                    placeholder={t('common.search_user_placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="max-w-sm border-zinc-200"
@@ -305,7 +305,7 @@ export default function AdminPage() {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    Loading...
+                                    {t('common.loading')}
                                 </TableCell>
                             </TableRow>
                         ) : table.getRowModel().rows?.length ? (
@@ -332,7 +332,7 @@ export default function AdminPage() {
                                     colSpan={columns.length}
                                     className="h-24 text-center text-zinc-500"
                                 >
-                                    {t('admin_panel.no_users_found')}
+                                    {t('common.no_users_found')}
                                 </TableCell>
                             </TableRow>
                         )}
