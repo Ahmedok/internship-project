@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import ReactMarkdown from 'react-markdown';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { canManage } from '@/lib/permissions';
 
 import { InventorySettingsTab } from '@/components/inventories/InventorySettingsTab';
 import { InventoryAccessTab } from '@/components/inventories/InventoryAccessTab';
@@ -16,6 +18,8 @@ import { ItemModal } from '@/components/inventories/ItemModal';
 import { type InventoryDetail } from '@inventory/shared';
 
 export default function InventoryManagePage() {
+    const { t } = useTranslation('common');
+
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
     const { id } = useParams();
@@ -42,18 +46,15 @@ export default function InventoryManagePage() {
     });
 
     if (isLoading)
-        return <div className="p-8">Loading management interface...</div>;
+        return <div className="p-8">{t('inventory_manage.loader')}</div>;
     if (error || !inventory)
         return (
             <div className="p-8 text-red-500">
-                Inventory not found or failed to load
+                {t('inventory_manage.loader_error')}
             </div>
         );
 
-    const isCreator = inventory.createdById === user?.id;
-    const isAdmin = user?.role === 'ADMIN';
-
-    const hasFullAccess = isCreator || isAdmin;
+    const hasFullAccess = canManage(user, inventory);
 
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
@@ -62,7 +63,7 @@ export default function InventoryManagePage() {
                     {inventory.title}
                 </h1>
                 <span className="text-sm text-zinc-500">
-                    Inventory Management
+                    {t('inventory_manage.inventory_management')}
                 </span>
             </div>
 
@@ -91,13 +92,13 @@ export default function InventoryManagePage() {
                         value="items"
                         className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                     >
-                        Items
+                        {t('inventory_manage.tab_label.items')}
                     </TabsTrigger>
                     <TabsTrigger
                         value="discussion"
                         className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                     >
-                        Discussion
+                        {t('inventory_manage.tab_label.discussion')}
                     </TabsTrigger>
 
                     {hasFullAccess && (
@@ -106,31 +107,31 @@ export default function InventoryManagePage() {
                                 value="settings"
                                 className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                             >
-                                Settings
+                                {t('inventory_manage.tab_label.settings')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="access"
                                 className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                             >
-                                Access
+                                {t('inventory_manage.tab_label.access')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="fields"
                                 className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                             >
-                                Fields
+                                {t('inventory_manage.tab_label.fields')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="custom-ids"
                                 className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                             >
-                                Custom IDs
+                                {t('inventory_manage.tab_label.custom_ids')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="statistics"
                                 className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
                             >
-                                Statistics
+                                {t('inventory_manage.tab_label.statistics')}
                             </TabsTrigger>
                         </>
                     )}

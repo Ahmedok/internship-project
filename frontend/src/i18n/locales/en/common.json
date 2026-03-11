@@ -44,6 +44,20 @@
         "latest_inventories": "Latest Inventories",
         "popular_inventories": "Popular Inventories"
     },
+    "inventory_manage": {
+        "loader": "Loading management interface...",
+        "loader_error": "Inventory not found or failed to load.",
+        "inventory_management": "Inventory Management",
+        "tab_label": {
+            "items": "Items",
+            "discussion": "Discussion",
+            "settings": "Settings",
+            "access": "Access",
+            "fields": "Fields",
+            "custom_ids": "Custom IDs",
+            "statistics": "Statistics"
+        }
+    },
     "inventories": {
         "create_inventory": "Create New Inventory",
         "title": "Title",

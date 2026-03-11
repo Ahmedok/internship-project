@@ -44,6 +44,20 @@
         "latest_inventories": "Новые инвентари",
         "popular_inventories": "Популярные инвентари"
     },
+    "inventory_manage": {
+        "loader": "Загрузка интерфейса управления...",
+        "loader_error": "Инвентарь не найден или его не удалось загрузить.",
+        "inventory_management": "Управление инвентарем",
+        "tab_label": {
+            "items": "Записи",
+            "discussion": "Обсуждение",
+            "settings": "Настройки",
+            "access": "Доступ",
+            "fields": "Формат полей",
+            "custom_ids": "Формат ID",
+            "statistics": "Статистика"
+        }
+    },
     "inventories": {
         "create_inventory": "Создать новый инвентарь",
         "title": "Название",
