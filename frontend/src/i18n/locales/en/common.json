@@ -14,5 +14,21 @@
         "error": "An error occurred.",
         "save": "Save",
         "cancel": "Cancel"
+    },
+    "admin_panel": {
+        "title": "Admin Panel",
+        "search_placeholder": "Search by name or email",
+        "block": "Block",
+        "unblock": "Unblock",
+        "promote": "Promote Admin",
+        "demote": "Demote Admin",
+        "delete": "Delete",
+        "no_users_found": "Users not found.",
+        "username": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "status_active": "Active",
+        "status_blocked": "Blocked"
     }
 }

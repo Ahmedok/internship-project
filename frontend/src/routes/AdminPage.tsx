@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { type User } from '@inventory/shared';
 import {
@@ -8,6 +8,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 
 import {
@@ -22,61 +23,68 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const columns: ColumnDef<User>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={table.getIsAllPageRowsSelected()}
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
-        accessorKey: 'name',
-        header: 'Username',
-    },
-    {
-        accessorKey: 'email',
-        header: 'Email',
-    },
-    {
-        accessorKey: 'role',
-        header: 'Role',
-    },
-    {
-        accessorKey: 'blocked',
-        header: 'Status',
-        cell: ({ row }) => {
-            const isBlocked = row.getValue('blocked');
-            return (
-                <span
-                    className={
-                        isBlocked
-                            ? 'text-red-500 font-medium'
-                            : 'text-green-600'
-                    }
-                >
-                    {isBlocked ? 'Blocked' : 'Active'}
-                </span>
-            );
-        },
-    },
-];
-
 export default function AdminPage() {
+    const { t } = useTranslation('common');
+
+    const columns = useMemo<ColumnDef<User>[]>(
+        () => [
+            {
+                id: 'select',
+                header: ({ table }) => (
+                    <Checkbox
+                        checked={table.getIsAllPageRowsSelected()}
+                        onCheckedChange={(value) =>
+                            table.toggleAllPageRowsSelected(!!value)
+                        }
+                        aria-label="Select all"
+                    />
+                ),
+                cell: ({ row }) => (
+                    <Checkbox
+                        checked={row.getIsSelected()}
+                        onCheckedChange={(value) => row.toggleSelected(!!value)}
+                        aria-label="Select row"
+                    />
+                ),
+                enableSorting: false,
+                enableHiding: false,
+            },
+            {
+                accessorKey: 'name',
+                header: t('admin_panel.username'),
+            },
+            {
+                accessorKey: 'email',
+                header: t('admin_panel.email'),
+            },
+            {
+                accessorKey: 'role',
+                header: t('admin_panel.role'),
+            },
+            {
+                accessorKey: 'blocked',
+                header: t('admin_panel.status'),
+                cell: ({ row }) => {
+                    const isBlocked = row.getValue('blocked');
+                    return (
+                        <span
+                            className={
+                                isBlocked
+                                    ? 'text-red-500 font-medium'
+                                    : 'text-green-600'
+                            }
+                        >
+                            {isBlocked
+                                ? t('admin_panel.status_blocked')
+                                : t('admin_panel.status_active')}
+                        </span>
+                    );
+                },
+            },
+        ],
+        [t],
+    );
+
     const [rowSelection, setRowSelection] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearch = useDebounce(searchQuery, 300);
@@ -210,13 +218,13 @@ export default function AdminPage() {
         <div className="p-8 space-y-4">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold tracking-tight">
-                    User Management
+                    {t('admin_panel.title')}
                 </h1>
             </div>
 
             <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-2 border rounded-md shadow-sm">
                 <Input
-                    placeholder="Search by name or email"
+                    placeholder={t('admin_panel.search_placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="max-w-sm border-zinc-200"
@@ -230,7 +238,7 @@ export default function AdminPage() {
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('block')}
                     >
-                        Block
+                        {t('admin_panel.block')}
                     </Button>
                     <Button
                         variant="outline"
@@ -239,7 +247,7 @@ export default function AdminPage() {
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('unblock')}
                     >
-                        Unblock
+                        {t('admin_panel.unblock')}
                     </Button>
                     <Button
                         variant="outline"
@@ -248,7 +256,7 @@ export default function AdminPage() {
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('promote')}
                     >
-                        Promote Admin
+                        {t('admin_panel.promote')}
                     </Button>
                     <Button
                         variant="outline"
@@ -257,7 +265,7 @@ export default function AdminPage() {
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('demote')}
                     >
-                        Demote Admin
+                        {t('admin_panel.demote')}
                     </Button>
                     <Button
                         variant="outline"
@@ -266,7 +274,7 @@ export default function AdminPage() {
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('delete')}
                     >
-                        Delete
+                        {t('admin_panel.delete')}
                     </Button>
                 </div>
             </div>
@@ -324,7 +332,7 @@ export default function AdminPage() {
                                     colSpan={columns.length}
                                     className="h-24 text-center text-zinc-500"
                                 >
-                                    Users not found.
+                                    {t('admin_panel.no_users_found')}
                                 </TableCell>
                             </TableRow>
                         )}
