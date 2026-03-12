@@ -1,0 +1,31 @@
+node_modules
+.git
+.gitignore
+
+# Build outputs (rebuilt inside Docker)
+
+backend/dist
+frontend/dist
+packages/shared/dist
+
+# Generated (rebuilt inside Docker)
+
+backend/src/generated
+
+# Environment files (injected via docker-compose)
+
+.env
+backend/.env
+
+# Dev-only files
+
+.devcontainer
+.claude
+\*.md
+
+# IDE
+
+.vscode
+.idea
+_.swp
+_.swo
