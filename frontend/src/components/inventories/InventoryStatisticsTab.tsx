@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import type {
     InventoryDetail,
     InventoryStatsDto,
@@ -12,6 +13,8 @@ interface InventoryStatisticsTabProps {
 export function InventoryStatisticsTab({
     inventory,
 }: InventoryStatisticsTabProps) {
+    const { t } = useTranslation('common');
+
     const { data: fields } = useQuery<CustomFieldInput[]>({
         queryKey: ['inventory-fields', inventory.id],
         queryFn: async () => {
@@ -35,16 +38,25 @@ export function InventoryStatisticsTab({
     });
 
     if (isLoading || !fields)
-        return <div className="p-4">Loading statistics...</div>;
+        return (
+            <div className="p-4">
+                {t('inventory_manage.statistics_tab.loading')}
+            </div>
+        );
     if (!stats) return null;
 
     const getFieldName = (id: string) =>
-        fields.find((f) => f.id === id)?.title || 'Unknown Field';
+        fields.find((f) => f.id === id)?.title ||
+        t('inventory_manage.statistics_tab.unknown_field');
 
     const groupedStringStats = stats.stringStats.reduce(
         (acc, curr) => {
-            if (!acc[curr.customFieldId]) acc[curr.customFieldId] = [];
-            acc[curr.customFieldId].push(curr);
+            const existing = acc[curr.customFieldId];
+            if (!existing) {
+                acc[curr.customFieldId] = [curr];
+            } else {
+                existing.push(curr);
+            }
             return acc;
         },
         {} as Record<string, typeof stats.stringStats>,
@@ -54,7 +66,7 @@ export function InventoryStatisticsTab({
         <div className="space-y-8">
             <div className="bg-zinc-50 dark:bg-zinc-900 border rounded-lg p-6 flex flex-col items-center justify-center">
                 <h3 className="text-lg font-medium text-zinc-500 mb-2">
-                    Total Items
+                    {t('inventory_manage.statistics_tab.total_items')}
                 </h3>
                 <p className="text-5xl font-bold font-mono text-blue-600 dark:text-blue-400">
                     {stats.totalItems}
@@ -63,7 +75,7 @@ export function InventoryStatisticsTab({
 
             {stats.totalItems === 0 ? (
                 <p className="text-center text-zinc-500">
-                    Add Items to see statistics
+                    {t('inventory_manage.statistics_tab.empty_state')}
                 </p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -73,12 +85,17 @@ export function InventoryStatisticsTab({
                             className="border rounded-lg p-5 bg-white dark:bg-zinc-900"
                         >
                             <h4 className="font-semibold text-lg mb-4 border-b pb-2">
-                                {getFieldName(numStat.customFieldId)} (Numeric)
+                                {getFieldName(numStat.customFieldId)}{' '}
+                                {t(
+                                    'inventory_manage.statistics_tab.numeric_label',
+                                )}
                             </h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <div className="text-xs text-zinc-500 uppercase tracking-wider">
-                                        Minimum
+                                        {t(
+                                            'inventory_manage.statistics_tab.minimum',
+                                        )}
                                     </div>
                                     <div className="text-xl font-mono">
                                         {Number(numStat.min_val).toFixed(2)}
@@ -86,7 +103,9 @@ export function InventoryStatisticsTab({
                                 </div>
                                 <div>
                                     <div className="text-xs text-zinc-500 uppercase tracking-wider">
-                                        Maximum
+                                        {t(
+                                            'inventory_manage.statistics_tab.maximum',
+                                        )}
                                     </div>
                                     <div className="text-xl font-mono">
                                         {Number(numStat.max_val).toFixed(2)}
@@ -94,7 +113,9 @@ export function InventoryStatisticsTab({
                                 </div>
                                 <div>
                                     <div className="text-xs text-zinc-500 uppercase tracking-wider">
-                                        Average
+                                        {t(
+                                            'inventory_manage.statistics_tab.average',
+                                        )}
                                     </div>
                                     <div className="text-xl font-mono">
                                         {Number(numStat.avg_val).toFixed(2)}
@@ -102,10 +123,19 @@ export function InventoryStatisticsTab({
                                 </div>
                                 <div>
                                     <div className="text-xs text-zinc-500 uppercase tracking-wider">
-                                        Filled in
+                                        {t(
+                                            'inventory_manage.statistics_tab.filled_in',
+                                        )}
                                     </div>
                                     <div className="text-xl font-mono">
-                                        {numStat.count_val} items
+                                        {t(
+                                            'inventory_manage.statistics_tab.items_count',
+                                            {
+                                                count: Number(
+                                                    numStat.count_val,
+                                                ),
+                                            },
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -119,7 +149,10 @@ export function InventoryStatisticsTab({
                                 className="border rounded-lg p-5 bg-white dark:bg-zinc-950"
                             >
                                 <h4 className="font-semibold text-lg mb-4 border-b pb-2">
-                                    {getFieldName(fieldId)} (Top-5 Values)
+                                    {getFieldName(fieldId)}{' '}
+                                    {t(
+                                        'inventory_manage.statistics_tab.top_values',
+                                    )}
                                 </h4>
                                 <ul className="space-y-2">
                                     {values.map((v, idx) => (
@@ -134,7 +167,14 @@ export function InventoryStatisticsTab({
                                                 {v.valueString}
                                             </span>
                                             <span className="font-mono text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-                                                {v.frequency} items
+                                                {t(
+                                                    'inventory_manage.statistics_tab.items_count',
+                                                    {
+                                                        count: Number(
+                                                            v.frequency,
+                                                        ),
+                                                    },
+                                                )}
                                             </span>
                                         </li>
                                     ))}
