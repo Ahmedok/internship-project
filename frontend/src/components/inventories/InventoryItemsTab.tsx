@@ -6,8 +6,10 @@ import {
     useQueryClient,
     keepPreviousData,
 } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import type {
     InventoryDetail,
     CustomFieldInput,
@@ -22,6 +24,17 @@ import {
     TableHeader,
     TableRow,
 } from '../ui/table';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '../ui/alert-dialog';
 
 interface InventoryItemsTabProps {
     inventory: InventoryDetail;
@@ -32,11 +45,12 @@ export function InventoryItemsTab({
     inventory,
     onOpenItemModal,
 }: InventoryItemsTabProps) {
+    const { t } = useTranslation('common');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [page, setPage] = useState(1);
-    const limit = 10; // TODO: Make this user-configurable (or store in some global settings)
+    const limit = 10;
 
     const { data: fields } = useQuery<CustomFieldInput[]>({
         queryKey: ['inventory-fields', inventory.id],
@@ -100,10 +114,7 @@ export function InventoryItemsTab({
     };
 
     const handleDeleteSelected = () => {
-        // TODO: Replace with a nicer confirmation dialog
-        if (confirm(`Delete ${selectedIds.size} selected items?`)) {
-            deleteMutation.mutate(Array.from(selectedIds));
-        }
+        deleteMutation.mutate(Array.from(selectedIds));
     };
 
     const visibleCustomFields = fields?.filter((f) => f.showInTable) || [];
@@ -117,34 +128,74 @@ export function InventoryItemsTab({
         if (valueObj.valueString !== null) return valueObj.valueString;
         if (valueObj.valueNumber !== null) return valueObj.valueNumber;
         if (valueObj.valueBoolean !== null)
-            return valueObj.valueBoolean ? 'True' : 'False';
+            return (
+                <Checkbox
+                    checked={valueObj.valueBoolean}
+                    disabled
+                    aria-label={valueObj.valueBoolean ? 'true' : 'false'}
+                />
+            );
         return '-';
     };
 
-    if (isLoading) return <div className="p-4">Loading items...</div>;
+    if (isLoading)
+        return (
+            <div className="p-4">{t('inventory_manage.items_tab.loading')}</div>
+        );
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center p-2 rounded-md border bg-zinc-50 dark:bg-zinc-900">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 rounded-md border bg-zinc-50 dark:bg-zinc-900">
                 <div className="flex items-center gap-2">
                     <Button onClick={() => onOpenItemModal()} variant="default">
-                        + Add Item
+                        {t('inventory_manage.items_tab.add_item')}
                     </Button>
 
                     {selectedIds.size > 0 && (
-                        <Button
-                            variant="destructive"
-                            onClick={handleDeleteSelected}
-                            disabled={deleteMutation.isPending}
-                        >
-                            {deleteMutation.isPending
-                                ? 'Deleting...'
-                                : `Delete (${selectedIds.size})`}
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="destructive"
+                                    disabled={deleteMutation.isPending}
+                                >
+                                    {deleteMutation.isPending
+                                        ? t('common.deleting')
+                                        : t(
+                                              'inventory_manage.items_tab.delete_count',
+                                              { count: selectedIds.size },
+                                          )}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        {t('common.confirm_delete')}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        {t('common.confirm_delete_message', {
+                                            count: selectedIds.size,
+                                        })}{' '}
+                                        {t('common.confirm_delete_description')}
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                        {t('common.cancel')}
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleDeleteSelected}
+                                    >
+                                        {t('common.delete')}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     )}
                 </div>
                 <div className="text-sm text-zinc-500 px-2">
-                    Total Items: {itemsData?.total || 0}
+                    {t('inventory_manage.items_tab.total_items', {
+                        count: itemsData?.total || 0,
+                    })}
                 </div>
             </div>
 
@@ -165,7 +216,9 @@ export function InventoryItemsTab({
                                     onChange={toggleSelectAll}
                                 />
                             </TableHead>
-                            <TableHead>Item ID</TableHead>
+                            <TableHead>
+                                {t('inventory_manage.items_tab.item_id')}
+                            </TableHead>
 
                             {visibleCustomFields.map((field) => (
                                 <TableHead key={field.id}>
@@ -173,8 +226,12 @@ export function InventoryItemsTab({
                                 </TableHead>
                             ))}
 
-                            <TableHead>Author</TableHead>
-                            <TableHead>Creation Date</TableHead>
+                            <TableHead>
+                                {t('inventory_manage.items_tab.author')}
+                            </TableHead>
+                            <TableHead>
+                                {t('inventory_manage.items_tab.creation_date')}
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -184,7 +241,9 @@ export function InventoryItemsTab({
                                     colSpan={4 + visibleCustomFields.length}
                                     className="text-center py-8 text-zinc-500"
                                 >
-                                    There are no items in this inventory yet.
+                                    {t(
+                                        'inventory_manage.items_tab.empty_state',
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -225,7 +284,8 @@ export function InventoryItemsTab({
                                     ))}
 
                                     <TableCell>
-                                        {item.createdBy?.name || 'Unknown'}
+                                        {item.createdBy?.name ||
+                                            t('common.unknown')}
                                     </TableCell>
                                     <TableCell>
                                         {format(
@@ -248,10 +308,13 @@ export function InventoryItemsTab({
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
                     >
-                        Previous
+                        {t('common.previous')}
                     </Button>
                     <span className="flex items-center text-sm px-2">
-                        Page {page} of {itemsData.totalPages}
+                        {t('common.page_of', {
+                            page,
+                            totalPages: itemsData.totalPages,
+                        })}
                     </span>
                     <Button
                         variant="outline"
@@ -259,7 +322,7 @@ export function InventoryItemsTab({
                         onClick={() => setPage((p) => p + 1)}
                         disabled={page >= itemsData.totalPages}
                     >
-                        Next
+                        {t('common.next')}
                     </Button>
                 </div>
             )}
