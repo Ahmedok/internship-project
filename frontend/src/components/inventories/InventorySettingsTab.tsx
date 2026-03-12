@@ -221,7 +221,7 @@ export function InventorySettingsTab({
 
     return (
         <div className="space-y-6 w-full bg-white dark:bg-zinc-950 p-6 rounded-lg border">
-            <div className="flex justify-between items-center border-b pb-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-4">
                 <h2 className="text-xl font-semibold">
                     {t('inventory_manage.settings_tab.title')}
                 </h2>
@@ -239,7 +239,7 @@ export function InventorySettingsTab({
                             {t('common.saving')}
                         </span>
                     ) : isDirty ? (
-                        <span className="text-zinc-400">
+                        <span className="text-zinc-500">
                             {t('inventory_manage.save_label.waiting')}
                         </span>
                     ) : (
@@ -292,7 +292,7 @@ export function InventorySettingsTab({
                     <label className="block text-sm font-medium mb-2">
                         {t('inventories.cover_image')}
                     </label>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                         {formValues.imageUrl ? (
                             <img
                                 src={formValues.imageUrl}

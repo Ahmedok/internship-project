@@ -352,7 +352,7 @@ export default function ItemDetailPage() {
                     href={fv.valueString}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-600 hover:underline break-all"
+                    className="text-blue-600 dark:text-blue-400 hover:underline break-all"
                 >
                     {fv.valueString}
                 </a>
@@ -390,7 +390,7 @@ export default function ItemDetailPage() {
                         {t('item_detail.inventory_label')}{' '}
                         <Link
                             to={`/inventories/${item.inventoryId}`}
-                            className="text-blue-600 hover:underline"
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
                         >
                             {item.inventory?.title ||
                                 t('item_detail.go_to_inventory')}

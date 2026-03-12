@@ -215,19 +215,19 @@ export default function AdminPage() {
     };
 
     return (
-        <div className="p-8 space-y-4">
+        <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-4">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold tracking-tight">
                     {t('admin_panel.title')}
                 </h1>
             </div>
 
-            <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-2 border rounded-md shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-2 border rounded-md shadow-sm">
                 <Input
                     placeholder={t('common.search_user_placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="max-w-sm border-zinc-200"
+                    className="max-w-sm border-zinc-200 dark:border-zinc-700"
                 />
 
                 <div className="flex flex-wrap items-center gap-2">

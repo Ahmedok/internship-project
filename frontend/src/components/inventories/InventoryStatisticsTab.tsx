@@ -146,7 +146,7 @@ export function InventoryStatisticsTab({
                         ([fieldId, values]) => (
                             <div
                                 key={fieldId}
-                                className="border rounded-lg p-5 bg-white dark:bg-zinc-950"
+                                className="border rounded-lg p-5 bg-white dark:bg-zinc-900"
                             >
                                 <h4 className="font-semibold text-lg mb-4 border-b pb-2">
                                     {getFieldName(fieldId)}{' '}

@@ -153,7 +153,7 @@ function SortableIdElement({
             {...listeners}
             className="flex items-center gap-1.5 md:gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
         >
-            <div className="shrink-0 p-1 text-zinc-400 hover:text-zinc-600">
+            <div className="shrink-0 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
                 <Grip className="size-5" />
             </div>
 
@@ -161,7 +161,7 @@ function SortableIdElement({
                 <div className="flex items-center gap-2 w-48 font-medium text-sm">
                     {element.elementType}
                     <Popover>
-                        <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 rounded-full focus:outline-none">
+                        <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 rounded-full focus:outline-none">
                             <BadgeQuestionMark className="size-5" />
                         </PopoverTrigger>
                         <PopoverContent className="w-64 text-sm">

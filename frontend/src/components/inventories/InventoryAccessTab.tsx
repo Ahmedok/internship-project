@@ -130,8 +130,8 @@ export function InventoryAccessTab({
     });
 
     return (
-        <div className="space-y-8 w-full p-6 border rounded-lg bg-white dark:bg-zinc-950">
-            <div className="flex items-center justify-between border-b pb-6">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-white dark:bg-zinc-950">
+            <div className="flex items-center justify-between border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">
                         {t('inventory_manage.access_tab.public_toggle')}

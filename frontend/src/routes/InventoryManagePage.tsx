@@ -58,7 +58,7 @@ export default function InventoryManagePage() {
 
     return (
         <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6">
-            <div className="flex items-baseline justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
                     {inventory.title}
                 </h1>

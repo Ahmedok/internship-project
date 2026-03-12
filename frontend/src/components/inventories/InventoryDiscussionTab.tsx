@@ -110,7 +110,7 @@ export function InventoryDiscussionTab({
         );
 
     return (
-        <div className="flex flex-col w-full h-150 border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
+        <div className="flex flex-col w-full h-150 rounded-lg bg-white dark:bg-zinc-950 overflow-hidden">
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-50 dark:bg-zinc-900/50">
                 {!comments || comments.length === 0 ? (
                     <div className="text-center text-zinc-500 mt-10">

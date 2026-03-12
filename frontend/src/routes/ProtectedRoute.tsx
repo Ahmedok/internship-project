@@ -13,7 +13,7 @@ export default function ProtectedRoute({
 
     if (isLoading) {
         return (
-            <div className="flex h-screen w-full items-center justify-center">
+            <div className="flex min-h-screen w-full items-center justify-center">
                 <div className="animate-pulse text-lg font-medium text-zinc-500">
                     Checking session...
                 </div>

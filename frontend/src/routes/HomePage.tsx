@@ -140,7 +140,7 @@ export default function HomePage() {
                                             <TableCell>
                                                 <Link
                                                     to={`/inventories/${inv.id}`}
-                                                    className="font-medium text-blue-600 hover:underline"
+                                                    className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                                                 >
                                                     {inv.title}
                                                 </Link>
@@ -210,7 +210,7 @@ export default function HomePage() {
                                             <TableCell>
                                                 <Link
                                                     to={`/inventories/${inv.id}`}
-                                                    className="font-medium text-blue-600 hover:underline"
+                                                    className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                                                 >
                                                     {inv.title}
                                                 </Link>

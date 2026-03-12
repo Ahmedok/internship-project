@@ -53,7 +53,7 @@ function SortableFieldItem({
             {...listeners}
             className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
         >
-            <div className="p-1 text-zinc-400 hover:text-zinc-600">
+            <div className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
                 <Grip size={16} />
             </div>
 
@@ -217,7 +217,7 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
 
     return (
         <div className="space-y-6 w-full bg-white dark:bg-zinc-950 p-6 rounded-lg border">
-            <div className="flex justify-between items-center border-b pb-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold">
                         {t('inventory_manage.fields_tab.tab_label')}
