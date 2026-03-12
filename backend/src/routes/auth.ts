@@ -6,6 +6,8 @@ const router = Router();
 
 router.use(authLimiter);
 
+const frontendUrl = () => process.env.FRONTEND_URL || 'http://localhost:3000';
+
 router.get(
     '/google',
     passport.authenticate('google', { scope: ['profile', 'email'] }),
@@ -14,10 +16,10 @@ router.get(
 router.get(
     '/google/callback',
     passport.authenticate('google', {
-        failureRedirect: 'http://localhost:3000/login',
+        failureRedirect: '/login',
     }),
     (req, res) => {
-        res.redirect('http://localhost:3000/');
+        res.redirect(frontendUrl());
     },
 );
 
@@ -29,10 +31,10 @@ router.get(
 router.get(
     '/facebook/callback',
     passport.authenticate('facebook', {
-        failureRedirect: 'http://localhost:3000/login',
+        failureRedirect: '/login',
     }),
     (req, res) => {
-        res.redirect('http://localhost:3000/');
+        res.redirect(frontendUrl());
     },
 );
 

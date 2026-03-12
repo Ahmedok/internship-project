@@ -6,7 +6,7 @@ export let io: SocketIOServer;
 export function initSocketIO(server: HttpServer) {
     io = new SocketIOServer(server, {
         cors: {
-            origin: process.env.CLIENT_URL || 'http://localhost:5173',
+            origin: process.env.FRONTEND_URL || 'http://localhost:3000',
             credentials: true,
         },
     });

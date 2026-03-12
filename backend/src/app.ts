@@ -27,6 +27,10 @@ const PostgresqlStore = connectPgSimple(session);
 
 const app = express();
 
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 app.use(helmet());
 
 app.use(
@@ -56,6 +60,7 @@ app.use(
         cookie: {
             secure: process.env.NODE_ENV === 'production',
             httpOnly: true,
+            sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 24,
         },
     }),
