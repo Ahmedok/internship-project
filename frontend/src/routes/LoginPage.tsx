@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@/components/ui/card';
 
 export default function LoginPage() {
+    const { t } = useTranslation('common');
     const { isAuthenticated, isLoading } = useAuthStore();
 
     if (isLoading) return null;
@@ -27,8 +29,12 @@ export default function LoginPage() {
         <div className="flex h-screen items-center justify-center p-4">
             <Card className="w-full max-w-sm">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">System Login</CardTitle>
-                    <CardDescription>Choose your login method</CardDescription>
+                    <CardTitle className="text-2xl">
+                        {t('login_page.title')}
+                    </CardTitle>
+                    <CardDescription>
+                        {t('login_page.subtitle')}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
                     <Button
@@ -36,14 +42,14 @@ export default function LoginPage() {
                         onClick={handleGoogleLogin}
                         className="w-full"
                     >
-                        Continue with Google
+                        {t('login_page.google')}
                     </Button>
                     <Button
                         variant="outline"
                         onClick={handleFacebookLogin}
                         className="w-full"
                     >
-                        Continue with Facebook
+                        {t('login_page.facebook')}
                     </Button>
                 </CardContent>
             </Card>
