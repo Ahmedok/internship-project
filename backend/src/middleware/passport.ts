@@ -36,14 +36,18 @@ passport.use(
                 });
 
                 if (!user) {
-                    user = await prisma.user.create({
-                        data: {
-                            provider: 'google',
-                            providerId: profile.id,
-                            name: profile.displayName,
-                            email: profile.emails?.[0]?.value,
-                            avatarUrl: profile.photos?.[0]?.value,
-                        },
+                    user = await prisma.$transaction(async (tx) => {
+                        const userCount = await tx.user.count();
+                        return tx.user.create({
+                            data: {
+                                provider: 'google',
+                                providerId: profile.id,
+                                name: profile.displayName,
+                                email: profile.emails?.[0]?.value,
+                                avatarUrl: profile.photos?.[0]?.value,
+                                role: userCount === 0 ? 'ADMIN' : 'USER',
+                            },
+                        });
                     });
                 }
 
@@ -76,14 +80,18 @@ passport.use(
                 });
 
                 if (!user) {
-                    user = await prisma.user.create({
-                        data: {
-                            provider: 'facebook',
-                            providerId: profile.id,
-                            name: profile.displayName,
-                            email: profile.emails?.[0]?.value,
-                            avatarUrl: profile.photos?.[0]?.value,
-                        },
+                    user = await prisma.$transaction(async (tx) => {
+                        const userCount = await tx.user.count();
+                        return tx.user.create({
+                            data: {
+                                provider: 'facebook',
+                                providerId: profile.id,
+                                name: profile.displayName,
+                                email: profile.emails?.[0]?.value,
+                                avatarUrl: profile.photos?.[0]?.value,
+                                role: userCount === 0 ? 'ADMIN' : 'USER',
+                            },
+                        });
                     });
                 }
                 return done(null, user);
