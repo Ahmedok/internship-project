@@ -3,7 +3,7 @@ FROM node:24-alpine AS builder
 RUN npm install -g pnpm@10.30.1
 WORKDIR /app
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
 COPY packages ./packages
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
