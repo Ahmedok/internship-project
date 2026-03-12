@@ -229,14 +229,16 @@ export default function PersonalPage() {
 
     const myInventories = useMemo(
         () =>
-            inventories?.filter((inv: any) => inv.createdById === user?.id) ||
-            [],
+            inventories?.filter(
+                (inv: InventoryDetail) => inv.createdById === user?.id,
+            ) || [],
         [inventories, user?.id],
     );
     const accesibleInventories = useMemo(
         () =>
-            inventories?.filter((inv: any) => inv.createdById !== user?.id) ||
-            [],
+            inventories?.filter(
+                (inv: InventoryDetail) => inv.createdById !== user?.id,
+            ) || [],
         [inventories, user?.id],
     );
 

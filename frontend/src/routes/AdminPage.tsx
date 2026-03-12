@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/stores/authStore';
 
 import {
@@ -208,9 +209,8 @@ export default function AdminPage() {
             if (isSelfAffected) {
                 await checkAuth();
             }
-        } catch (error) {
-            console.error('Error performing bulk action:', error);
-            // TODO: Show error toast to user
+        } catch {
+            toast.error(t('errors.bulk_action_error'));
         }
     };
 
