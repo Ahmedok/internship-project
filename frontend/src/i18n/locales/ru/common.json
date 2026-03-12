@@ -240,7 +240,7 @@
         "relevancy": "Релевантность",
         "item_id": "ID записи",
         "inventory": "Инвентарь",
-        "field_matches": "Совпадения полей"
+        "field_matches": "Совпадения в полях"
     },
     "login_page": {
         "title": "Вход в систему",
