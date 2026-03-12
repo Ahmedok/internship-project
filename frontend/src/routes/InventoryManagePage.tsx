@@ -57,9 +57,9 @@ export default function InventoryManagePage() {
     const hasFullAccess = canManage(user, inventory);
 
     return (
-        <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">
+        <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6">
+            <div className="flex items-baseline justify-between">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
                     {inventory.title}
                 </h1>
                 <span className="text-sm text-zinc-500">

@@ -164,7 +164,7 @@
             "drop_to_remove": "Перетащите за пределы блока для удаления"
         },
         "items_tab": {
-            "add_item": "+ Добавить запись",
+            "add_item": "Добавить запись",
             "delete_count": "Удалить ({{count}})",
             "total_items": "Всего записей: {{count}}",
             "item_id": "ID записи",

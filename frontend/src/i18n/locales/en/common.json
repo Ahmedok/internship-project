@@ -163,7 +163,7 @@
             "drop_to_remove": "Drop outside to remove"
         },
         "items_tab": {
-            "add_item": "+ Add Item",
+            "add_item": "Add Item",
             "delete_count": "Delete ({{count}})",
             "total_items": "Total Items: {{count}}",
             "item_id": "Item ID",

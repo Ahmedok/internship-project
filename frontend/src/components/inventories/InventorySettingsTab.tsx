@@ -220,7 +220,7 @@ export function InventorySettingsTab({
     };
 
     return (
-        <div className="space-y-6 max-w-2xl bg-white dark:bg-zinc-950 p-6 rounded-lg border">
+        <div className="space-y-6 w-full bg-white dark:bg-zinc-950 p-6 rounded-lg border">
             <div className="flex justify-between items-center border-b pb-4">
                 <h2 className="text-xl font-semibold">
                     {t('inventory_manage.settings_tab.title')}

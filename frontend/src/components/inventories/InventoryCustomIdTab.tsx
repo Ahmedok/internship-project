@@ -22,7 +22,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { BadgeQuestionMark, Trash2, Grip } from 'lucide-react';
+import { BadgeQuestionMark, Trash2, Grip, Save } from 'lucide-react';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -151,25 +151,27 @@ function SortableIdElement({
             style={style}
             {...attributes}
             {...listeners}
-            className="flex items-center gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
+            className="flex items-center gap-1.5 md:gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
         >
-            <div className="p-1 text-zinc-400 hover:text-zinc-600">
-                <Grip className="w-5 h-5" />
+            <div className="shrink-0 p-1 text-zinc-400 hover:text-zinc-600">
+                <Grip className="size-5" />
             </div>
 
-            <div className="flex items-center gap-2 w-48 font-medium text-sm">
-                {element.elementType}
-                <Popover>
-                    <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 rounded-full focus:outline-none">
-                        <BadgeQuestionMark className="w-5 h-5" />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 text-sm">
-                        {getHelpText(element.elementType)}
-                    </PopoverContent>
-                </Popover>
-            </div>
+            <div className="grow">
+                <div className="flex items-center gap-2 w-48 font-medium text-sm">
+                    {element.elementType}
+                    <Popover>
+                        <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 rounded-full focus:outline-none">
+                            <BadgeQuestionMark className="size-5" />
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 text-sm">
+                            {getHelpText(element.elementType)}
+                        </PopoverContent>
+                    </Popover>
+                </div>
 
-            <div className="flex-1">{renderConfig()}</div>
+                <div className="pt-1 flex-initial">{renderConfig()}</div>
+            </div>
         </div>
     );
 }
@@ -350,8 +352,8 @@ export function InventoryCustomIdTab({
         );
 
     return (
-        <div className="space-y-6 max-w-4xl p-6 rounded-lg border bg-white dark:bg-zinc-950">
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b pb-4">
+        <div className="space-y-6 w-full p-6 rounded-lg border bg-white dark:bg-zinc-950">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">
                         {t('inventory_manage.custom_id_tab.title')}
@@ -363,10 +365,14 @@ export function InventoryCustomIdTab({
                 <Button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending}
+                    className="flex items-center gap-2"
                 >
-                    {saveMutation.isPending
-                        ? t('common.saving')
-                        : t('inventory_manage.custom_id_tab.save_format')}
+                    <Save className="size-4 shrink-0" />
+                    <span className="hidden md:inline">
+                        {saveMutation.isPending
+                            ? t('common.saving')
+                            : t('inventory_manage.custom_id_tab.save_format')}
+                    </span>
                 </Button>
             </div>
 

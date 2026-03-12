@@ -35,6 +35,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '../ui/alert-dialog';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface InventoryItemsTabProps {
     inventory: InventoryDetail;
@@ -144,11 +145,18 @@ export function InventoryItemsTab({
         );
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 rounded-md border bg-zinc-50 dark:bg-zinc-900">
                 <div className="flex items-center gap-2">
-                    <Button onClick={() => onOpenItemModal()} variant="default">
-                        {t('inventory_manage.items_tab.add_item')}
+                    <Button
+                        onClick={() => onOpenItemModal()}
+                        variant="default"
+                        className="flex items-center gap-2"
+                    >
+                        <Plus className="size-4 shrink-0" />
+                        <span className="hidden md:inline">
+                            {t('inventory_manage.items_tab.add_item')}
+                        </span>
                     </Button>
 
                     {selectedIds.size > 0 && (
@@ -157,13 +165,17 @@ export function InventoryItemsTab({
                                 <Button
                                     variant="destructive"
                                     disabled={deleteMutation.isPending}
+                                    className="flex items-center gap-2"
                                 >
-                                    {deleteMutation.isPending
-                                        ? t('common.deleting')
-                                        : t(
-                                              'inventory_manage.items_tab.delete_count',
-                                              { count: selectedIds.size },
-                                          )}
+                                    <Trash2 className="size-4 shrink-0" />
+                                    <span className="hidden md:inline">
+                                        {deleteMutation.isPending
+                                            ? t('common.deleting')
+                                            : t(
+                                                  'inventory_manage.items_tab.delete_count',
+                                                  { count: selectedIds.size },
+                                              )}
+                                    </span>
                                 </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

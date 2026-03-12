@@ -7,6 +7,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import type { InventoryDetail } from '@inventory/shared';
 import { toast } from 'sonner';
+import { Trash2 } from 'lucide-react';
 
 export function InventoryAccessTab({
     inventory,
@@ -129,7 +130,7 @@ export function InventoryAccessTab({
     });
 
     return (
-        <div className="space-y-8 max-w-2xl p-6 border rounded-lg bg-white dark:bg-zinc-950">
+        <div className="space-y-8 w-full p-6 border rounded-lg bg-white dark:bg-zinc-950">
             <div className="flex items-center justify-between border-b pb-6">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">
@@ -232,7 +233,7 @@ export function InventoryAccessTab({
                 </div>
 
                 <div>
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-wrap items-center justify-between mb-4">
                         <h3 className="text-lg font-medium">
                             {t('inventory_manage.access_tab.access_list')} (
                             {inventory.accessList?.length || 0})
@@ -287,10 +288,14 @@ export function InventoryAccessTab({
                                         disabled={
                                             removeAccessMutation.isPending
                                         }
+                                        className="flex items-center gap-2"
                                     >
-                                        {t(
-                                            'inventory_manage.access_tab.revoke_access',
-                                        )}
+                                        <Trash2 className="size-4 shrink-0" />
+                                        <span className="hidden sm:inline">
+                                            {t(
+                                                'inventory_manage.access_tab.revoke_access',
+                                            )}
+                                        </span>
                                     </Button>
                                 </div>
                             ))

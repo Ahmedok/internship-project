@@ -23,7 +23,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { toast } from 'sonner';
-import { Grip } from 'lucide-react';
+import { Trash2, Grip, Save } from 'lucide-react';
 import type { CustomFieldInput, FieldType } from '@inventory/shared';
 
 function SortableFieldItem({
@@ -82,8 +82,16 @@ function SortableFieldItem({
                 </label>
             </div>
 
-            <Button variant="destructive" size="sm" onClick={onRemove}>
-                {t('inventory_manage.fields_tab.remove_button')}
+            <Button
+                variant="destructive"
+                size="sm"
+                onClick={onRemove}
+                className="shrink-0 px-2 sm:px-3"
+            >
+                <Trash2 className="size-4 sm:mr-1" />
+                <span className="hidden sm:inline">
+                    {t('inventory_manage.fields_tab.remove_button')}
+                </span>
             </Button>
         </div>
     );
@@ -208,7 +216,7 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
         );
 
     return (
-        <div className="space-y-6 max-w-4xl bg-white dark:bg-zinc-950 p-6 rounded-lg border">
+        <div className="space-y-6 w-full bg-white dark:bg-zinc-950 p-6 rounded-lg border">
             <div className="flex justify-between items-center border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold">
@@ -221,10 +229,14 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
                 <Button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending}
+                    className="flex items-center gap-2"
                 >
-                    {saveMutation.isPending
-                        ? t('common.saving')
-                        : t('common.save')}
+                    <Save className="size-4 shrink-0" />
+                    <span className="hidden sm:inline">
+                        {saveMutation.isPending
+                            ? t('common.saving')
+                            : t('common.save')}
+                    </span>
                 </Button>
             </div>
 
