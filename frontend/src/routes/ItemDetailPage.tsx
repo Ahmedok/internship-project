@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { TriangleAlert } from 'lucide-react';
+import { TriangleAlert, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type {
     InventoryItemDto,
     ItemFieldValueDto,
@@ -19,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 interface LikeData {
@@ -32,6 +34,7 @@ export default function ItemDetailPage() {
     const { id } = useParams<{ id: string }>();
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
+    const { t } = useTranslation('common');
     const [isEditing, setIsEditing] = useState(false);
     const [conflictType, setConflictType] = useState<
         'version' | 'custom_id' | null
@@ -120,7 +123,7 @@ export default function ItemDetailPage() {
         },
         onError: (err: Error, _newTodo, context) => {
             if (err.message.includes('401')) {
-                toast.error('You must be logged in to like items');
+                toast.error(t('item_detail.login_to_like'));
             }
             if (context?.previousLikeData) {
                 queryClient.setQueryData<LikeData>(
@@ -315,7 +318,9 @@ export default function ItemDetailPage() {
     };
 
     if (isLoading)
-        return <div className="p-8 text-center">Loading item...</div>;
+        return (
+            <div className="p-8 text-center">{t('item_detail.loading')}</div>
+        );
     if (error)
         return (
             <div className="p-8 text-center text-red-500">
@@ -330,7 +335,13 @@ export default function ItemDetailPage() {
         const fieldType = fv.customField?.fieldType;
 
         if (fieldType === 'BOOLEAN') {
-            return fv.valueBoolean ? 'True' : 'False';
+            return (
+                <Checkbox
+                    checked={!!fv.valueBoolean}
+                    disabled
+                    aria-label={fv.valueBoolean ? 'true' : 'false'}
+                />
+            );
         }
         if (fieldType === 'NUMBER') {
             return fv.valueNumber !== null ? String(fv.valueNumber) : '-';
@@ -352,11 +363,13 @@ export default function ItemDetailPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-6">
-            <div className="flex justify-between items-start border-b pb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b pb-4">
                 <div>
                     <div className="flex items-center gap-4 mb-2">
                         <h1 className="text-3xl font-bold">
-                            Item: {item.customId}
+                            {t('item_detail.item_title', {
+                                customId: item.customId,
+                            })}
                         </h1>
                         <button
                             onClick={() => likeMutation.mutate()}
@@ -367,39 +380,43 @@ export default function ItemDetailPage() {
                                     : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:bg-zinc-900 dark:border-zinc-800'
                             }`}
                         >
-                            Like
+                            <Heart />
                             <span className="font-semibold">
                                 {likeData?.count || 0}
                             </span>
                         </button>
                     </div>
                     <p className="text-zinc-500">
-                        Inventory:{' '}
+                        {t('item_detail.inventory_label')}{' '}
                         <Link
                             to={`/inventories/${item.inventoryId}`}
                             className="text-blue-600 hover:underline"
                         >
-                            {item.inventory?.title || 'Go to Inventory'}
+                            {item.inventory?.title ||
+                                t('item_detail.go_to_inventory')}
                         </Link>
                     </p>
                 </div>
-                <div className="flex flex-col items-end gap-3">
+                <div className="flex flex-col items-start sm:items-end gap-3">
                     <div className="text-right text-sm text-zinc-500">
                         <p>
-                            Created at:{' '}
+                            {t('item_detail.created_at')}{' '}
                             {format(
                                 new Date(item.createdAt),
                                 'dd.MM.yyyy HH:mm',
                             )}
                         </p>
                         <p>
-                            Updated at:{' '}
+                            {t('item_detail.updated_at')}{' '}
                             {format(
                                 new Date(item.updatedAt),
                                 'dd.MM.yyyy HH:mm',
                             )}
                         </p>
-                        <p>Author: {item.createdBy?.name || 'Unknown'}</p>
+                        <p>
+                            {t('item_detail.author')}{' '}
+                            {item.createdBy?.name || t('common.unknown')}
+                        </p>
                     </div>
                     {userCanWrite && !isEditing && (
                         <Button
@@ -410,7 +427,7 @@ export default function ItemDetailPage() {
                                 setIsEditing(true);
                             }}
                         >
-                            Edit
+                            {t('common.edit')}
                         </Button>
                     )}
                     {isEditing && (
@@ -420,7 +437,7 @@ export default function ItemDetailPage() {
                                 size="sm"
                                 onClick={handleCancelEdit}
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </Button>
                             <Button
                                 size="sm"
@@ -431,7 +448,9 @@ export default function ItemDetailPage() {
                                     conflictType === 'version'
                                 }
                             >
-                                {saveMutation.isPending ? 'Saving...' : 'Save'}
+                                {saveMutation.isPending
+                                    ? t('common.saving')
+                                    : t('common.save')}
                             </Button>
                         </div>
                     )}
@@ -442,11 +461,15 @@ export default function ItemDetailPage() {
                 <Tabs defaultValue="table" className="w-full">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold">
-                            Item Properties
+                            {t('item_detail.properties')}
                         </h2>
                         <TabsList>
-                            <TabsTrigger value="table">Table</TabsTrigger>
-                            <TabsTrigger value="grid">Grid</TabsTrigger>
+                            <TabsTrigger value="table">
+                                {t('item_detail.table_view')}
+                            </TabsTrigger>
+                            <TabsTrigger value="grid">
+                                {t('item_detail.grid_view')}
+                            </TabsTrigger>
                         </TabsList>
                     </div>
 
@@ -461,7 +484,9 @@ export default function ItemDetailPage() {
                                         >
                                             <TableCell className="w-1/3 font-medium text-zinc-500 bg-zinc-50 dark:bg-zinc-900/50 border-r">
                                                 {fv.customField?.title ||
-                                                    'Unknown Field'}
+                                                    t(
+                                                        'item_detail.unknown_field',
+                                                    )}
                                             </TableCell>
                                             <TableCell className="text-zinc-900 dark:text-zinc-100">
                                                 {renderFieldValue(fv)}
@@ -474,7 +499,7 @@ export default function ItemDetailPage() {
                                                 colSpan={2}
                                                 className="text-center text-zinc-500 py-8"
                                             >
-                                                This item has no fields.
+                                                {t('item_detail.no_fields')}
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -492,7 +517,7 @@ export default function ItemDetailPage() {
                                 >
                                     <div className="text-sm font-medium text-zinc-500 mb-1">
                                         {fv.customField?.title ||
-                                            'Unknown Field'}
+                                            t('item_detail.unknown_field')}
                                     </div>
                                     <div className="text-lg text-zinc-900 dark:text-zinc-100">
                                         {renderFieldValue(fv)}
@@ -505,7 +530,7 @@ export default function ItemDetailPage() {
             ) : (
                 <div>
                     <h2 className="text-xl font-semibold mb-4">
-                        Edit Item Properties
+                        {t('item_detail.edit_properties')}
                     </h2>
                     {conflictType === 'version' && (
                         <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg space-y-3 shadow-sm mb-4">
@@ -516,11 +541,12 @@ export default function ItemDetailPage() {
                                 />
                                 <div>
                                     <h4 className="font-semibold text-sm">
-                                        Version Conflict
+                                        {t('item_detail.version_conflict')}
                                     </h4>
                                     <p className="text-sm mt-1 opacity-90">
-                                        This item was modified by someone else
-                                        while you were editing it.
+                                        {t(
+                                            'item_detail.version_conflict_message',
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -530,21 +556,21 @@ export default function ItemDetailPage() {
                                     onClick={handleReload}
                                     className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
                                 >
-                                    Reload (lose your changes)
+                                    {t('item_detail.reload_button')}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleOverwrite}
                                     className="px-3 py-1.5 text-sm font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
                                 >
-                                    Overwrite (force save your version)
+                                    {t('item_detail.overwrite_button')}
                                 </button>
                             </div>
                         </div>
                     )}
                     {!fields ? (
                         <div className="text-center py-8 text-zinc-500">
-                            Loading fields...
+                            {t('item_detail.loading_fields')}
                         </div>
                     ) : (
                         <form
@@ -554,7 +580,7 @@ export default function ItemDetailPage() {
                         >
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">
-                                    Custom ID
+                                    {t('item_detail.custom_id')}
                                 </label>
                                 <Input
                                     value={customIdInput}
@@ -567,15 +593,16 @@ export default function ItemDetailPage() {
                                 {conflictType === 'custom_id' && (
                                     <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-sm">
                                         <span className="text-amber-800 dark:text-amber-400">
-                                            This ID already exists in the
-                                            inventory.
+                                            {t(
+                                                'item_detail.custom_id_conflict',
+                                            )}
                                         </span>
                                         <button
                                             type="button"
                                             onClick={handleResetCustomId}
                                             className="ml-2 px-2 py-1 text-xs font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors whitespace-nowrap"
                                         >
-                                            Reset to original
+                                            {t('item_detail.reset_to_original')}
                                         </button>
                                     </div>
                                 )}

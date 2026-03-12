@@ -194,7 +194,6 @@
     },
     "item_detail": {
         "item_title": "Item: {{customId}}",
-        "like": "Like",
         "inventory_label": "Inventory:",
         "go_to_inventory": "Go to Inventory",
         "created_at": "Created at:",

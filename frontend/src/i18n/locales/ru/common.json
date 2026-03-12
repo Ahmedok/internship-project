@@ -195,7 +195,6 @@
     },
     "item_detail": {
         "item_title": "Запись: {{customId}}",
-        "like": "Нравится",
         "inventory_label": "Инвентарь:",
         "go_to_inventory": "Перейти к инвентарю",
         "created_at": "Создано:",
