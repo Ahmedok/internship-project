@@ -21,7 +21,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2, Grip } from 'lucide-react';
+import { BadgeQuestionMark, Trash2, Grip } from 'lucide-react';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -32,6 +32,7 @@ import {
     type InventoryDetail,
     generateCustomId,
 } from '@inventory/shared';
+import { cn } from '@/lib/utils';
 
 function SortableIdElement({
     element,
@@ -147,13 +148,11 @@ function SortableIdElement({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900"
+            {...attributes}
+            {...listeners}
+            className="flex items-center gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing"
         >
-            <div
-                {...attributes}
-                {...listeners}
-                className="cursor-grab p-1 text-zinc-400 hover:text-zinc-600"
-            >
+            <div className="p-1 text-zinc-400 hover:text-zinc-600">
                 <Grip className="w-4 h-4" />
             </div>
 
@@ -161,7 +160,7 @@ function SortableIdElement({
                 {element.elementType}
                 <Popover>
                     <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 rounded-full focus:outline-none">
-                        ?
+                        <BadgeQuestionMark className="w-4 h-4" />
                     </PopoverTrigger>
                     <PopoverContent className="w-64 text-sm">
                         {getHelpText(element.elementType)}
@@ -174,29 +173,19 @@ function SortableIdElement({
     );
 }
 
-function DragOutOverlay({ t }: { t: (key: string) => string }) {
-    const [isDragging, setIsDragging] = useState(false);
-
+function DragMonitor({ onDragChange }: { onDragChange: (v: boolean) => void }) {
     useDndMonitor({
         onDragStart() {
-            setIsDragging(true);
+            onDragChange(true);
         },
         onDragEnd() {
-            setIsDragging(false);
+            onDragChange(false);
         },
         onDragCancel() {
-            setIsDragging(false);
+            onDragChange(false);
         },
     });
-
-    if (!isDragging) return null;
-
-    return (
-        <div className="mt-2 flex items-center justify-center gap-2 h-14 rounded-md border-2 border-dashed border-red-300 dark:border-red-700 bg-red-50/60 dark:bg-red-900/20 text-red-500 dark:text-red-400 font-medium">
-            <Trash2 className="w-5 h-5" />
-            <span>{t('inventory_manage.custom_id_tab.drop_to_remove')}</span>
-        </div>
-    );
+    return null;
 }
 
 export function InventoryCustomIdTab({
@@ -209,6 +198,9 @@ export function InventoryCustomIdTab({
     const [localElements, setLocalElements] = useState<
         (CustomIdElementInput & { id: string })[]
     >([]);
+
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     const { data: serverElements, isLoading } = useQuery({
         queryKey: ['inventory-id-format', inventory.id],
@@ -237,13 +229,22 @@ export function InventoryCustomIdTab({
     }, [serverElements]);
 
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         }),
     );
 
+    const handleDragStart = (event: DragEndEvent) => {
+        setActiveId(event.active.id as string);
+    };
+
     const handleDragEnd = (event: DragEndEvent) => {
+        setActiveId(null);
         const { active, over } = event;
 
         if (!over) {
@@ -295,6 +296,11 @@ export function InventoryCustomIdTab({
         };
         setLocalElements([...localElements, newElement]);
     };
+
+    const activeElement = useMemo(
+        () => localElements.find((el) => el.id === activeId),
+        [activeId, localElements],
+    );
 
     const saveMutation = useMutation({
         mutationFn: async () => {
@@ -434,49 +440,77 @@ export function InventoryCustomIdTab({
             <DndContext
                 sensors={sensors}
                 collisionDetection={pointerWithin}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                <div className="relative mt-6">
-                    <div className="bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50">
-                        {localElements.length === 0 ? (
-                            <p className="text-center text-zinc-500 mt-8">
+                <DragMonitor onDragChange={setIsDragging} />
+                <div
+                    className={cn(
+                        'mt-6 bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50 transition-shadow duration-200',
+                        isDragging &&
+                            'relative z-10 shadow-[0_0_0_100vmax_rgba(0,0,0,0.35)] dark:shadow-[0_0_0_100vmax_rgba(0,0,0,0.6)]',
+                    )}
+                >
+                    {isDragging && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 z-0 pointer-events-none">
+                            <Trash2 className="w-12 h-12" />
+                            <span className="ml-2 text-lg font-bold">
                                 {t(
-                                    'inventory_manage.custom_id_tab.empty_state',
+                                    'inventory_manage.custom_id_tab.drop_to_remove',
                                 )}
-                            </p>
-                        ) : (
-                            <SortableContext
-                                items={localElements.map((el) => el.id)}
-                                strategy={verticalListSortingStrategy}
-                            >
-                                {localElements.map((element) => (
-                                    <SortableIdElement
-                                        key={element.id}
-                                        element={element}
-                                        t={t}
-                                        onChange={(updates) =>
-                                            setLocalElements(
-                                                localElements.map((el) =>
-                                                    el.id === element.id
-                                                        ? {
-                                                              ...el,
-                                                              config: {
-                                                                  ...el.config,
-                                                                  ...updates,
-                                                              },
-                                                          }
-                                                        : el,
-                                                ),
-                                            )
-                                        }
-                                    />
-                                ))}
-                            </SortableContext>
-                        )}
-                    </div>
-                    <DragOutOverlay t={t} />
+                            </span>
+                        </div>
+                    )}
+                    {localElements.length === 0 ? (
+                        <p className="text-center text-zinc-500 mt-8">
+                            {t('inventory_manage.custom_id_tab.empty_state')}
+                        </p>
+                    ) : (
+                        <SortableContext
+                            items={localElements.map((el) => el.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {localElements.map((element) => (
+                                <SortableIdElement
+                                    key={element.id}
+                                    element={element}
+                                    t={t}
+                                    onChange={(updates) =>
+                                        setLocalElements(
+                                            localElements.map((el) =>
+                                                el.id === element.id
+                                                    ? {
+                                                          ...el,
+                                                          config: {
+                                                              ...el.config,
+                                                              ...updates,
+                                                          },
+                                                      }
+                                                    : el,
+                                            ),
+                                        )
+                                    }
+                                />
+                            ))}
+                        </SortableContext>
+                    )}
                 </div>
-                <DragOverlay />
+                <DragOverlay
+                    dropAnimation={{
+                        duration: 200,
+                        easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                    }}
+                >
+                    {activeElement ? (
+                        <div className="opacity-90 shadow-xl scale-105 transition-transform cursor-grabbing ring-2 ring-blue-500 rounded-md">
+                            <SortableIdElement
+                                element={activeElement}
+                                t={t}
+                                onChange={() => {}}
+                            />
+                        </div>
+                    ) : null}
+                </DragOverlay>
             </DndContext>
         </div>
     );
