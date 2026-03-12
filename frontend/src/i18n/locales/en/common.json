@@ -150,7 +150,6 @@
             "min_length": "Min length (zeroes):",
             "loading_format": "Loading format...",
             "empty_state": "Format not found. Default UUID will be used.",
-            "handle": "Handle",
             "sequence_limit": "Only one sequence element is allowed",
             "save_success": "ID format saved successfully",
             "help_fixed_text": "A fixed text that will be included in every ID. You can use this to add prefixes or suffixes (e.g. INV-)",
@@ -161,7 +160,7 @@
             "help_random_6digit": "A random 6-digit number.",
             "help_random_9digit": "A random 9-digit number.",
             "help_guid": "A globally unique identifier (UUID).",
-            "drop_to_remove": "Drop here to remove"
+            "drop_to_remove": "Drop outside to remove"
         },
         "items_tab": {
             "add_item": "+ Add Item",

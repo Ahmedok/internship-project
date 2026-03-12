@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import {
     DndContext,
     pointerWithin,
@@ -8,6 +10,8 @@ import {
     useSensor,
     useSensors,
     type DragEndEvent,
+    DragOverlay,
+    useDndMonitor,
 } from '@dnd-kit/core';
 import {
     arrayMove,
@@ -17,6 +21,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Trash2, Grip } from 'lucide-react';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -28,35 +33,14 @@ import {
     generateCustomId,
 } from '@inventory/shared';
 
-const getHelpText = (type: IdElementType) => {
-    switch (type) {
-        case 'FIXED_TEXT':
-            return 'A fixed text that will be included in every ID. You can use this to add prefixes or suffixes (e.g. INV-)';
-        case 'DATETIME':
-            return 'The current date will be added to the ID. You can choose the format to include year, month, and day.';
-        case 'SEQUENCE':
-            return 'A sequential counter that increments with each new item. You can specify the minimum length (padding with zeroes) for the counter.';
-        case 'RANDOM_20BIT':
-            return 'A random 5-character hexadecimal string (20 bits of randomness).';
-        case 'RANDOM_32BIT':
-            return 'A random 8-character hexadecimal string (32 bits of randomness).';
-        case 'RANDOM_6DIGIT':
-            return 'A random 6-digit number.';
-        case 'RANDOM_9DIGIT':
-            return 'A random 9-digit number.';
-        case 'GUID':
-            return 'A globally unique identifier (UUID).';
-        default:
-            return '';
-    }
-};
-
 function SortableIdElement({
     element,
     onChange,
+    t,
 }: {
     element: CustomIdElementInput & { id: string };
     onChange: (updates: Partial<CustomIdElementInput['config']>) => void;
+    t: (key: string) => string;
 }) {
     const {
         attributes,
@@ -73,6 +57,29 @@ function SortableIdElement({
         opacity: isDragging ? 0.5 : 1,
     };
 
+    const getHelpText = (type: IdElementType) => {
+        switch (type) {
+            case 'FIXED_TEXT':
+                return t('inventory_manage.custom_id_tab.help_fixed_text');
+            case 'DATETIME':
+                return t('inventory_manage.custom_id_tab.help_datetime');
+            case 'SEQUENCE':
+                return t('inventory_manage.custom_id_tab.help_sequence');
+            case 'RANDOM_20BIT':
+                return t('inventory_manage.custom_id_tab.help_random_20bit');
+            case 'RANDOM_32BIT':
+                return t('inventory_manage.custom_id_tab.help_random_32bit');
+            case 'RANDOM_6DIGIT':
+                return t('inventory_manage.custom_id_tab.help_random_6digit');
+            case 'RANDOM_9DIGIT':
+                return t('inventory_manage.custom_id_tab.help_random_9digit');
+            case 'GUID':
+                return t('inventory_manage.custom_id_tab.help_guid');
+            default:
+                return '';
+        }
+    };
+
     const renderConfig = () => {
         switch (element.elementType) {
             case 'FIXED_TEXT':
@@ -80,7 +87,9 @@ function SortableIdElement({
                     <Input
                         value={element.config.value || ''}
                         onChange={(e) => onChange({ value: e.target.value })}
-                        placeholder="Enter text (e.g. INV-)"
+                        placeholder={t(
+                            'inventory_manage.custom_id_tab.text_placeholder',
+                        )}
                         className="h-8 max-w-50"
                     />
                 );
@@ -91,17 +100,25 @@ function SortableIdElement({
                         onChange={(e) => onChange({ format: e.target.value })}
                         className="h-8 rounded-md border px-2 text-sm border-zinc-200 dark:border-zinc-800 dark:bg-zinc-950"
                     >
-                        <option value="YYYY">Year (4 digit)</option>
-                        <option value="MM">Month (2 digit)</option>
-                        <option value="DD">Day (2 digit)</option>
-                        <option value="YYYY-MM">Year-Month</option>
+                        <option value="YYYY">
+                            {t('inventory_manage.custom_id_tab.year_4digit')}
+                        </option>
+                        <option value="MM">
+                            {t('inventory_manage.custom_id_tab.month_2digit')}
+                        </option>
+                        <option value="DD">
+                            {t('inventory_manage.custom_id_tab.day_2digit')}
+                        </option>
+                        <option value="YYYY-MM">
+                            {t('inventory_manage.custom_id_tab.year_month')}
+                        </option>
                     </select>
                 );
             case 'SEQUENCE':
                 return (
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-zinc-500">
-                            Min length (zeroes):
+                            {t('inventory_manage.custom_id_tab.min_length')}
                         </span>
                         <Input
                             type="number"
@@ -120,7 +137,7 @@ function SortableIdElement({
             default:
                 return (
                     <span className="text-sm text-zinc-400 italic">
-                        Settings are not required
+                        {t('inventory_manage.custom_id_tab.no_settings')}
                     </span>
                 );
         }
@@ -132,13 +149,12 @@ function SortableIdElement({
             style={style}
             className="flex items-center gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900"
         >
-            {/* TODO: Use proper icons for handle */}
             <div
                 {...attributes}
                 {...listeners}
                 className="cursor-grab p-1 text-zinc-400 hover:text-zinc-600"
             >
-                Handle
+                <Grip className="w-4 h-4" />
             </div>
 
             <div className="flex items-center gap-2 w-48 font-medium text-sm">
@@ -158,11 +174,37 @@ function SortableIdElement({
     );
 }
 
+function DragOutOverlay({ t }: { t: (key: string) => string }) {
+    const [isDragging, setIsDragging] = useState(false);
+
+    useDndMonitor({
+        onDragStart() {
+            setIsDragging(true);
+        },
+        onDragEnd() {
+            setIsDragging(false);
+        },
+        onDragCancel() {
+            setIsDragging(false);
+        },
+    });
+
+    if (!isDragging) return null;
+
+    return (
+        <div className="mt-2 flex items-center justify-center gap-2 h-14 rounded-md border-2 border-dashed border-red-300 dark:border-red-700 bg-red-50/60 dark:bg-red-900/20 text-red-500 dark:text-red-400 font-medium">
+            <Trash2 className="w-5 h-5" />
+            <span>{t('inventory_manage.custom_id_tab.drop_to_remove')}</span>
+        </div>
+    );
+}
+
 export function InventoryCustomIdTab({
     inventory,
 }: {
     inventory: InventoryDetail;
 }) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const [localElements, setLocalElements] = useState<
         (CustomIdElementInput & { id: string })[]
@@ -184,10 +226,12 @@ export function InventoryCustomIdTab({
     useEffect(() => {
         if (serverElements) {
             setLocalElements(
-                serverElements.map((el: any) => ({
-                    ...el,
-                    id: crypto.randomUUID(),
-                })),
+                serverElements.map(
+                    (el: CustomIdElementInput & { id?: string }) => ({
+                        ...el,
+                        id: el.id || crypto.randomUUID(),
+                    }),
+                ),
             );
         }
     }, [serverElements]);
@@ -234,7 +278,7 @@ export function InventoryCustomIdTab({
             type === 'SEQUENCE' &&
             localElements.some((el) => el.elementType === 'SEQUENCE')
         ) {
-            alert('Only one sequence element is allowed');
+            toast.error(t('inventory_manage.custom_id_tab.sequence_limit'));
             return;
         }
 
@@ -277,7 +321,7 @@ export function InventoryCustomIdTab({
             queryClient.invalidateQueries({
                 queryKey: ['inventory-id-format', inventory.id],
             });
-            alert('ID format saved successfully');
+            toast.success(t('inventory_manage.custom_id_tab.save_success'));
         },
     });
 
@@ -285,40 +329,47 @@ export function InventoryCustomIdTab({
         return generateCustomId(localElements, inventory.idCounter + 1);
     }, [localElements, inventory.idCounter]);
 
-    if (isLoading) return <div className="p-4">Loading format...</div>;
+    if (isLoading)
+        return (
+            <div className="p-4">
+                {t('inventory_manage.custom_id_tab.loading_format')}
+            </div>
+        );
 
     return (
         <div className="space-y-6 max-w-4xl p-6 rounded-lg border bg-white dark:bg-zinc-950">
-            <div className="flex justify-between items-start border-b pb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">
-                        Item ID Format
+                        {t('inventory_manage.custom_id_tab.title')}
                     </h2>
                     <p className="text-sm text-zinc-500">
-                        Please setup your custom item ID format below. Drag out
-                        of the box to remove.
+                        {t('inventory_manage.custom_id_tab.subtitle')}
                     </p>
                 </div>
                 <Button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending}
                 >
-                    {saveMutation.isPending ? 'Saving...' : 'Save Format'}
+                    {saveMutation.isPending
+                        ? t('common.saving')
+                        : t('inventory_manage.custom_id_tab.save_format')}
                 </Button>
             </div>
 
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-900">
                 <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                    Next ID Live Preview:
+                    {t('inventory_manage.custom_id_tab.live_preview')}
                 </span>
                 <code className="text-xl font-mono bg-white dark:bg-zinc-900 px-3 py-1 rounded shadow-sm border border-blue-200 dark:border-blue-800">
-                    {previewId || 'EMPTY FORMAT'}
+                    {previewId ||
+                        t('inventory_manage.custom_id_tab.empty_format')}
                 </code>
             </div>
 
             <div className="space-y-2">
                 <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Add Element:
+                    {t('inventory_manage.custom_id_tab.add_element')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                     <Button
@@ -326,100 +377,107 @@ export function InventoryCustomIdTab({
                         size="sm"
                         onClick={() => addElement('FIXED_TEXT')}
                     >
-                        Text
+                        {t('inventory_manage.custom_id_tab.btn_text')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('RANDOM_20BIT')}
                     >
-                        Random 5 hex symbols
+                        {t('inventory_manage.custom_id_tab.btn_random_20bit')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('RANDOM_32BIT')}
                     >
-                        Random 8 hex symbols
+                        {t('inventory_manage.custom_id_tab.btn_random_32bit')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('RANDOM_6DIGIT')}
                     >
-                        Random 6-digit
+                        {t('inventory_manage.custom_id_tab.btn_random_6digit')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('RANDOM_9DIGIT')}
                     >
-                        Random 9-digit
+                        {t('inventory_manage.custom_id_tab.btn_random_9digit')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('GUID')}
                     >
-                        UUID
+                        {t('inventory_manage.custom_id_tab.btn_uuid')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('DATETIME')}
                     >
-                        Date
+                        {t('inventory_manage.custom_id_tab.btn_date')}
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => addElement('SEQUENCE')}
                     >
-                        Counter
+                        {t('inventory_manage.custom_id_tab.btn_counter')}
                     </Button>
                 </div>
             </div>
 
-            <div className="mt-6 bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50">
-                {localElements.length === 0 ? (
-                    <p className="text-center text-zinc-500 mt-8">
-                        Format not found. Default UUID will be used.
-                    </p>
-                ) : (
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={pointerWithin}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            items={localElements.map((el) => el.id)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {localElements.map((element) => (
-                                <SortableIdElement
-                                    key={element.id}
-                                    element={element}
-                                    onChange={(updates) =>
-                                        setLocalElements(
-                                            localElements.map((el) =>
-                                                el.id === element.id
-                                                    ? {
-                                                          ...el,
-                                                          config: {
-                                                              ...el.config,
-                                                              ...updates,
-                                                          },
-                                                      }
-                                                    : el,
-                                            ),
-                                        )
-                                    }
-                                />
-                            ))}
-                        </SortableContext>
-                    </DndContext>
-                )}
-            </div>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={pointerWithin}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="relative mt-6">
+                    <div className="bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50">
+                        {localElements.length === 0 ? (
+                            <p className="text-center text-zinc-500 mt-8">
+                                {t(
+                                    'inventory_manage.custom_id_tab.empty_state',
+                                )}
+                            </p>
+                        ) : (
+                            <SortableContext
+                                items={localElements.map((el) => el.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                {localElements.map((element) => (
+                                    <SortableIdElement
+                                        key={element.id}
+                                        element={element}
+                                        t={t}
+                                        onChange={(updates) =>
+                                            setLocalElements(
+                                                localElements.map((el) =>
+                                                    el.id === element.id
+                                                        ? {
+                                                              ...el,
+                                                              config: {
+                                                                  ...el.config,
+                                                                  ...updates,
+                                                              },
+                                                          }
+                                                        : el,
+                                                ),
+                                            )
+                                        }
+                                    />
+                                ))}
+                            </SortableContext>
+                        )}
+                    </div>
+                    <DragOutOverlay t={t} />
+                </div>
+                <DragOverlay />
+            </DndContext>
         </div>
     );
 }
