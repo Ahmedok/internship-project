@@ -230,12 +230,11 @@ router.get('/', async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const search = (req.query.search as string) || '';
-        const category = (req.query.category as string) || undefined;
         const skip = (page - 1) * limit;
 
-        // TODO: Rethink visibility permissions
-        const userId = req.user?.id;
-        const isAdmin = req.user?.role === 'ADMIN';
+        const rawCategory = (req.query.category as string) || undefined;
+        const parsedCategory =
+            InventorySchema.shape.category.safeParse(rawCategory);
 
         const filterConditions: Prisma.InventoryWhereInput[] = [];
 
@@ -248,31 +247,12 @@ router.get('/', async (req: Request, res: Response) => {
             });
         }
 
-        if (category) {
-            filterConditions.push({ category });
+        if (parsedCategory.success) {
+            filterConditions.push({ category: parsedCategory.data });
         }
 
-        let visibilityCondition: Prisma.InventoryWhereInput = {
-            isPublic: true,
-        };
-
-        if (isAdmin) {
-            visibilityCondition = {};
-        } else if (userId) {
-            visibilityCondition = {
-                OR: [
-                    { isPublic: true },
-                    { createdById: userId },
-                    { accessList: { some: { userId: userId } } },
-                ],
-            };
-        }
-
-        const whereClause = {
-            AND: [...filterConditions, visibilityCondition].filter(
-                (condition) => Object.keys(condition).length > 0,
-            ),
-        };
+        const whereClause: Prisma.InventoryWhereInput =
+            filterConditions.length > 0 ? { AND: filterConditions } : {};
 
         const [inventories, total] = await Promise.all([
             prisma.inventory.findMany({
