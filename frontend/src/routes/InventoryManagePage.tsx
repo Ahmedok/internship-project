@@ -73,7 +73,7 @@ export default function InventoryManagePage() {
                         <img
                             src={inventory.imageUrl}
                             alt={inventory.title}
-                            className="w-40 h-40 object-cover rounded-md shrink-0 border"
+                            className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-md shrink-0 border"
                         />
                     )}
                     {inventory.description && (
@@ -87,7 +87,7 @@ export default function InventoryManagePage() {
             )}
 
             <Tabs defaultValue="items" className="w-full">
-                <TabsList className="flex flex-wrap h-auto w-full justify-start gap-2 bg-transparent">
+                <TabsList className="flex flex-wrap p-0 pb-2 mb-4 border-b h-auto! w-full justify-start gap-2 bg-transparent rounded-none">
                     <TabsTrigger
                         value="items"
                         className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
@@ -139,7 +139,7 @@ export default function InventoryManagePage() {
 
                 <TabsContent
                     value="items"
-                    className="p-4 border rounded-md mt-4"
+                    className="p-4 border rounded-md pt-2 mt-0"
                 >
                     <InventoryItemsTab
                         inventory={inventory}
@@ -149,30 +149,30 @@ export default function InventoryManagePage() {
 
                 <TabsContent
                     value="discussion"
-                    className="p-4 border rounded-md mt-4"
+                    className="p-4 border rounded-md pt-2 mt-0"
                 >
                     <InventoryDiscussionTab inventory={inventory} />
                 </TabsContent>
 
                 {hasFullAccess && (
                     <>
-                        <TabsContent value="settings" className="mt-4">
+                        <TabsContent value="settings" className="pt-2 mt-0">
                             <InventorySettingsTab initialData={inventory} />
                         </TabsContent>
 
-                        <TabsContent value="access" className="mt-4">
+                        <TabsContent value="access" className="pt-2 mt-0">
                             <InventoryAccessTab inventory={inventory} />
                         </TabsContent>
 
-                        <TabsContent value="fields" className="mt-4">
+                        <TabsContent value="fields" className="pt-2 mt-0">
                             <InventoryFieldsTab inventoryId={inventory.id} />
                         </TabsContent>
 
-                        <TabsContent value="custom-ids" className="mt-4">
+                        <TabsContent value="custom-ids" className="pt-2 mt-0">
                             <InventoryCustomIdTab inventory={inventory} />
                         </TabsContent>
 
-                        <TabsContent value="statistics" className="mt-4">
+                        <TabsContent value="statistics" className="pt-2 mt-0">
                             <InventoryStatisticsTab inventory={inventory} />
                         </TabsContent>
                     </>
