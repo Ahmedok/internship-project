@@ -19,9 +19,9 @@ COPY packages/shared ./packages/shared
 # Copy backend source
 COPY backend ./backend
 
-# Generate Prisma Client
+# Generate Prisma Client (dummy DATABASE_URL — generate only reads schema, never connects)
 WORKDIR /app/backend
-RUN pnpm exec prisma generate
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm exec prisma generate
 
 # --- Production Image ---
 FROM node:24-alpine
@@ -46,6 +46,7 @@ COPY --from=builder /app/packages/shared/src ./packages/shared/src
 # Copy backend source + Prisma artifacts
 COPY --from=builder /app/backend/src ./backend/src
 COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY --from=builder /app/backend/prisma.config.ts ./backend/prisma.config.ts
 
 WORKDIR /app/backend
 
