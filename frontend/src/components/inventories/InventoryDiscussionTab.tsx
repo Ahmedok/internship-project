@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { io } from 'socket.io-client';
@@ -22,6 +23,7 @@ interface InventoryDiscussionTabProps {
 export function InventoryDiscussionTab({
     inventory,
 }: InventoryDiscussionTabProps) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -43,18 +45,11 @@ export function InventoryDiscussionTab({
             path: '/socket.io',
         });
 
-        // Socket diagnostic logs (TODO: Replace/remove in production)
         socketInstance.on('connect', () => {
-            console.log('WebSocket connected, ID:', socketInstance.id);
             socketInstance.emit('joinInventory', inventory.id);
         });
 
-        socketInstance.on('connect_error', (err) => {
-            console.error('WebSocket connection error:', err);
-        });
-
         socketInstance.on('newComment', (newComment: CommentDto) => {
-            console.log('Received new comment via WebSocket:', newComment.id);
             queryClient.setQueryData<CommentDto[]>(
                 ['inventory-comments', inventory.id],
                 (oldData) => {
@@ -107,14 +102,19 @@ export function InventoryDiscussionTab({
         },
     });
 
-    if (isLoading) return <div className="p-4">Loading discussion...</div>;
+    if (isLoading)
+        return (
+            <div className="p-4">
+                {t('inventory_manage.discussion_tab.loading')}
+            </div>
+        );
 
     return (
         <div className="flex flex-col h-150 border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-50 dark:bg-zinc-900/50">
                 {!comments || comments.length === 0 ? (
                     <div className="text-center text-zinc-500 mt-10">
-                        No comments yet. Be the first to start the discussion!
+                        {t('inventory_manage.discussion_tab.empty_state')}
                     </div>
                 ) : (
                     comments.map((comment: CommentDto) => (
@@ -167,7 +167,9 @@ export function InventoryDiscussionTab({
                     <div className="flex-1">
                         <Textarea
                             {...register('content')}
-                            placeholder="Write a comment (Markdown supported)..."
+                            placeholder={t(
+                                'inventory_manage.discussion_tab.placeholder',
+                            )}
                             className="resize-none h-20"
                             onKeyDown={(e) => {
                                 if (
@@ -191,7 +193,9 @@ export function InventoryDiscussionTab({
                         disabled={postMutation.isPending}
                         className="h-20 px-8"
                     >
-                        {postMutation.isPending ? '...' : 'Send'}
+                        {postMutation.isPending
+                            ? '...'
+                            : t('inventory_manage.discussion_tab.send')}
                     </Button>
                 </form>
             </div>
