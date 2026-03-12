@@ -13,18 +13,10 @@ export function initSocketIO(server: HttpServer) {
 
     io.on('connection', (socket) => {
         socket.on('joinInventory', (inventoryId: string) => {
-            // TODO: Replace/remove console logs in production
-            console.log(
-                `User ${socket.id} joining inventory room: ${inventoryId}`,
-            );
             socket.join(`inventory:${inventoryId}`);
         });
 
         socket.on('leaveInventory', (inventoryId: string) => {
-            // TODO: Replace/remove console logs in production
-            console.log(
-                `User ${socket.id} leaving inventory room: ${inventoryId}`,
-            );
             socket.leave(`inventory:${inventoryId}`);
         });
     });

@@ -136,15 +136,10 @@ router.patch(
     requireAuth,
     async (req: Request<{ id: string }>, res: Response) => {
         try {
-            console.log('Backend received PATCH request with body:', req.body); // TODO: Delete this after debugging
-
             const parsed = InventorySchema.partial().safeParse(req.body);
             if (!parsed.success) {
-                console.error('ZOD validation error:', parsed.error.issues); // TODO: Delete this after debugging
                 return res.status(400).json({ errors: parsed.error.issues });
             }
-
-            console.log('Data after ZOD validation:', parsed.data); // TODO: Delete this after debugging
 
             const {
                 version,
@@ -175,7 +170,7 @@ router.patch(
                     .json({ message: 'No management access' });
             }
 
-            const updateData: any = {
+            const updateData: Prisma.InventoryUpdateInput = {
                 version: { increment: 1 },
             };
 
@@ -242,7 +237,7 @@ router.get('/', async (req: Request, res: Response) => {
         const userId = req.user?.id;
         const isAdmin = req.user?.role === 'ADMIN';
 
-        const filterConditions: any[] = [];
+        const filterConditions: Prisma.InventoryWhereInput[] = [];
 
         if (search) {
             filterConditions.push({
@@ -257,7 +252,9 @@ router.get('/', async (req: Request, res: Response) => {
             filterConditions.push({ category });
         }
 
-        let visibilityCondition: any = { isPublic: true };
+        let visibilityCondition: Prisma.InventoryWhereInput = {
+            isPublic: true,
+        };
 
         if (isAdmin) {
             visibilityCondition = {};
@@ -470,7 +467,6 @@ router.put(
 
             const parsed = CustomFieldUpdateSchema.safeParse(req.body);
             if (!parsed.success) {
-                console.error('ZOD validation error:', parsed.error.issues); // TODO: Delete this after debugging
                 return res.status(400).json({ errors: parsed.error.issues });
             }
             const incomingFields = parsed.data;
