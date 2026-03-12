@@ -110,6 +110,9 @@ export default function HomePage() {
                                     <TableHead>
                                         {t('inventories.title')}
                                     </TableHead>
+                                    <TableHead className="hidden md:table-cell">
+                                        {t('inventories.description')}
+                                    </TableHead>
                                     <TableHead>
                                         {t('inventories.author')}
                                     </TableHead>
@@ -125,7 +128,7 @@ export default function HomePage() {
                                 {loadingLatest ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={4}
+                                            colSpan={5}
                                             className="text-center py-4"
                                         >
                                             {t('common.loading')}
@@ -141,6 +144,9 @@ export default function HomePage() {
                                                 >
                                                     {inv.title}
                                                 </Link>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-36 truncate text-sm text-zinc-500">
+                                                {inv.description || '-'}
                                             </TableCell>
                                             <TableCell>
                                                 {inv.createdBy.name}
@@ -174,6 +180,9 @@ export default function HomePage() {
                                     <TableHead>
                                         {t('inventories.title')}
                                     </TableHead>
+                                    <TableHead className="hidden md:table-cell">
+                                        {t('inventories.description')}
+                                    </TableHead>
                                     <TableHead>
                                         {t('inventories.author')}
                                     </TableHead>
@@ -189,7 +198,7 @@ export default function HomePage() {
                                 {loadingPopular ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={4}
+                                            colSpan={5}
                                             className="text-center py-4"
                                         >
                                             {t('common.loading')}
@@ -205,6 +214,9 @@ export default function HomePage() {
                                                 >
                                                     {inv.title}
                                                 </Link>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-36 truncate text-sm text-zinc-500">
+                                                {inv.description || '-'}
                                             </TableCell>
                                             <TableCell>
                                                 {inv.createdBy.name}
