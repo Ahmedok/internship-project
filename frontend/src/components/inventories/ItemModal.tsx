@@ -4,7 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { TriangleAlert } from 'lucide-react';
-import type { CustomFieldInput, InventoryDetail } from '@inventory/shared';
+import { useTranslation } from 'react-i18next';
+import {
+    validateCustomId,
+    type CustomIdElementInput,
+    type CustomFieldInput,
+    type InventoryDetail,
+} from '@inventory/shared';
 
 import {
     Dialog,
@@ -24,10 +30,12 @@ interface ItemModalProps {
 }
 
 export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
+    const { t } = useTranslation('common');
     const queryClient = useQueryClient();
 
     const [customIdConflict, setCustomIdConflict] = useState(false);
     const [manualCustomId, setManualCustomId] = useState<string>('');
+    const [formatError, setFormatError] = useState(false);
 
     const { data: fields } = useQuery<CustomFieldInput[]>({
         queryKey: ['inventory-fields', inventory.id],
@@ -46,6 +54,18 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                 `/api/inventories/${inventory.id}/id-preview`,
             );
             if (!res.ok) throw new Error('Failed to fetch ID preview');
+            return res.json();
+        },
+        enabled: isOpen,
+    });
+
+    const { data: idElements } = useQuery<CustomIdElementInput[]>({
+        queryKey: ['inventory-id-format', inventory.id],
+        queryFn: async () => {
+            const res = await fetch(
+                `/api/inventories/${inventory.id}/id-format`,
+            );
+            if (!res.ok) throw new Error('Failed to fetch ID format');
             return res.json();
         },
         enabled: isOpen,
@@ -91,6 +111,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
             reset();
             setCustomIdConflict(false);
             setManualCustomId('');
+            setFormatError(false);
         }
     }, [isOpen, reset]);
 
@@ -122,7 +143,8 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                     };
                 }) || [];
 
-            const payload: Record<string, any> = { fields: mappedFields };
+            const payload: { fields: typeof mappedFields; customId?: string } =
+                { fields: mappedFields };
 
             if (manualCustomId.trim() !== '') {
                 payload.customId = manualCustomId.trim();
@@ -166,12 +188,26 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
     const handleRegenerateId = async () => {
         setCustomIdConflict(false);
         setManualCustomId('');
+        setFormatError(false);
         await queryClient.invalidateQueries({
             queryKey: ['inventory-id-preview', inventory.id],
         });
     };
 
-    const onSubmit = (data: FormData) => saveMutation.mutate(data);
+    const onSubmit = (data: FormData) => {
+        if (
+            manualCustomId.trim() !== '' &&
+            idElements &&
+            idElements.length > 0
+        ) {
+            if (!validateCustomId(manualCustomId.trim(), idElements)) {
+                setFormatError(true);
+                return;
+            }
+        }
+        setFormatError(false);
+        saveMutation.mutate(data);
+    };
 
     if (!fields) return null;
 
@@ -179,17 +215,16 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-125">
                 <DialogHeader>
-                    <DialogTitle>Add Item</DialogTitle>
+                    <DialogTitle>{t('item_modal.title')}</DialogTitle>
                     <DialogDescription>
-                        Fill out item details below. Custom ID is generated
-                        automatically.
+                        {t('item_modal.description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="bg-zinc-50 dark:bg-zinc-900 px-3 py-3 rounded-md text-sm border space-y-3">
                     <div className="flex items-center justify-between">
                         <span className="text-zinc-500 font-medium">
-                            Custom ID
+                            {t('item_modal.custom_id')}
                         </span>
                         {!customIdConflict && !manualCustomId && (
                             <button
@@ -199,7 +234,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                                     setManualCustomId(idPreview?.preview || '')
                                 }
                             >
-                                Edit Manually
+                                {t('item_modal.edit_manually')}
                             </button>
                         )}
                     </div>
@@ -210,8 +245,9 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                             onChange={(e) => {
                                 setManualCustomId(e.target.value);
                                 setCustomIdConflict(false);
+                                setFormatError(false);
                             }}
-                            placeholder="Enter unique ID"
+                            placeholder={t('item_modal.enter_unique_id')}
                             className={
                                 customIdConflict
                                     ? 'border-red-500 bg-red-50 dark:bg-red-950'
@@ -220,7 +256,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                         />
                     ) : (
                         <code className="font-mono font-bold text-zinc-800 dark:text-zinc-200 block bg-white dark:bg-zinc-950 p-2 border rounded">
-                            {idPreview?.preview ?? 'Generating...'}
+                            {idPreview?.preview ?? t('item_modal.generating')}
                         </code>
                     )}
 
@@ -229,17 +265,23 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                             <TriangleAlert className="shrink-0 w-4 h-4" />
                             <div className="flex gap-3 mt-2">
                                 <p className="font-medium text-sm">
-                                    This ID is already in use.
+                                    {t('item_modal.id_conflict')}
                                 </p>
                                 <button
                                     type="button"
                                     onClick={handleRegenerateId}
                                     className="text-blue-600 dark:text-blue-400 hover:underline mt-1 font-medium text-xs cursor-pointer"
                                 >
-                                    Generate New ID
+                                    {t('item_modal.generate_new')}
                                 </button>
                             </div>
                         </div>
+                    )}
+
+                    {formatError && (
+                        <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                            {t('item_modal.id_format_invalid')}
+                        </p>
                     )}
                 </div>
 
@@ -300,14 +342,16 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
 
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose} type="button">
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         type="submit"
                         form="item-form"
                         disabled={saveMutation.isPending || customIdConflict}
                     >
-                        {saveMutation.isPending ? 'Saving...' : 'Save'}
+                        {saveMutation.isPending
+                            ? t('common.saving')
+                            : t('common.save')}
                     </Button>
                 </DialogFooter>
             </DialogContent>
