@@ -6,6 +6,7 @@ import {
     closestCenter,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     type DragEndEvent,
@@ -50,7 +51,7 @@ function SortableFieldItem({
             style={style}
             {...attributes}
             {...listeners}
-            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing"
+            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
         >
             <div className="p-1 text-zinc-400 hover:text-zinc-600">
                 <Grip size={16} />
@@ -117,6 +118,12 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
         useSensor(PointerSensor, {
             activationConstraint: {
                 distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
             },
         }),
         useSensor(KeyboardSensor, {

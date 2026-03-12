@@ -7,6 +7,7 @@ import {
     pointerWithin,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     type DragEndEvent,
@@ -150,17 +151,17 @@ function SortableIdElement({
             style={style}
             {...attributes}
             {...listeners}
-            className="flex items-center gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing"
+            className="flex items-center gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
         >
             <div className="p-1 text-zinc-400 hover:text-zinc-600">
-                <Grip className="w-4 h-4" />
+                <Grip className="w-5 h-5" />
             </div>
 
             <div className="flex items-center gap-2 w-48 font-medium text-sm">
                 {element.elementType}
                 <Popover>
                     <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 rounded-full focus:outline-none">
-                        <BadgeQuestionMark className="w-4 h-4" />
+                        <BadgeQuestionMark className="w-5 h-5" />
                     </PopoverTrigger>
                     <PopoverContent className="w-64 text-sm">
                         {getHelpText(element.elementType)}
@@ -232,6 +233,12 @@ export function InventoryCustomIdTab({
         useSensor(PointerSensor, {
             activationConstraint: {
                 distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
             },
         }),
         useSensor(KeyboardSensor, {
