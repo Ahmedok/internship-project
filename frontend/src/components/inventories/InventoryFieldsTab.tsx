@@ -48,13 +48,11 @@ function SortableFieldItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900"
+            {...attributes}
+            {...listeners}
+            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing"
         >
-            <div
-                {...attributes}
-                {...listeners}
-                className="cursor-grab p-1 text-zinc-400 hover:text-zinc-600"
-            >
+            <div className="p-1 text-zinc-400 hover:text-zinc-600">
                 <Grip size={16} />
             </div>
 
@@ -116,7 +114,11 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
     }, [serverFields]);
 
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         }),
