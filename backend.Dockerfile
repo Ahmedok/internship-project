@@ -30,15 +30,15 @@ RUN npm install -g pnpm@10.30.1
 
 WORKDIR /app
 
-# Copy workspace configs
-COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/package.json ./
-COPY --from=builder /app/packages/shared/package.json ./packages/shared/
-COPY --from=builder /app/backend/package.json ./backend/
-COPY --from=builder /app/frontend/package.json ./frontend/
+# Copy installed node_modules from builder (includes tsx, prisma CLI needed at runtime)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/shared/node_modules ./packages/shared/node_modules
+COPY --from=builder /app/backend/node_modules ./backend/node_modules
 
-# Install production deps + tsx (runtime TS loader)
-RUN pnpm install --frozen-lockfile --prod && \
-    pnpm --filter backend add tsx
+# Copy workspace configs (needed for pnpm exec to resolve workspace structure)
+COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/package.json /app/tsconfig.base.json ./
+COPY --from=builder /app/packages/shared/package.json /app/packages/shared/tsconfig.json ./packages/shared/
+COPY --from=builder /app/backend/package.json /app/backend/tsconfig.json ./backend/
 
 # Copy shared package source (needed at runtime — tsx resolves raw TS)
 COPY --from=builder /app/packages/shared/src ./packages/shared/src
