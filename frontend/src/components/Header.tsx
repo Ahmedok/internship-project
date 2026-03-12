@@ -22,6 +22,7 @@ import {
     SheetTrigger,
     SheetTitle,
     SheetHeader,
+    SheetClose,
 } from './ui/sheet';
 
 export function Header() {
@@ -50,41 +51,47 @@ export function Header() {
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-75 sm:w-87.5">
-                            <SheetHeader>
-                                <SheetTitle className="text-left">
+                            <SheetHeader className="pb-4 border-b">
+                                <SheetTitle className="text-left text-xl">
                                     {t('header.app_name')}
                                 </SheetTitle>
                             </SheetHeader>
-                            <div className="flex flex-col gap-6 mt-6">
-                                <div className="w-full block md:hidden">
+                            <div className="flex flex-col gap-6 mt-4 flex-1 overflow-y-auto">
+                                <div className="w-full px-1">
                                     <GlobalSearchBar
                                         translatedPlaceholder={t(
                                             'header.search_placeholder',
                                         )}
                                     />
                                 </div>
-                                <nav className="flex flex-col gap-3">
-                                    <Link
-                                        to="/"
-                                        className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-400"
-                                    >
-                                        {t('header.home')}
-                                    </Link>
-                                    {user && (
+                                <nav className="flex flex-col gap-1.5">
+                                    <SheetClose asChild>
                                         <Link
-                                            to="/personal"
-                                            className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-400"
+                                            to="/"
+                                            className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                                         >
-                                            {t('header.profile')}
+                                            {t('header.home')}
                                         </Link>
+                                    </SheetClose>
+                                    {user && (
+                                        <SheetClose asChild>
+                                            <Link
+                                                to="/personal"
+                                                className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                            >
+                                                {t('header.profile')}
+                                            </Link>
+                                        </SheetClose>
                                     )}
                                     {user?.role === 'ADMIN' && (
-                                        <Link
-                                            to="/admin"
-                                            className="text-lg font-medium text-red-600 dark:text-red-400"
-                                        >
-                                            {t('admin_panel.title')}
-                                        </Link>
+                                        <SheetClose asChild>
+                                            <Link
+                                                to="/admin"
+                                                className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                            >
+                                                {t('admin_panel.title')}
+                                            </Link>
+                                        </SheetClose>
                                     )}
                                 </nav>
                             </div>

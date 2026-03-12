@@ -19,10 +19,7 @@ export function GlobalSearchBar({
     };
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="relative w-full max-w-md hidden md:block"
-        >
+        <form onSubmit={handleSubmit} className="relative w-full max-w-md">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
                 <TextSearch className="w-4 h-4" />
             </div>
