@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { User } from './user';
+import type { User } from './user';
 
 export const InventorySchema = z.object({
     title: z
