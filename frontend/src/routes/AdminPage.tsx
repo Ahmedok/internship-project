@@ -13,6 +13,13 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/stores/authStore';
 
 import {
+    Ban,
+    CircleCheck,
+    ShieldPlus,
+    ShieldMinus,
+    Trash2,
+} from 'lucide-react';
+import {
     Table,
     TableBody,
     TableCell,
@@ -23,6 +30,17 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function AdminPage() {
     const { t } = useTranslation('common');
@@ -217,7 +235,7 @@ export default function AdminPage() {
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold tracking-tight">
+                <h1 className="text-3xl font-bold tracking-tight">
                     {t('admin_panel.title')}
                 </h1>
             </div>
@@ -232,50 +250,89 @@ export default function AdminPage() {
 
                 <div className="flex flex-wrap items-center gap-2">
                     <Button
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
-                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('block')}
                     >
-                        {t('admin_panel.block')}
+                        <Ban className="size-4" />
+                        <span className="hidden sm:inline">
+                            {t('admin_panel.block')}
+                        </span>
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
-                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('unblock')}
                     >
-                        {t('admin_panel.unblock')}
+                        <CircleCheck className="size-4" />
+                        <span className="hidden sm:inline">
+                            {t('admin_panel.unblock')}
+                        </span>
                     </Button>
                     <Button
-                        variant="outline"
+                        variant="default"
                         size="sm"
-                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('promote')}
                     >
-                        {t('admin_panel.promote')}
+                        <ShieldPlus className="size-4" />
+                        <span className="hidden sm:inline">
+                            {t('admin_panel.promote')}
+                        </span>
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
-                        className="w-full sm:w-auto"
                         disabled={!isAnyUserSelected}
                         onClick={() => handleBulkAction('demote')}
                     >
-                        {t('admin_panel.demote')}
+                        <ShieldMinus className="size-4" />
+                        <span className="hidden sm:inline">
+                            {t('admin_panel.demote')}
+                        </span>
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full sm:w-auto"
-                        disabled={!isAnyUserSelected}
-                        onClick={() => handleBulkAction('delete')}
-                    >
-                        {t('admin_panel.delete')}
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={!isAnyUserSelected}
+                            >
+                                <Trash2 className="size-4" />
+                                <span className="hidden sm:inline">
+                                    {t('admin_panel.delete')}
+                                </span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    {t('common.confirm_delete')}
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    {t(
+                                        'admin_panel.confirm_delete_user_message',
+                                        {
+                                            count: selectedUsers.length,
+                                        },
+                                    )}
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>
+                                    {t('common.cancel')}
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                    variant="destructive"
+                                    onClick={() => handleBulkAction('delete')}
+                                >
+                                    {t('common.confirm')}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
 
