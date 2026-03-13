@@ -3,6 +3,11 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { prisma } from '../lib/prisma';
 
+const baseUrl =
+    process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL
+        : 'http://localhost:5000';
+
 passport.serializeUser((user: Express.User, done) => {
     done(null, user.id);
 });
@@ -22,7 +27,7 @@ passport.use(
             clientID: process.env.GOOGLE_CLIENT_ID || 'mock_client_id',
             clientSecret:
                 process.env.GOOGLE_CLIENT_SECRET || 'mock_client_secret',
-            callbackURL: '/api/auth/google/callback',
+            callbackURL: `${baseUrl}/api/auth/google/callback`,
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
@@ -51,6 +56,9 @@ passport.use(
                     });
                 }
 
+                console.info(
+                    `[AUTH] Google auth: ${user.email} | Role: ${user.role}`,
+                );
                 return done(null, user);
             } catch (error) {
                 return done(error as Error, undefined);
@@ -65,7 +73,7 @@ passport.use(
             clientID: process.env.FACEBOOK_APP_ID || 'mock_fb_app_id',
             clientSecret:
                 process.env.FACEBOOK_APP_SECRET || 'mock_fb_app_secret',
-            callbackURL: '/api/auth/facebook/callback',
+            callbackURL: `${baseUrl}/api/auth/facebook/callback`,
             profileFields: ['id', 'displayName', 'photos', 'email'],
         },
         async (accessToken, refreshToken, profile, done) => {
@@ -94,6 +102,10 @@ passport.use(
                         });
                     });
                 }
+
+                console.info(
+                    `[AUTH] Facebook auth: ${user.email} | Role: ${user.role}`,
+                );
                 return done(null, user);
             } catch (error) {
                 return done(error as Error, undefined);
