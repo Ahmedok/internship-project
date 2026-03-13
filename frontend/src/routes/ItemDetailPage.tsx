@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
@@ -163,6 +163,7 @@ export default function ItemDetailPage() {
         handleSubmit,
         reset,
         setValue,
+        control,
         formState: { errors },
     } = useForm<FormData>({
         resolver: zodResolver(dynamicSchema),
@@ -610,20 +611,41 @@ export default function ItemDetailPage() {
                             {fields.map((field) => (
                                 <div key={field.id} className="space-y-1">
                                     <label className="text-sm font-medium">
-                                        {field.title}{' '}
-                                        {field.fieldType === 'DOCUMENT' &&
-                                            '(URL)'}
+                                        {field.title}
                                     </label>
+                                    {field.description && (
+                                        <p className="text-xs text-zinc-500">
+                                            {field.description}
+                                        </p>
+                                    )}
                                     {field.fieldType === 'BOOLEAN' ? (
-                                        <div className="flex items-center mt-2">
-                                            <input
-                                                type="checkbox"
-                                                className="w-4 h-4"
-                                                {...register(field.id!)}
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <Controller
+                                                name={field.id!}
+                                                control={control}
+                                                render={({
+                                                    field: controllerField,
+                                                }) => (
+                                                    <Checkbox
+                                                        id={field.id}
+                                                        checked={
+                                                            !!controllerField.value
+                                                        }
+                                                        onCheckedChange={
+                                                            controllerField.onChange
+                                                        }
+                                                        className="size-6 cursor-pointer"
+                                                    />
+                                                )}
                                             />
-                                            <span className="ml-2 text-sm text-zinc-500">
-                                                True / False
-                                            </span>
+                                            <label
+                                                htmlFor={field.id!}
+                                                className="text-sm text-zinc-500 cursor-pointer select-none"
+                                            >
+                                                {t(
+                                                    'inventories.fields.BOOLEAN',
+                                                )}
+                                            </label>
                                         </div>
                                     ) : (
                                         <Input
@@ -637,9 +659,9 @@ export default function ItemDetailPage() {
                                                     ? 'any'
                                                     : undefined
                                             }
-                                            placeholder={
-                                                field.description || ''
-                                            }
+                                            placeholder={t(
+                                                `inventories.fields.${field.fieldType}`,
+                                            )}
                                             {...register(field.id!, {
                                                 setValueAs: (v) =>
                                                     field.fieldType ===

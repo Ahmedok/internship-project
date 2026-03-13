@@ -116,14 +116,14 @@
         },
         "fields_tab": {
             "input_placeholder": "Field Title",
+            "description_placeholder": "Field description (hint in forms)",
             "type_label": "Type",
             "show_label": "Show in Table",
             "remove_button": "Remove",
-            "max_type_error": "You can only have up to 3 fields of type: {{type}}",
             "saved_success": "Field structure saved successfully!",
             "loader": "Loading field structure...",
             "tab_label": "Field Constructor",
-            "tab_desc": "Define the data structure for items in your inventory. Maximum 3 fields of the same type.",
+            "tab_desc": "Define the data structure for items in your inventory.",
             "no_custom_fields": "No custom fields. Add new fields using the buttons above."
         },
         "custom_id_tab": {
@@ -277,7 +277,7 @@
             "STRING": "String",
             "TEXT": "Text",
             "NUMBER": "Number",
-            "DOCUMENT": "Document",
+            "DOCUMENT": "Document (URL)",
             "BOOLEAN": "Boolean"
         },
         "description": "Description",

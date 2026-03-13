@@ -49,20 +49,30 @@ function SortableFieldItem({
         <div
             ref={setNodeRef}
             style={style}
-            {...attributes}
-            {...listeners}
-            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
+            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900"
         >
-            <div className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
+            <div
+                {...attributes}
+                {...listeners}
+                className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-grab active:cursor-grabbing touch-none"
+            >
                 <Grip size={16} />
             </div>
 
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
                 <Input
                     value={field.title}
                     onChange={(e) => onChange({ title: e.target.value })}
                     placeholder={t(
                         'inventory_manage.fields_tab.input_placeholder',
+                    )}
+                    className="h-8"
+                />
+                <Input
+                    value={field.description ?? ''}
+                    onChange={(e) => onChange({ description: e.target.value })}
+                    placeholder={t(
+                        'inventory_manage.fields_tab.description_placeholder',
                     )}
                     className="h-8"
                 />
@@ -153,22 +163,10 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
     };
 
     const addField = (type: FieldType) => {
-        const count = localFields.filter(
-            (field) => field.fieldType === type,
-        ).length;
-        if (count >= 3) {
-            toast.error(
-                t('inventory_manage.fields_tab.max_type_error', {
-                    type: t(`inventories.fields.${type}`),
-                }),
-            );
-            return;
-        }
-
         const newField: CustomFieldInput & { id: string } = {
             id: crypto.randomUUID(),
             fieldType: type,
-            title: `New field (${type})`,
+            title: '',
             description: '',
             showInTable: true,
             sortOrder: localFields.length,
