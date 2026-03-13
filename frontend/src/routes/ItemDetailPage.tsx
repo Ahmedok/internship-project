@@ -378,7 +378,7 @@ export default function ItemDetailPage() {
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all ${
                                 likeData?.isLiked
                                     ? 'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
-                                    : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:bg-zinc-900 dark:border-zinc-800'
+                                    : 'bg-muted border-border text-muted-foreground hover:bg-secondary dark:bg-zinc-900 dark:border-zinc-800'
                             }`}
                         >
                             <Heart />
@@ -387,7 +387,7 @@ export default function ItemDetailPage() {
                             </span>
                         </button>
                     </div>
-                    <p className="text-zinc-500">
+                    <p className="text-muted-foreground">
                         {t('item_detail.inventory_label')}{' '}
                         <Link
                             to={`/inventories/${item.inventoryId}`}
@@ -399,7 +399,7 @@ export default function ItemDetailPage() {
                     </p>
                 </div>
                 <div className="flex flex-col items-start sm:items-end gap-3">
-                    <div className="text-right text-sm text-zinc-500">
+                    <div className="text-right text-sm text-muted-foreground">
                         <p>
                             {t('item_detail.created_at')}{' '}
                             {format(
@@ -475,7 +475,7 @@ export default function ItemDetailPage() {
                     </div>
 
                     <TabsContent value="table" className="mt-0">
-                        <div className="border rounded-md overflow-hidden bg-white dark:bg-zinc-950">
+                        <div className="border rounded-md overflow-hidden bg-background">
                             <Table>
                                 <TableBody>
                                     {item.fieldValues.map((fv) => (
@@ -483,13 +483,13 @@ export default function ItemDetailPage() {
                                             key={fv.id}
                                             className="hover:bg-transparent"
                                         >
-                                            <TableCell className="w-1/3 font-medium text-zinc-500 bg-zinc-50 dark:bg-zinc-900/50 border-r">
+                                            <TableCell className="w-1/3 font-medium text-muted-foreground bg-muted border-r">
                                                 {fv.customField?.title ||
                                                     t(
                                                         'item_detail.unknown_field',
                                                     )}
                                             </TableCell>
-                                            <TableCell className="text-zinc-900 dark:text-zinc-100">
+                                            <TableCell className="text-foreground">
                                                 {renderFieldValue(fv)}
                                             </TableCell>
                                         </TableRow>
@@ -498,7 +498,7 @@ export default function ItemDetailPage() {
                                         <TableRow>
                                             <TableCell
                                                 colSpan={2}
-                                                className="text-center text-zinc-500 py-8"
+                                                className="text-center text-muted-foreground py-8"
                                             >
                                                 {t('item_detail.no_fields')}
                                             </TableCell>
@@ -514,13 +514,13 @@ export default function ItemDetailPage() {
                             {item.fieldValues.map((fv) => (
                                 <div
                                     key={fv.id}
-                                    className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border"
+                                    className="bg-muted p-4 rounded-lg border"
                                 >
-                                    <div className="text-sm font-medium text-zinc-500 mb-1">
+                                    <div className="text-sm font-medium text-muted-foreground mb-1">
                                         {fv.customField?.title ||
                                             t('item_detail.unknown_field')}
                                     </div>
-                                    <div className="text-lg text-zinc-900 dark:text-zinc-100">
+                                    <div className="text-lg text-foreground">
                                         {renderFieldValue(fv)}
                                     </div>
                                 </div>
@@ -570,7 +570,7 @@ export default function ItemDetailPage() {
                         </div>
                     )}
                     {!fields ? (
-                        <div className="text-center py-8 text-zinc-500">
+                        <div className="text-center py-8 text-muted-foreground">
                             {t('item_detail.loading_fields')}
                         </div>
                     ) : (
@@ -614,7 +614,7 @@ export default function ItemDetailPage() {
                                         {field.title}
                                     </label>
                                     {field.description && (
-                                        <p className="text-xs text-zinc-500">
+                                        <p className="text-xs text-muted-foreground">
                                             {field.description}
                                         </p>
                                     )}
@@ -640,7 +640,7 @@ export default function ItemDetailPage() {
                                             />
                                             <label
                                                 htmlFor={field.id!}
-                                                className="text-sm text-zinc-500 cursor-pointer select-none"
+                                                className="text-sm text-muted-foreground cursor-pointer select-none"
                                             >
                                                 {t(
                                                     'inventories.fields.BOOLEAN',

@@ -62,13 +62,13 @@ export default function InventoryManagePage() {
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
                     {inventory.title}
                 </h1>
-                <span className="text-sm text-zinc-500">
+                <span className="text-sm text-muted-foreground">
                     {t('inventory_manage.inventory_management')}
                 </span>
             </div>
 
             {(inventory.imageUrl || inventory.description) && (
-                <div className="flex gap-6 p-4 border rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
+                <div className="flex gap-6 p-4 border rounded-lg bg-background">
                     {inventory.imageUrl && (
                         <img
                             src={inventory.imageUrl}
@@ -77,7 +77,7 @@ export default function InventoryManagePage() {
                         />
                     )}
                     {inventory.description && (
-                        <div className="prose prose-sm dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300">
+                        <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
                             <ReactMarkdown>
                                 {inventory.description}
                             </ReactMarkdown>
@@ -90,13 +90,13 @@ export default function InventoryManagePage() {
                 <TabsList className="flex flex-wrap p-0 pb-2 mb-4 border-b h-auto! w-full justify-start gap-2 bg-transparent rounded-none">
                     <TabsTrigger
                         value="items"
-                        className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                        className="data-[state=active]:bg-secondary"
                     >
                         {t('inventory_manage.tab_label.items')}
                     </TabsTrigger>
                     <TabsTrigger
                         value="discussion"
-                        className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                        className="data-[state=active]:bg-secondary"
                     >
                         {t('inventory_manage.tab_label.discussion')}
                     </TabsTrigger>
@@ -105,31 +105,31 @@ export default function InventoryManagePage() {
                         <>
                             <TabsTrigger
                                 value="settings"
-                                className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                                className="data-[state=active]:bg-secondary"
                             >
                                 {t('inventory_manage.tab_label.settings')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="access"
-                                className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                                className="data-[state=active]:bg-secondary"
                             >
                                 {t('inventory_manage.tab_label.access')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="fields"
-                                className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                                className="data-[state=active]:bg-secondary"
                             >
                                 {t('inventory_manage.tab_label.fields')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="custom-ids"
-                                className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                                className="data-[state=active]:bg-secondary"
                             >
                                 {t('inventory_manage.tab_label.custom_ids')}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="statistics"
-                                className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-800"
+                                className="data-[state=active]:bg-secondary"
                             >
                                 {t('inventory_manage.tab_label.statistics')}
                             </TabsTrigger>

@@ -31,11 +31,11 @@ export class ErrorBoundary extends Component<Props, State> {
         if (this.state.hasError) {
             return (
                 <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-                    <TriangleAlert className="w-16 h-16 text-red-500 mb-6" />
+                    <TriangleAlert className="size-16 text-red-500 mb-6" />
                     <h1 className="text-3xl font-bold mb-2">
                         Something went wrong.
                     </h1>
-                    <p className="text-zinc-500 max-w-md mb-6">
+                    <p className="text-muted-foreground max-w-md mb-6">
                         Unexpected error occured in the app interface. Please
                         try refreshing the page or contact support if the
                         problem persists.
@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
                         </Button>
                     </div>
                     {import.meta.env.DEV && this.state.error && (
-                        <pre className="mt-8 p-4 bg-zinc-100 dark:bg-zinc-900 rounded-md text-left text-xs text-red-600 dark:text-red-400 overflow-auto max-w-2xl w-full">
+                        <pre className="mt-8 p-4 bg-muted rounded-md text-left text-xs text-red-600 dark:text-red-400 overflow-auto max-w-2xl w-full">
                             {this.state.error.message}
                         </pre>
                     )}

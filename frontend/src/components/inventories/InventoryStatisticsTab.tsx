@@ -64,8 +64,8 @@ export function InventoryStatisticsTab({
 
     return (
         <div className="space-y-8 w-full">
-            <div className="bg-zinc-50 dark:bg-zinc-900 border rounded-lg p-6 flex flex-col items-center justify-center">
-                <h3 className="text-lg font-medium text-zinc-500 mb-2">
+            <div className="bg-muted border rounded-lg p-6 flex flex-col items-center justify-center">
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">
                     {t('inventory_manage.statistics_tab.total_items')}
                 </h3>
                 <p className="text-5xl font-bold font-mono text-blue-600 dark:text-blue-400">
@@ -74,7 +74,7 @@ export function InventoryStatisticsTab({
             </div>
 
             {stats.totalItems === 0 ? (
-                <p className="text-center text-zinc-500">
+                <p className="text-center text-muted-foreground">
                     {t('inventory_manage.statistics_tab.empty_state')}
                 </p>
             ) : (
@@ -82,7 +82,7 @@ export function InventoryStatisticsTab({
                     {stats.numericStats.map((numStat) => (
                         <div
                             key={numStat.customFieldId}
-                            className="border rounded-lg p-5 bg-white dark:bg-zinc-900"
+                            className="border rounded-lg p-5 bg-card"
                         >
                             <h4 className="font-semibold text-lg mb-4 border-b pb-2">
                                 {getFieldName(numStat.customFieldId)}{' '}
@@ -92,7 +92,7 @@ export function InventoryStatisticsTab({
                             </h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div className="text-xs text-zinc-500 uppercase tracking-wider">
+                                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                         {t(
                                             'inventory_manage.statistics_tab.minimum',
                                         )}
@@ -102,7 +102,7 @@ export function InventoryStatisticsTab({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-zinc-500 uppercase tracking-wider">
+                                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                         {t(
                                             'inventory_manage.statistics_tab.maximum',
                                         )}
@@ -112,7 +112,7 @@ export function InventoryStatisticsTab({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-zinc-500 uppercase tracking-wider">
+                                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                         {t(
                                             'inventory_manage.statistics_tab.average',
                                         )}
@@ -122,7 +122,7 @@ export function InventoryStatisticsTab({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-zinc-500 uppercase tracking-wider">
+                                    <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                         {t(
                                             'inventory_manage.statistics_tab.filled_in',
                                         )}
@@ -146,7 +146,7 @@ export function InventoryStatisticsTab({
                         ([fieldId, values]) => (
                             <div
                                 key={fieldId}
-                                className="border rounded-lg p-5 bg-white dark:bg-zinc-900"
+                                className="border rounded-lg p-5 bg-card"
                             >
                                 <h4 className="font-semibold text-lg mb-4 border-b pb-2">
                                     {getFieldName(fieldId)}{' '}
@@ -166,7 +166,7 @@ export function InventoryStatisticsTab({
                                             >
                                                 {v.valueString}
                                             </span>
-                                            <span className="font-mono text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
+                                            <span className="font-mono text-xs bg-muted px-2 py-1 rounded-full">
                                                 {t(
                                                     'inventory_manage.statistics_tab.items_count',
                                                     {

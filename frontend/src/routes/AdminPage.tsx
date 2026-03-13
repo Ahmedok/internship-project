@@ -222,12 +222,12 @@ export default function AdminPage() {
                 </h1>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-2 border rounded-md shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-card p-2 border rounded-md shadow-sm">
                 <Input
                     placeholder={t('common.search_user_placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="max-w-sm border-zinc-200 dark:border-zinc-700"
+                    className="max-w-sm"
                 />
 
                 <div className="flex flex-wrap items-center gap-2">
@@ -279,7 +279,7 @@ export default function AdminPage() {
                 </div>
             </div>
 
-            <div className="rounded-md border bg-white dark:bg-zinc-950">
+            <div className="rounded-md border bg-background">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -330,7 +330,7 @@ export default function AdminPage() {
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center text-zinc-500"
+                                    className="h-24 text-center text-muted-foreground"
                                 >
                                     {t('common.no_users_found')}
                                 </TableCell>

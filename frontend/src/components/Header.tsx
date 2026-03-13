@@ -36,7 +36,7 @@ export function Header() {
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-zinc-950/95 backdrop-blur supports-backdrop-filter:bg-white/60">
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-white/60">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                     <Sheet>
@@ -68,7 +68,7 @@ export function Header() {
                                     <SheetClose asChild>
                                         <Link
                                             to="/"
-                                            className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                            className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-foreground transition-colors"
                                         >
                                             {t('header.home')}
                                         </Link>
@@ -77,7 +77,7 @@ export function Header() {
                                         <SheetClose asChild>
                                             <Link
                                                 to="/personal"
-                                                className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                                className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-foreground transition-colors"
                                             >
                                                 {t('header.profile')}
                                             </Link>
@@ -87,7 +87,7 @@ export function Header() {
                                         <SheetClose asChild>
                                             <Link
                                                 to="/admin"
-                                                className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                                className="flex items-center px-3 py-2.5 text-base font-medium rounded-md text-red-600 dark:text-red-400 transition-colors"
                                             >
                                                 {t('admin_panel.title')}
                                             </Link>
@@ -146,7 +146,7 @@ export function Header() {
                                         <p className="text-sm font-medium leading-none">
                                             {user.name}
                                         </p>
-                                        <p className="text-xs leading-none text-zinc-500 font-mono">
+                                        <p className="text-xs leading-none text-muted-foreground font-mono">
                                             {user.role}
                                         </p>
                                     </div>
@@ -187,7 +187,7 @@ export function Header() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={handleLogout}
-                                    className="cursor-pointer text-zinc-500"
+                                    className="cursor-pointer text-muted-foreground"
                                 >
                                     {t('header.logout')}
                                 </DropdownMenuItem>

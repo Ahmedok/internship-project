@@ -57,7 +57,7 @@ export default function CreateInventoryPage() {
                 {t('inventories.create_inventory')}
             </h1>
 
-            <div className="bg-white dark:bg-zinc-950 p-6 rounded-lg border">
+            <div className="bg-background p-6 rounded-lg border">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <div>
                         <label className="block text-sm font-medium mb-1">
@@ -80,7 +80,7 @@ export default function CreateInventoryPage() {
                         </label>
                         <select
                             {...register('category')}
-                            className="flex h-10 w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                            className="flex h-10 w-full px-3 py-2 text-sm rounded-md border bg-background"
                         >
                             {InventorySchema.shape.category.options.map(
                                 (cat) => (
@@ -104,7 +104,7 @@ export default function CreateInventoryPage() {
                         <textarea
                             {...register('description')}
                             rows={5}
-                            className="flex w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                            className="flex w-full px-3 py-2 text-sm rounded-md border bg-background"
                         />
                     </div>
 
