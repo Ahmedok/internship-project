@@ -5,7 +5,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
 import { GlobalSearchBar } from './GlobalSearchBar';
 
-import { Menu } from 'lucide-react';
+import { Boxes, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
@@ -98,9 +98,12 @@ export function Header() {
                         </SheetContent>
                     </Sheet>
                     {/* Logo */}
-                    <Link to="/" className="text-xl font-bold shrink-0">
-                        {t('header.app_name')}{' '}
-                        {/* TODO: Replace with actual logo */}
+                    <Link
+                        to="/"
+                        className="flex items-center text-xl font-bold shrink-0"
+                    >
+                        <Boxes className="mr-2" />
+                        {t('header.app_name')}
                     </Link>
                 </div>
 
