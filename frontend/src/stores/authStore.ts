@@ -21,7 +21,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     checkAuth: async () => {
         try {
-            const response = await fetch('/api/auth/me');
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include',
+            });
             if (response.ok) {
                 const user: User = await response.json();
                 set({
@@ -51,7 +53,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     logout: async () => {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
             set({
                 user: null,
                 isAuthenticated: false,
