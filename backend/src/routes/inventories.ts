@@ -451,17 +451,6 @@ router.put(
             }
             const incomingFields = parsed.data;
 
-            const typeCounts: Record<string, number> = {};
-            for (const field of incomingFields) {
-                typeCounts[field.fieldType] =
-                    (typeCounts[field.fieldType] || 0) + 1;
-                if ((typeCounts[field.fieldType] ?? 0) > 3) {
-                    return res.status(400).json({
-                        message: `You can only have up to 3 fields of type ${field.fieldType}`,
-                    });
-                }
-            }
-
             const titles = incomingFields.map((field) =>
                 field.title.toLowerCase().trim(),
             );
