@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
@@ -22,6 +22,7 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Checkbox } from '../ui/checkbox';
 
 interface ItemModalProps {
     isOpen: boolean;
@@ -101,6 +102,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
         register,
         handleSubmit,
         reset,
+        control,
         formState: { errors },
     } = useForm<FormData>({
         resolver: zodResolver(dynamicSchema),
@@ -293,20 +295,40 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                     {fields.map((field) => (
                         <div key={field.id} className="space-y-1">
                             <label className="text-sm font-medium">
-                                {field.title}{' '}
-                                {field.fieldType === 'DOCUMENT' && '(URL)'}
+                                {field.title}
                             </label>
+                            {field.description && (
+                                <p className="text-xs text-zinc-500">
+                                    {field.description}
+                                </p>
+                            )}
 
                             {field.fieldType === 'BOOLEAN' ? (
-                                <div className="flex items-center mt-2">
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4"
-                                        {...register(field.id!)}
+                                <div className="flex items-center gap-2 mt-1">
+                                    <Controller
+                                        name={field.id!}
+                                        control={control}
+                                        render={({
+                                            field: controllerField,
+                                        }) => (
+                                            <Checkbox
+                                                id={field.id}
+                                                checked={
+                                                    !!controllerField.value
+                                                }
+                                                onCheckedChange={
+                                                    controllerField.onChange
+                                                }
+                                                className="size-6 cursor-pointer"
+                                            />
+                                        )}
                                     />
-                                    <span className="ml-2 text-sm text-zinc-500">
-                                        True / False
-                                    </span>
+                                    <label
+                                        htmlFor={field.id!}
+                                        className="text-sm text-zinc-500 cursor-pointer select-none"
+                                    >
+                                        {t('inventories.fields.BOOLEAN')}
+                                    </label>
                                 </div>
                             ) : (
                                 <Input
@@ -320,7 +342,9 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                                             ? 'any'
                                             : undefined
                                     }
-                                    placeholder={field.description || ''}
+                                    placeholder={t(
+                                        `inventories.fields.${field.fieldType}`,
+                                    )}
                                     {...register(field.id!, {
                                         setValueAs: (v) =>
                                             field.fieldType === 'NUMBER' &&
