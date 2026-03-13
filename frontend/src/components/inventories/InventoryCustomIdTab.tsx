@@ -354,7 +354,7 @@ export function InventoryCustomIdTab({
         );
 
     return (
-        <div className="space-y-6 w-full p-6 rounded-lg border bg-background">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">

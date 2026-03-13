@@ -63,7 +63,7 @@ export function InventoryStatisticsTab({
     );
 
     return (
-        <div className="space-y-8 w-full">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="bg-muted border rounded-lg p-6 flex flex-col items-center justify-center">
                 <h3 className="text-lg font-medium text-muted-foreground mb-2">
                     {t('inventory_manage.statistics_tab.total_items')}

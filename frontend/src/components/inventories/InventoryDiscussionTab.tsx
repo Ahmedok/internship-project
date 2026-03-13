@@ -110,7 +110,7 @@ export function InventoryDiscussionTab({
         );
 
     return (
-        <div className="flex flex-col w-full h-dvh max-h-180 rounded-lg bg-background">
+        <div className="flex flex-col w-full h-dvh max-h-180 space-y-6 p-6 border rounded-lg bg-background">
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-card">
                 {!comments || comments.length === 0 ? (
                     <div className="text-center text-muted-foreground mt-10">

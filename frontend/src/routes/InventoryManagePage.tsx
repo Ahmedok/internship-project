@@ -137,20 +137,14 @@ export default function InventoryManagePage() {
                     )}
                 </TabsList>
 
-                <TabsContent
-                    value="items"
-                    className="p-4 border rounded-md pt-2 mt-0"
-                >
+                <TabsContent value="items" className="pt-2 mt-0">
                     <InventoryItemsTab
                         inventory={inventory}
                         onOpenItemModal={handleOpenItemModal}
                     />
                 </TabsContent>
 
-                <TabsContent
-                    value="discussion"
-                    className="p-4 border rounded-md pt-2 mt-0"
-                >
+                <TabsContent value="discussion" className="pt-2 mt-0">
                     <InventoryDiscussionTab inventory={inventory} />
                 </TabsContent>
 

@@ -214,7 +214,7 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
         );
 
     return (
-        <div className="space-y-6 w-full bg-background p-6 rounded-lg border">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold">

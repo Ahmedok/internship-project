@@ -145,8 +145,8 @@ export function InventoryItemsTab({
         );
 
     return (
-        <div className="space-y-4 w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 rounded-md border bg-background">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 border rounded-md">
                 <div className="flex items-center gap-2">
                     <Button
                         onClick={() => onOpenItemModal()}
