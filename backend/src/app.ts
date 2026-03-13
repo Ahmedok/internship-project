@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
+import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -26,6 +27,9 @@ const pgPool = new pg.Pool({
 const PostgresqlStore = connectPgSimple(session);
 
 const app = express();
+
+const logFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+app.use(morgan(logFormat));
 
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
