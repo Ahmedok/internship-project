@@ -31,6 +31,7 @@
         "email_unknown": "Неизвестная почта",
         "go_back_to_main": "Вернуться на главную",
         "page_of": "Страница {{page}} из {{totalPages}}",
+        "confirm": "Подтвердить",
         "confirm_delete": "Подтвердить удаление",
         "confirm_delete_message": "Удалить {{count}} выбранных записей?",
         "confirm_delete_description": "Это действие нельзя отменить."
@@ -61,7 +62,8 @@
         "role": "Роль",
         "status": "Статус",
         "status_active": "Активен",
-        "status_blocked": "Заблокирован"
+        "status_blocked": "Заблокирован",
+        "confirm_delete_user_message": "Удалить {{count}} выбранных пользователей? Это действие нельзя отменить!"
     },
     "personal_page": {
         "title": "Личный кабинет",

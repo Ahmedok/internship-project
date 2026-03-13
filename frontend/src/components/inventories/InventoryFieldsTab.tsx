@@ -49,14 +49,14 @@ function SortableFieldItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-white dark:bg-zinc-900"
+            className="flex items-center gap-3 p-3 mb-2 border rounded-md shadow-sm group bg-muted"
         >
             <div
                 {...attributes}
                 {...listeners}
-                className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-grab active:cursor-grabbing touch-none"
+                className="p-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none"
             >
-                <Grip size={16} />
+                <Grip className="size-5" />
             </div>
 
             <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -66,7 +66,7 @@ function SortableFieldItem({
                     placeholder={t(
                         'inventory_manage.fields_tab.input_placeholder',
                     )}
-                    className="h-8"
+                    className="bg-background h-8"
                 />
                 <Input
                     value={field.description ?? ''}
@@ -74,9 +74,9 @@ function SortableFieldItem({
                     placeholder={t(
                         'inventory_manage.fields_tab.description_placeholder',
                     )}
-                    className="h-8"
+                    className="bg-background h-8"
                 />
-                <div className="flex items-center text-sm font-medium px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md w-max">
+                <div className="flex items-center text-sm font-medium px-2 py-1 bg-muted rounded-md w-max">
                     {t('inventory_manage.fields_tab.type_label')}:{' '}
                     {t(`inventories.fields.${field.fieldType}`)}
                 </div>
@@ -214,13 +214,13 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
         );
 
     return (
-        <div className="space-y-6 w-full bg-white dark:bg-zinc-950 p-6 rounded-lg border">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-4">
                 <div>
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-xl font-semibold mb-1">
                         {t('inventory_manage.fields_tab.tab_label')}
                     </h2>
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-muted-foreground">
                         {t('inventory_manage.fields_tab.tab_desc')}
                     </p>
                 </div>
@@ -276,9 +276,9 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
                 </Button>
             </div>
 
-            <div className="mt-6 bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50">
+            <div className="mt-6 bg-card p-4 rounded-md border min-h-50">
                 {localFields.length === 0 ? (
-                    <p className="text-center text-zinc-500 mt-8">
+                    <p className="text-center text-muted-foreground mt-8">
                         {t('inventory_manage.fields_tab.no_custom_fields')}
                     </p>
                 ) : (

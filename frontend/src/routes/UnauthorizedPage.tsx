@@ -12,7 +12,7 @@ export default function UnauthorizedPage() {
             <h2 className="text-2xl font-semibold mb-2">
                 {t('unauthorized.title')}
             </h2>
-            <p className="text-zinc-500 mb-8 max-w-md">
+            <p className="text-muted-foreground mb-8 max-w-md">
                 {t('unauthorized.message')}
             </p>
             <Button asChild size="lg">

@@ -145,8 +145,8 @@ export function InventoryItemsTab({
         );
 
     return (
-        <div className="space-y-4 w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 rounded-md border bg-zinc-50 dark:bg-zinc-900">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-2 border rounded-md">
                 <div className="flex items-center gap-2">
                     <Button
                         onClick={() => onOpenItemModal()}
@@ -204,21 +204,21 @@ export function InventoryItemsTab({
                         </AlertDialog>
                     )}
                 </div>
-                <div className="text-sm text-zinc-500 px-2">
+                <div className="text-sm text-muted-foreground px-2">
                     {t('inventory_manage.items_tab.total_items', {
                         count: itemsData?.total || 0,
                     })}
                 </div>
             </div>
 
-            <div className="border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
+            <div className="border rounded-md bg-card overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-12">
                                 <input
                                     type="checkbox"
-                                    className="w-4 h-4 cursor-pointer"
+                                    className="size-4 cursor-pointer"
                                     checked={
                                         itemsData &&
                                         itemsData.items.length > 0 &&
@@ -251,7 +251,7 @@ export function InventoryItemsTab({
                             <TableRow>
                                 <TableCell
                                     colSpan={4 + visibleCustomFields.length}
-                                    className="text-center py-8 text-zinc-500"
+                                    className="text-center py-8 text-muted-foreground"
                                 >
                                     {t(
                                         'inventory_manage.items_tab.empty_state',
@@ -262,7 +262,7 @@ export function InventoryItemsTab({
                             itemsData.items.map((item: InventoryItemDto) => (
                                 <TableRow
                                     key={item.id}
-                                    className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
+                                    className="cursor-pointer hover:bg-muted/50"
                                     onClick={() =>
                                         navigate(`/items/${item.id}`)
                                     }
@@ -272,7 +272,7 @@ export function InventoryItemsTab({
                                     >
                                         <input
                                             type="checkbox"
-                                            className="w-4 h-4 cursor-pointer"
+                                            className="size-4 cursor-pointer"
                                             checked={selectedIds.has(item.id)}
                                             onChange={() =>
                                                 toggleSelect(item.id)

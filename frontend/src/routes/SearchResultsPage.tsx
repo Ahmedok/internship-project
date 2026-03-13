@@ -38,7 +38,7 @@ export default function SearchResultsPage() {
 
     if (!query)
         return (
-            <div className="p-8 text-center text-zinc-500">
+            <div className="p-8 text-center text-muted-foreground">
                 {t('search_results.empty_query')}
             </div>
         );
@@ -68,11 +68,11 @@ export default function SearchResultsPage() {
                     })}
                 </h2>
                 {!data?.inventories.length ? (
-                    <p className="text-zinc-500">
+                    <p className="text-muted-foreground">
                         {t('search_results.no_inventories')}
                     </p>
                 ) : (
-                    <div className="border rounded-md overflow-hidden bg-white dark:bg-zinc-950">
+                    <div className="border rounded-md overflow-hidden bg-background">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -96,7 +96,7 @@ export default function SearchResultsPage() {
                                                     {inv.title}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell className="text-right text-zinc-500 font-mono">
+                                            <TableCell className="text-right text-muted-foreground font-mono">
                                                 {(inv.rank * 100).toFixed(1)}
                                             </TableCell>
                                         </TableRow>
@@ -115,11 +115,11 @@ export default function SearchResultsPage() {
                     })}
                 </h2>
                 {!data?.items.length ? (
-                    <p className="text-zinc-500">
+                    <p className="text-muted-foreground">
                         {t('search_results.no_items')}
                     </p>
                 ) : (
-                    <div className="border rounded-md overflow-hidden bg-white dark:bg-zinc-950">
+                    <div className="border rounded-md overflow-hidden bg-background">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -148,12 +148,12 @@ export default function SearchResultsPage() {
                                         <TableCell>
                                             <Link
                                                 to={`/inventories/${item.inventoryId}`}
-                                                className="text-zinc-700 dark:text-zinc-300 hover:underline"
+                                                className="text-foreground hover:underline"
                                             >
                                                 {item.inventoryTitle}
                                             </Link>
                                         </TableCell>
-                                        <TableCell className="truncate max-w-xs text-sm text-zinc-500">
+                                        <TableCell className="truncate max-w-xs text-sm text-muted-foreground">
                                             {item.searchText || '-'}
                                         </TableCell>
                                     </TableRow>

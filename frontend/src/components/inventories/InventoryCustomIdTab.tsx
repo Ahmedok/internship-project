@@ -138,7 +138,7 @@ function SortableIdElement({
                 );
             default:
                 return (
-                    <span className="text-sm text-zinc-400 italic">
+                    <span className="text-sm text-muted-foreground italic">
                         {t('inventory_manage.custom_id_tab.no_settings')}
                     </span>
                 );
@@ -149,12 +149,12 @@ function SortableIdElement({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center gap-1.5 md:gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 "
+            className="flex items-center gap-1.5 md:gap-3 p-3 mb-2 shadow-sm border rounded-md bg-card"
         >
             <div
                 {...attributes}
                 {...listeners}
-                className="shrink-0 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-grab active:cursor-grabbing touch-none"
+                className="shrink-0 p-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none"
             >
                 <Grip className="size-5" />
             </div>
@@ -163,7 +163,7 @@ function SortableIdElement({
                 <div className="flex items-center gap-2 w-48 font-medium text-sm">
                     {element.elementType}
                     <Popover>
-                        <PopoverTrigger className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 rounded-full focus:outline-none">
+                        <PopoverTrigger className="text-muted-foreground hover:text-foreground rounded-full focus:outline-none">
                             <BadgeQuestionMark className="size-5" />
                         </PopoverTrigger>
                         <PopoverContent className="w-64 text-sm">
@@ -354,13 +354,13 @@ export function InventoryCustomIdTab({
         );
 
     return (
-        <div className="space-y-6 w-full p-6 rounded-lg border bg-white dark:bg-zinc-950">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">
                         {t('inventory_manage.custom_id_tab.title')}
                     </h2>
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-muted-foreground">
                         {t('inventory_manage.custom_id_tab.subtitle')}
                     </p>
                 </div>
@@ -369,7 +369,7 @@ export function InventoryCustomIdTab({
                     disabled={saveMutation.isPending}
                     className="flex items-center gap-2"
                 >
-                    <Save className="size-4 shrink-0" />
+                    <Save className="shrink-0" />
                     <span className="hidden md:inline">
                         {saveMutation.isPending
                             ? t('common.saving')
@@ -382,14 +382,14 @@ export function InventoryCustomIdTab({
                 <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
                     {t('inventory_manage.custom_id_tab.live_preview')}
                 </span>
-                <code className="text-xl font-mono bg-white dark:bg-zinc-900 px-3 py-1 rounded shadow-sm border border-blue-200 dark:border-blue-800">
+                <code className="text-xl font-mono bg-card px-3 py-1 rounded shadow-sm border border-blue-200 dark:border-blue-800">
                     {previewId ||
                         t('inventory_manage.custom_id_tab.empty_format')}
                 </code>
             </div>
 
             <div className="space-y-2">
-                <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <h3 className="text-sm font-medium text-foreground">
                     {t('inventory_manage.custom_id_tab.add_element')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -461,14 +461,14 @@ export function InventoryCustomIdTab({
                 <DragMonitor onDragChange={setIsDragging} />
                 <div
                     className={cn(
-                        'mt-6 bg-zinc-50 dark:bg-zinc-950/50 p-4 rounded-md border min-h-50 transition-shadow duration-200',
+                        'mt-6 bg-muted p-4 rounded-md border min-h-50 transition-shadow duration-200',
                         isDragging &&
                             'relative z-10 shadow-[0_0_0_100vmax_rgba(0,0,0,0.35)] dark:shadow-[0_0_0_100vmax_rgba(0,0,0,0.6)]',
                     )}
                 >
                     {isDragging && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 z-0 pointer-events-none">
-                            <Trash2 className="w-12 h-12" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground z-0 pointer-events-none">
+                            <Trash2 className="size-12" />
                             <span className="ml-2 text-lg font-bold">
                                 {t(
                                     'inventory_manage.custom_id_tab.drop_to_remove',
@@ -477,7 +477,7 @@ export function InventoryCustomIdTab({
                         </div>
                     )}
                     {localElements.length === 0 ? (
-                        <p className="text-center text-zinc-500 mt-8">
+                        <p className="text-center text-muted-foreground mt-8">
                             {t('inventory_manage.custom_id_tab.empty_state')}
                         </p>
                     ) : (

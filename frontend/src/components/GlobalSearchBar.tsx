@@ -20,8 +20,8 @@ export function GlobalSearchBar({
 
     return (
         <form onSubmit={handleSubmit} className="relative w-full max-w-md">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
-                <TextSearch className="w-4 h-4" />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                <TextSearch className="size-4" />
             </div>
 
             <Input
@@ -29,7 +29,7 @@ export function GlobalSearchBar({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={translatedPlaceholder}
-                className="pl-10 bg-zinc-100 dark:bg-zinc-800 border-transparent focus-visible:ring-2 focus-visible:bg-white dark:focus-visible:bg-zinc-900 transition-colors"
+                className="pl-10 bg-muted border-transparent focus-visible:ring-2 focus-visible:bg-white dark:focus-visible:bg-zinc-900 transition-colors"
             />
         </form>
     );

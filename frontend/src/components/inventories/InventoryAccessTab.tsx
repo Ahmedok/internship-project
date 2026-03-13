@@ -130,13 +130,13 @@ export function InventoryAccessTab({
     });
 
     return (
-        <div className="space-y-6 w-full p-6 border rounded-lg bg-white dark:bg-zinc-950">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex items-center justify-between border-b pb-4">
                 <div>
                     <h2 className="text-xl font-semibold mb-1">
                         {t('inventory_manage.access_tab.public_toggle')}
                     </h2>
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-muted-foreground">
                         {t('inventory_manage.access_tab.public_toggle_desc')}
                     </p>
                 </div>
@@ -163,9 +163,9 @@ export function InventoryAccessTab({
                     />
 
                     {searchQuery.length >= 2 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-zinc-900 border rounded-md shadow-lg overflow-hidden">
+                        <div className="absolute z-10 w-full mt-1 bg-card border rounded-md shadow-lg overflow-hidden">
                             {isSearching ? (
-                                <div className="p-3 text-sm text-zinc-500 text-center">
+                                <div className="p-3 text-sm text-muted-foreground text-center">
                                     {t('common.searching')}
                                 </div>
                             ) : searchResults?.length > 0 ? (
@@ -181,13 +181,13 @@ export function InventoryAccessTab({
                                     return (
                                         <div
                                             key={user.id}
-                                            className="flex items-center justify-between p-3 border-b last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                                            className="flex items-center justify-between p-3 border-b last:border-0 hover:bg-muted transition-colors"
                                         >
                                             <div>
                                                 <div className="font-medium text-sm">
                                                     {user.name}
                                                 </div>
-                                                <div className="text-sm text-zinc-500">
+                                                <div className="text-sm text-muted-foreground">
                                                     {user.email ||
                                                         t(
                                                             'common.email_unknown',
@@ -224,7 +224,7 @@ export function InventoryAccessTab({
                                     );
                                 })
                             ) : (
-                                <div className="p-3 text-sm text-zinc-500 text-center">
+                                <div className="p-3 text-sm text-muted-foreground text-center">
                                     {t('common.no_users_found')}
                                 </div>
                             )}
@@ -243,7 +243,7 @@ export function InventoryAccessTab({
                             onChange={(e) =>
                                 setSortBy(e.target.value as 'name' | 'email')
                             }
-                            className="border rounded-md px-2 py-1 text-sm bg-transparent dark:border-zinc-800"
+                            className="border rounded-md px-2 py-1 text-sm bg-transparent"
                         >
                             <option value="name">
                                 {t('inventory_manage.access_tab.sort_by_name')}
@@ -256,7 +256,7 @@ export function InventoryAccessTab({
 
                     <div className="space-y-2">
                         {sortedAccessList.length === 0 ? (
-                            <p className="text-sm text-zinc-500 italic">
+                            <p className="text-sm text-muted-foreground italic">
                                 {t(
                                     'inventory_manage.access_tab.empty_access_list',
                                 )}
@@ -265,14 +265,14 @@ export function InventoryAccessTab({
                             sortedAccessList.map((access: any) => (
                                 <div
                                     key={access.userId}
-                                    className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-900 border rounded-md"
+                                    className="flex items-center justify-between p-3 bg-muted border rounded-md"
                                 >
                                     <div>
                                         <div className="font-medium text-sm">
                                             {access.user?.name ||
                                                 t('common.username_unknown')}
                                         </div>
-                                        <div className="text-sm text-zinc-500">
+                                        <div className="text-sm text-muted-foreground">
                                             {access.user?.email ||
                                                 t('common.email_unknown')}
                                         </div>

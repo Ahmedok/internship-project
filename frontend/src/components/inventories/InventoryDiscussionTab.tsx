@@ -110,19 +110,19 @@ export function InventoryDiscussionTab({
         );
 
     return (
-        <div className="flex flex-col w-full h-150 rounded-lg bg-white dark:bg-zinc-950 overflow-hidden">
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-50 dark:bg-zinc-900/50">
+        <div className="flex flex-col w-full h-dvh max-h-180 space-y-6 p-6 border rounded-lg bg-background">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-card">
                 {!comments || comments.length === 0 ? (
-                    <div className="text-center text-zinc-500 mt-10">
+                    <div className="text-center text-muted-foreground mt-10">
                         {t('inventory_manage.discussion_tab.empty_state')}
                     </div>
                 ) : (
                     comments.map((comment: CommentDto) => (
                         <div
                             key={comment.id}
-                            className="flex gap-3 bg-white dark:bg-zinc-900 p-3 rounded-lg shadow-sm border border-zinc-100 dark:border-zinc-800"
+                            className="flex gap-3 bg-muted p-3 rounded-lg shadow-sm border"
                         >
-                            <div className="w-10 h-10 shrink-0 flex items-center justify-center font-bold text-zinc-500 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                            <div className="size-10 shrink-0 flex items-center justify-center font-bold text-muted-foreground overflow-hidden rounded-full bg-muted">
                                 {comment.author?.avatarUrl ? (
                                     <img
                                         src={comment.author.avatarUrl}
@@ -140,14 +140,14 @@ export function InventoryDiscussionTab({
                                     <span className="font-semibold text-sm">
                                         {comment.author?.name || 'User'}
                                     </span>
-                                    <span className="text-xs text-zinc-400">
+                                    <span className="text-xs text-muted-foreground">
                                         {format(
                                             new Date(comment.createdAt),
                                             'dd.MM.yyyy HH:mm',
                                         )}
                                     </span>
                                 </div>
-                                <div className="text-sm text-zinc-700 dark:text-zinc-300 prose prose-sm dark:prose-invert max-w-none">
+                                <div className="text-sm text-foreground prose prose-sm dark:prose-invert max-w-none">
                                     <ReactMarkdown>
                                         {comment.content}
                                     </ReactMarkdown>
@@ -159,7 +159,7 @@ export function InventoryDiscussionTab({
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 bg-white dark:bg-zinc-950 border-t">
+            <div className="p-4 bg-background border-t">
                 <form
                     onSubmit={handleSubmit((data) => postMutation.mutate(data))}
                     className="flex gap-2 items-start"

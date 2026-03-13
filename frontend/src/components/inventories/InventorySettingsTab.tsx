@@ -9,6 +9,8 @@ import {
     type InventoryDetail,
     type InventoryInput,
 } from '@inventory/shared';
+
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { TriangleAlert } from 'lucide-react';
@@ -220,7 +222,7 @@ export function InventorySettingsTab({
     };
 
     return (
-        <div className="space-y-6 w-full bg-white dark:bg-zinc-950 p-6 rounded-lg border">
+        <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-4">
                 <h2 className="text-xl font-semibold">
                     {t('inventory_manage.settings_tab.title')}
@@ -239,7 +241,7 @@ export function InventorySettingsTab({
                             {t('common.saving')}
                         </span>
                     ) : isDirty ? (
-                        <span className="text-zinc-500">
+                        <span className="text-muted-foreground">
                             {t('inventory_manage.save_label.waiting')}
                         </span>
                     ) : (
@@ -268,20 +270,24 @@ export function InventorySettingsTab({
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-3 pt-2 ml-8">
-                        <button
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={handleReload}
-                            className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
+                            className="px-3 py-1.5 text-sm font-medium border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors"
                         >
                             {t('inventory_manage.settings_tab.reload_button')}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="default"
+                            size="sm"
                             onClick={handleOverwrite}
-                            className="px-3 py-1.5 text-sm font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
+                            className="px-3 py-1.5 text-sm font-medium bg-amber-600 dark:bg-amber-700 text-white hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors"
                         >
                             {t(
                                 'inventory_manage.settings_tab.overwrite_button',
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
@@ -297,10 +303,10 @@ export function InventorySettingsTab({
                             <img
                                 src={formValues.imageUrl}
                                 alt="Cover Image"
-                                className="w-24 h-24 object-cover rounded-md border"
+                                className="size-24 object-cover rounded-md border"
                             />
                         ) : (
-                            <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-md border flex items-center justify-center text-xs text-zinc-500">
+                            <div className="size-24 bg-muted rounded-md border flex items-center justify-center text-xs text-muted-foreground">
                                 {t('inventories.no_image')}
                             </div>
                         )}
@@ -312,11 +318,12 @@ export function InventorySettingsTab({
                                 accept="image/*"
                                 onChange={handleFileChange}
                             />
-                            <button
-                                type="button"
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={uploadImageMutation.isPending}
-                                className="px-3 py-1.5 text-sm bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-md transition-colors"
+                                className="px-3 py-1.5 text-sm transition-colors"
                             >
                                 {uploadImageMutation.isPending
                                     ? t(
@@ -325,7 +332,7 @@ export function InventorySettingsTab({
                                     : t(
                                           'inventory_manage.settings_tab.upload_image',
                                       )}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -355,7 +362,7 @@ export function InventorySettingsTab({
                     <select
                         id="category"
                         {...register('category')}
-                        className="flex h-10 w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                        className="flex h-10 w-full px-3 py-2 text-sm rounded-md border bg-background"
                     >
                         {InventorySchema.shape.category.options.map((cat) => (
                             <option key={cat} value={cat}>
@@ -376,7 +383,7 @@ export function InventorySettingsTab({
                         id="description"
                         {...register('description')}
                         rows={6}
-                        className="flex w-full px-3 py-2 text-sm rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                        className="flex w-full px-3 py-2 text-sm rounded-md border bg-background"
                         placeholder={t('inventories.description_placeholder')}
                     />
                 </div>
@@ -386,7 +393,7 @@ export function InventorySettingsTab({
                     <label className="block text-sm font-medium mb-2">
                         {t('inventories.tags')} ({t('inventories.tags_helper')})
                     </label>
-                    <div className="flex flex-wrap gap-2 mb-3 border p-3 rounded-md min-h-12.5 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+                    <div className="flex flex-wrap gap-2 mb-3 border p-3 rounded-md min-h-12.5 bg-card">
                         {formValues.tags?.map((tag: string) => (
                             <Badge
                                 key={tag}
@@ -394,17 +401,18 @@ export function InventorySettingsTab({
                                 className="flex items-center gap-1 px-2 py-1"
                             >
                                 #{tag}
-                                <button
-                                    type="button"
+                                <Button
+                                    variant="outline"
+                                    size="icon-xs"
                                     onClick={() => handleRemoveTag(tag)}
-                                    className="ml-1 rounded-full focus:outline-none text-zinc-500 hover:text-red-500"
+                                    className="ml-1 rounded-full focus:outline-none hover:text-red-500"
                                 >
                                     &times;
-                                </button>
+                                </Button>
                             </Badge>
                         ))}
                         {(!formValues.tags || formValues.tags.length === 0) && (
-                            <span className="text-zinc-400 text-sm flex items-center">
+                            <span className="text-muted-foreground text-sm flex items-center">
                                 {t('inventories.no_tags')}
                             </span>
                         )}
@@ -428,14 +436,14 @@ export function InventorySettingsTab({
                         {tagSuggestions &&
                             tagSuggestions.length > 0 &&
                             tagInput && (
-                                <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg max-h-48 overflow-auto">
+                                <ul className="absolute z-10 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
                                     {tagSuggestions.map((suggestion, idx) => (
                                         <li
                                             key={idx}
                                             onClick={() =>
                                                 handleAddTag(suggestion)
                                             }
-                                            className="px-4 py-2 text-sm cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                            className="px-4 py-2 text-sm cursor-pointer hover:bg-muted hover:text-muted-foreground"
                                         >
                                             #{suggestion}
                                         </li>

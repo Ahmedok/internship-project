@@ -223,9 +223,9 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="bg-zinc-50 dark:bg-zinc-900 px-3 py-3 rounded-md text-sm border space-y-3">
+                <div className="bg-card px-3 py-3 rounded-md text-sm border space-y-3">
                     <div className="flex items-center justify-between">
-                        <span className="text-zinc-500 font-medium">
+                        <span className="text-muted-foreground font-medium">
                             {t('item_modal.custom_id')}
                         </span>
                         {!customIdConflict && !manualCustomId && (
@@ -257,14 +257,14 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                             }
                         />
                     ) : (
-                        <code className="font-mono font-bold text-zinc-800 dark:text-zinc-200 block bg-white dark:bg-zinc-950 p-2 border rounded">
+                        <code className="font-mono font-bold text-foreground block bg-background p-2 border rounded">
                             {idPreview?.preview ?? t('item_modal.generating')}
                         </code>
                     )}
 
                     {customIdConflict && (
                         <div className="flex items-start gap-2 text-red-600 dark:text-red-400 text-xs mt-2">
-                            <TriangleAlert className="shrink-0 w-4 h-4" />
+                            <TriangleAlert className="shrink-0 size-4" />
                             <div className="flex gap-3 mt-2">
                                 <p className="font-medium text-sm">
                                     {t('item_modal.id_conflict')}
@@ -298,7 +298,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                                 {field.title}
                             </label>
                             {field.description && (
-                                <p className="text-xs text-zinc-500">
+                                <p className="text-xs text-muted-foreground">
                                     {field.description}
                                 </p>
                             )}
@@ -325,7 +325,7 @@ export function ItemModal({ isOpen, onClose, inventory }: ItemModalProps) {
                                     />
                                     <label
                                         htmlFor={field.id!}
-                                        className="text-sm text-zinc-500 cursor-pointer select-none"
+                                        className="text-sm text-muted-foreground cursor-pointer select-none"
                                     >
                                         {t('inventories.fields.BOOLEAN')}
                                     </label>

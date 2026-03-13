@@ -30,6 +30,7 @@
         "email_unknown": "Unknown Email",
         "go_back_to_main": "Go Back to Main",
         "page_of": "Page {{page}} of {{totalPages}}",
+        "confirm": "Confirm",
         "confirm_delete": "Confirm Deletion",
         "confirm_delete_message": "Delete {{count}} selected items?",
         "confirm_delete_description": "This action cannot be undone."
@@ -60,7 +61,8 @@
         "role": "Role",
         "status": "Status",
         "status_active": "Active",
-        "status_blocked": "Blocked"
+        "status_blocked": "Blocked",
+        "confirm_delete_user_message": "Delete {{count}} selected users? This action cannot be undone!"
     },
     "personal_page": {
         "title": "Personal Page",

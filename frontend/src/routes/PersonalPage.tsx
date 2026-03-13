@@ -134,7 +134,7 @@ function InventoryTable({
                 </div>
             )}
 
-            <div className="rounded-md border bg-white dark:bg-zinc-950">
+            <div className="rounded-md border bg-background">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -169,7 +169,7 @@ function InventoryTable({
                                     data-state={
                                         row.getIsSelected() && 'selected'
                                     }
-                                    className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                                    className="cursor-pointer hover:bg-muted"
                                     onClick={() =>
                                         navigate(
                                             `/inventories/${row.original.id}`,
@@ -196,7 +196,7 @@ function InventoryTable({
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center text-zinc-500"
+                                    className="h-24 text-center text-muted-foreground"
                                 >
                                     {t('inventories.empty_message')}
                                 </TableCell>

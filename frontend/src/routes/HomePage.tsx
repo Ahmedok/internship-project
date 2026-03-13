@@ -68,12 +68,12 @@ export default function HomePage() {
 
     return (
         <div className="max-w-7xl mx-auto p-6 space-y-12">
-            <section className="bg-zinc-50 dark:bg-zinc-900/50 p-8 rounded-xl border text-center">
+            <section className="bg-muted p-8 rounded-xl border text-center">
                 <h2 className="text-2xl font-bold mb-6">
                     {t('home_page.tag_cloud')}
                 </h2>
                 {loadingTags ? (
-                    <div className="text-zinc-500">
+                    <div className="text-muted-foreground">
                         {t('home_page.loading_tags')}
                     </div>
                 ) : (
@@ -103,7 +103,7 @@ export default function HomePage() {
                     <h2 className="text-xl font-bold mb-4">
                         {t('home_page.latest_inventories')}
                     </h2>
-                    <div className="border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
+                    <div className="border rounded-md bg-background overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -145,7 +145,7 @@ export default function HomePage() {
                                                     {inv.title}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-36 truncate text-sm text-zinc-500">
+                                            <TableCell className="hidden md:table-cell max-w-36 truncate text-sm text-muted-foreground">
                                                 {inv.description || '-'}
                                             </TableCell>
                                             <TableCell>
@@ -173,7 +173,7 @@ export default function HomePage() {
                     <h2 className="text-xl font-bold mb-4">
                         {t('home_page.popular_inventories')}
                     </h2>
-                    <div className="border rounded-md bg-white dark:bg-zinc-950 overflow-hidden">
+                    <div className="border rounded-md bg-background overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -215,7 +215,7 @@ export default function HomePage() {
                                                     {inv.title}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-36 truncate text-sm text-zinc-500">
+                                            <TableCell className="hidden md:table-cell max-w-36 truncate text-sm text-muted-foreground">
                                                 {inv.description || '-'}
                                             </TableCell>
                                             <TableCell>
