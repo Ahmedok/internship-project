@@ -9,6 +9,8 @@ import {
     type InventoryDetail,
     type InventoryInput,
 } from '@inventory/shared';
+
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { TriangleAlert } from 'lucide-react';
@@ -268,20 +270,24 @@ export function InventorySettingsTab({
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-3 pt-2 ml-8">
-                        <button
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={handleReload}
-                            className="px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-950 border border-amber-300 dark:border-amber-700 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors"
+                            className="px-3 py-1.5 text-sm font-medium border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors"
                         >
                             {t('inventory_manage.settings_tab.reload_button')}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="default"
+                            size="sm"
                             onClick={handleOverwrite}
-                            className="px-3 py-1.5 text-sm font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
+                            className="px-3 py-1.5 text-sm font-medium bg-amber-600 dark:bg-amber-700 text-white hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors"
                         >
                             {t(
                                 'inventory_manage.settings_tab.overwrite_button',
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
@@ -297,10 +303,10 @@ export function InventorySettingsTab({
                             <img
                                 src={formValues.imageUrl}
                                 alt="Cover Image"
-                                className="w-24 h-24 object-cover rounded-md border"
+                                className="size-24 object-cover rounded-md border"
                             />
                         ) : (
-                            <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-md border flex items-center justify-center text-xs text-zinc-500">
+                            <div className="size-24 bg-zinc-100 dark:bg-zinc-800 rounded-md border flex items-center justify-center text-xs text-zinc-500">
                                 {t('inventories.no_image')}
                             </div>
                         )}
@@ -312,11 +318,12 @@ export function InventorySettingsTab({
                                 accept="image/*"
                                 onChange={handleFileChange}
                             />
-                            <button
-                                type="button"
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={uploadImageMutation.isPending}
-                                className="px-3 py-1.5 text-sm bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-md transition-colors"
+                                className="px-3 py-1.5 text-sm bg-secondary transition-colors"
                             >
                                 {uploadImageMutation.isPending
                                     ? t(
@@ -325,7 +332,7 @@ export function InventorySettingsTab({
                                     : t(
                                           'inventory_manage.settings_tab.upload_image',
                                       )}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -394,13 +401,14 @@ export function InventorySettingsTab({
                                 className="flex items-center gap-1 px-2 py-1"
                             >
                                 #{tag}
-                                <button
-                                    type="button"
+                                <Button
+                                    variant="outline"
+                                    size="icon-xs"
                                     onClick={() => handleRemoveTag(tag)}
-                                    className="ml-1 rounded-full focus:outline-none text-zinc-500 hover:text-red-500"
+                                    className="ml-1 rounded-full focus:outline-none hover:text-red-500"
                                 >
                                     &times;
-                                </button>
+                                </Button>
                             </Badge>
                         ))}
                         {(!formValues.tags || formValues.tags.length === 0) && (
