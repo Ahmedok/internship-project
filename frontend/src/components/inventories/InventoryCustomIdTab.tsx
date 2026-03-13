@@ -149,11 +149,13 @@ function SortableIdElement({
         <div
             ref={setNodeRef}
             style={style}
-            {...attributes}
-            {...listeners}
-            className="flex items-center gap-1.5 md:gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 cursor-grab active:cursor-grabbing touch-none"
+            className="flex items-center gap-1.5 md:gap-3 p-3 mb-2 shadow-sm border rounded-md bg-white dark:bg-zinc-900 "
         >
-            <div className="shrink-0 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
+            <div
+                {...attributes}
+                {...listeners}
+                className="shrink-0 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-grab active:cursor-grabbing touch-none"
+            >
                 <Grip className="size-5" />
             </div>
 
