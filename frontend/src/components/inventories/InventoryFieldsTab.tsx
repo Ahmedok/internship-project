@@ -217,7 +217,7 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
         <div className="space-y-6 w-full p-6 border rounded-lg bg-background">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-4">
                 <div>
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-xl font-semibold mb-1">
                         {t('inventory_manage.fields_tab.tab_label')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
