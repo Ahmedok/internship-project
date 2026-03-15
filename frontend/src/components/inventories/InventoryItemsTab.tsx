@@ -25,6 +25,12 @@ import {
     TableRow,
 } from '../ui/table';
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -35,7 +41,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '../ui/alert-dialog';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Download } from 'lucide-react';
 
 interface InventoryItemsTabProps {
     inventory: InventoryDetail;
@@ -116,6 +122,11 @@ export function InventoryItemsTab({
 
     const handleDeleteSelected = () => {
         deleteMutation.mutate(Array.from(selectedIds));
+    };
+
+    const handleExport = (format: 'csv' | 'xlsx') => {
+        const url = `/api/inventories/${inventory.id}/items/export?format=${format}`;
+        window.open(url, '_blank');
     };
 
     const visibleCustomFields = fields?.filter((f) => f.showInTable) || [];
@@ -204,10 +215,39 @@ export function InventoryItemsTab({
                         </AlertDialog>
                     )}
                 </div>
-                <div className="text-sm text-muted-foreground px-2">
-                    {t('inventory_manage.items_tab.total_items', {
-                        count: itemsData?.total || 0,
-                    })}
+                <div className="flex items-center gap-2">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex items-center gap-2"
+                            >
+                                <Download className="size-4 shrink-0" />
+                                <span className="hidden md:inline">
+                                    {t('inventory_manage.items_tab.export')}
+                                </span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem
+                                onClick={() => handleExport('csv')}
+                            >
+                                {t('inventory_manage.items_tab.export_csv')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => handleExport('xlsx')}
+                            >
+                                {t('inventory_manage.items_tab.export_xlsx')}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <span className="text-sm text-muted-foreground px-2">
+                        {t('inventory_manage.items_tab.total_items', {
+                            count: itemsData?.total || 0,
+                        })}
+                    </span>
                 </div>
             </div>
 
