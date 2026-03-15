@@ -173,7 +173,10 @@
             "author": "Автор",
             "creation_date": "Дата создания",
             "empty_state": "В этом инвентаре пока нет записей.",
-            "loading": "Загрузка записей..."
+            "loading": "Загрузка записей...",
+            "export": "Экспорт",
+            "export_csv": "Экспорт в CSV",
+            "export_xlsx": "Экспорт в Excel (XLSX)"
         },
         "discussion_tab": {
             "loading": "Загрузка обсуждения...",

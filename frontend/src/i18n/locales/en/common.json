@@ -172,7 +172,10 @@
             "author": "Author",
             "creation_date": "Creation Date",
             "empty_state": "There are no items in this inventory yet.",
-            "loading": "Loading items..."
+            "loading": "Loading items...",
+            "export": "Export",
+            "export_csv": "Export as CSV",
+            "export_xlsx": "Export as Excel (XLSX)"
         },
         "discussion_tab": {
             "loading": "Loading discussion...",
