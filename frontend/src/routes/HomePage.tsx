@@ -83,7 +83,7 @@ export default function HomePage() {
                                 key={tag.id}
                                 onClick={() =>
                                     navigate(
-                                        `/search?q=${encodeURIComponent(tag.name)}`,
+                                        `/search?tag=${encodeURIComponent(tag.name)}`,
                                     )
                                 }
                                 style={getTagStyle(tag.count, tags)}
