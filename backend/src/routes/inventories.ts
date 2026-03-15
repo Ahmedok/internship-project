@@ -251,6 +251,19 @@ router.get('/', async (req: Request, res: Response) => {
             filterConditions.push({ category: parsedCategory.data });
         }
 
+        const tagFilter = (req.query.tag as string) || undefined;
+        if (tagFilter) {
+            filterConditions.push({
+                tags: {
+                    some: {
+                        tag: {
+                            name: tagFilter.toLowerCase(),
+                        },
+                    },
+                },
+            });
+        }
+
         const whereClause: Prisma.InventoryWhereInput =
             filterConditions.length > 0 ? { AND: filterConditions } : {};
 
