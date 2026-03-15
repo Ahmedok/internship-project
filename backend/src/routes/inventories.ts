@@ -14,6 +14,7 @@ import {
     CreateCommentSchema,
 } from '@inventory/shared';
 import { z } from 'zod';
+import exceljs from 'exceljs';
 import { io } from '../socket';
 
 const router = Router();
@@ -685,6 +686,120 @@ router.get(
         } catch (error) {
             res.status(500).json({
                 message: 'Server error while fetching items',
+            });
+        }
+    },
+);
+
+router.get(
+    '/:id/items/export',
+    async (req: Request<{ id: string }>, res: Response) => {
+        try {
+            const inventoryId = req.params.id;
+
+            const format = (
+                (req.query.format as string) || 'csv'
+            ).toLowerCase();
+            if (format !== 'csv' && format !== 'xlsx') {
+                return res.status(400).json({
+                    message: 'Invalid format. Supported formats: csv, xlsx',
+                });
+            }
+
+            const inventory = await prisma.inventory.findUnique({
+                where: { id: inventoryId },
+                select: { title: true },
+            });
+            if (!inventory) {
+                return res.status(404).json({ message: 'Inventory not found' });
+            }
+
+            const customFields = await prisma.customField.findMany({
+                where: { inventoryId },
+                orderBy: { sortOrder: 'asc' },
+            });
+
+            const items = await prisma.item.findMany({
+                where: { inventoryId },
+                include: {
+                    fieldValues: true,
+                    createdBy: { select: { name: true } },
+                },
+                orderBy: { createdAt: 'asc' },
+            });
+
+            const workbook = new exceljs.Workbook();
+            const worksheet = workbook.addWorksheet('Export');
+
+            const columns: Partial<exceljs.Column>[] = [
+                { header: 'Item ID', key: 'customId', width: 30 },
+            ];
+
+            customFields.forEach((cf) => {
+                columns.push({
+                    header: cf.title,
+                    key: `field_${cf.id}`,
+                    width: 25,
+                });
+            });
+
+            columns.push({ header: 'Author', key: 'author', width: 20 });
+            columns.push({ header: 'Created At', key: 'createdAt', width: 25 });
+
+            worksheet.columns = columns;
+
+            items.forEach((item) => {
+                const row: Record<
+                    string,
+                    string | number | boolean | Date | null
+                > = {
+                    customId: item.customId,
+                };
+                customFields.forEach((cf) => {
+                    const fv = item.fieldValues.find(
+                        (v) => v.customFieldId === cf.id,
+                    );
+                    if (!fv) {
+                        row[`field_${cf.id}`] = '';
+                        return;
+                    }
+                    if (fv.valueString !== null)
+                        row[`field_${cf.id}`] = fv.valueString;
+                    else if (fv.valueNumber !== null)
+                        row[`field_${cf.id}`] = fv.valueNumber;
+                    else if (fv.valueBoolean !== null)
+                        row[`field_${cf.id}`] = fv.valueBoolean;
+                    else row[`field_${cf.id}`] = '';
+                });
+                row.author = item.createdBy?.name ?? 'Unknown';
+                row.createdAt = item.createdAt;
+                worksheet.addRow(row);
+            });
+
+            const safeTitle = inventory.title.replace(/[^a-z0-9_\-]/gi, '_');
+            if (format === 'xlsx') {
+                res.setHeader(
+                    'Content-Type',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                );
+                res.setHeader(
+                    'Content-Disposition',
+                    `attachment; filename="${safeTitle}_export.xlsx"`,
+                );
+                await workbook.xlsx.write(res);
+            } else {
+                res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+                res.setHeader(
+                    'Content-Disposition',
+                    `attachment; filename="${safeTitle}_export.csv"`,
+                );
+                await workbook.csv.write(res);
+            }
+            res.end();
+        } catch (error) {
+            console.error('Error exporting items:', error);
+            res.status(500).json({
+                message: 'Server error while exporting items',
             });
         }
     },
