@@ -964,7 +964,6 @@ router.get(
     '/:id/comments',
     async (req: Request<{ id: string }>, res: Response) => {
         try {
-            // TODO: Standardize pagination approach across endpoints
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 20;
             const skip = (page - 1) * limit;
