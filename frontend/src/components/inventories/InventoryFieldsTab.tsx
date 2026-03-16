@@ -203,7 +203,6 @@ export function InventoryFieldsTab({ inventoryId }: { inventoryId: string }) {
             toast.success(t('inventory_manage.fields_tab.saved_success'));
         },
         onError: (error) => {
-            // TODO: Add custom message (translated)
             toast.error((error as Error).message);
         },
     });

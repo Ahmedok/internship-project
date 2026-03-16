@@ -23,7 +23,6 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        // TODO: Maybe log this to logger service if time permits
         console.error('Uncaught error:', error, errorInfo);
     }
 
