@@ -5,7 +5,7 @@ export const SupportTicketSchema = z.object({
         .string()
         .min(1, 'support.validation.required')
         .max(500, 'support.validation.max_length'),
-    priority: z.enum(['Low', 'Medium', 'High']),
+    priority: z.enum(['Low', 'Average', 'High']),
     inventory: z.string().nullable().optional(),
     link: z.string().url(),
     adminEmails: z.array(z.string().email()).optional(),
