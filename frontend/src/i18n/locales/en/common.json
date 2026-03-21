@@ -300,5 +300,21 @@
         "last_updated": "Last Updated",
         "delete_selected": "Delete selected",
         "empty_message": "No inventories found. Create your first inventory!"
+    },
+    "support": {
+        "create_ticket": "Create Support Ticket",
+        "reported_by": "Reporter",
+        "current_page": "Current Page",
+        "inventory_context": "Relevant Inventory",
+        "priority": "Priority",
+        "low": "Low",
+        "average": "Average",
+        "high": "High",
+        "summary": "Summary",
+        "summary_placeholder": "Briefly summarize the issue",
+        "submit": "Submit Ticket",
+        "submitting": "Submitting...",
+        "success": "Support ticket submitted successfully!",
+        "error": "Failed to submit support ticket."
     }
 }
