@@ -43,12 +43,17 @@ services:
             - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
             - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
             - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+            - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
             # Set to "true" for first deploy to seed demo data, then remove
             # - SEED_ON_STARTUP=true
         networks:
             - inventory_net
         healthcheck:
-            test: ['CMD-SHELL', 'wget -qO- http://localhost:5000/api/health || exit 1']
+            test:
+                [
+                    'CMD-SHELL',
+                    'wget -qO- http://localhost:5000/api/health || exit 1',
+                ]
             interval: 10s
             timeout: 5s
             retries: 3
