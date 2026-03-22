@@ -4,3 +4,4 @@ export * from './schemas/customId';
 export * from './schemas/item';
 export * from './schemas/comment';
 export * from './schemas/search';
+export * from './schemas/support';

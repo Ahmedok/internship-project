@@ -70,4 +70,28 @@ router.patch(
     },
 );
 
+router.get(
+    '/admins/emails',
+    requireAuth,
+    async (req: Request, res: Response) => {
+        try {
+            const admins = await prisma.user.findMany({
+                where: { role: 'ADMIN' },
+                select: { email: true },
+            });
+
+            const adminEmails = admins
+                .filter((a) => a.email)
+                .map((a) => a.email);
+
+            return res.status(200).json(adminEmails);
+        } catch (error) {
+            console.error('Error fetching admin emails:', error);
+            res.status(500).json({
+                error: 'Server error when fetching admin emails',
+            });
+        }
+    },
+);
+
 export default router;

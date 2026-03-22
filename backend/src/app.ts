@@ -18,6 +18,7 @@ import tagsRoutes from './routes/tags';
 import uploadRoutes from './routes/upload';
 import userRoutes from './routes/users';
 import searchRoutes from './routes/search';
+import supportRoutes from './routes/support';
 import { globalLimiter } from './middleware/rateLimiter';
 
 const pgPool = new pg.Pool({
@@ -92,5 +93,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
 
 app.use('/api/search', searchRoutes);
+
+app.use('/api/support', supportRoutes);
 
 export default app;

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { Header } from '@/components/Header';
+import { SupportTicketSheet } from '@/components/SupportTicketSheet';
 import { useAuthStore } from '@/stores/authStore';
 import { useSessionHydration } from '@/hooks/useSessionHydration';
 import { Toaster } from '@/components/ui/sonner';
@@ -20,6 +21,7 @@ export default function RootLayout() {
             <main className="flex-1 container mx-auto p-4">
                 <Outlet />
             </main>
+            <SupportTicketSheet />
             <Toaster richColors position="bottom-right" />
         </div>
     );
